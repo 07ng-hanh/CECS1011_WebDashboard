@@ -1,0 +1,21 @@
+This file is for reference purpose when building and interacting with the database
+
+TBL StockInfo (BATCH_ID, PRODUCE_ID FOREIGN ProduceInfo, BATCH_WEIGHT, BATCH_QTY, DATE_IN, DATE_OUT Nullable, ASSIGNED_ORDER_NO Nullable, DATE_EXP, IS_SHIPPED)
+TBL ProduceInfo (PRODUCE_ID, SPECIES_NAME, EXP_DATE, THRESH_TEMP_LO, THRESH_TEMP_HI, THRESH_HUMIDITY_LO, THRESH_HUMIDITY_HI, THRESH_CO2_LO, THRESH_CO2_HI)
+# We do foreign-key'ing into ProduceInfo for each row of StockInfo so we don't store duplicate data if we're keeping multiple batches of same type (since ideally, they'd have the same threshold and shelf-life)
+# We can join two tables to get all the info stored about a product at query time.
+# DATE_OUT refers to the finalized shipping date, since in real scenarios, there could be a delay between the time the order is finalized to the time the order is shipped.
+# ASSIGNED_ORDER_NO refers to the ID of the order that we're shipping the product to.
+# DATE_OUT and ASSIGNED_ORDER_NO are Nullable since we don't know these information yet when we first import the batch into our warehouse. We only know it when these batches are selected for a shipping order.
+# Every date info in this document will be stored in the 64-bit signed integer UNIX timestamp, prorated to the seconds, in UTC time
+# When represented in the frontend, the UTC time stamp should be converted back to whatever time stamp the viewing device is in, in our region, it's UTC minus 7.
+
+TBL EnvironmentReading (TIMESTAMP, TEMPERATURE, CO2, HUMIDITY)
+
+TBL ExportOrder (ORDER_ID, DEPARTURE_PORT_NAME, DEPARTURE_PORT_LAT, DEPARTURE_PORT_LON, DESTINATION_PORT_NAME, DESTINATION_PORT_LAT, DESTINATURE_PORT_LON, DEPARTURE_DAY, STATUS ("pending", "finalized", "shipped"))
+# Base on the information above, we can use an estimation algorithm (i.e. Great Circle Distance) to get the roughly estimated time needed to travel
+# Thus, we can obtain which batch we should put onto this order
+# If we're lucky, we can get access to the Dataloy API, which gives much more accurate estimation
+
+TBL Users (USERNAME, PASSWORD_HASH, ISADMIN)
+# This does not need much explanation.
