@@ -1,0 +1,88 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="annotated-types" />
+          <option value="anyio" />
+          <option value="blis" />
+          <option value="catalogue" />
+          <option value="certifi" />
+          <option value="charset-normalizer" />
+          <option value="click" />
+          <option value="cloudpathlib" />
+          <option value="coloredlogs" />
+          <option value="confection" />
+          <option value="cymem" />
+          <option value="fastapi" />
+          <option value="filelock" />
+          <option value="flatbuffers" />
+          <option value="fsspec" />
+          <option value="gliner" />
+          <option value="h11" />
+          <option value="hf-xet" />
+          <option value="huggingface-hub" />
+          <option value="humanfriendly" />
+          <option value="idna" />
+          <option value="Jinja2" />
+          <option value="langcodes" />
+          <option value="language_data" />
+          <option value="marisa-trie" />
+          <option value="markdown-it-py" />
+          <option value="MarkupSafe" />
+          <option value="mdurl" />
+          <option value="mpmath" />
+          <option value="murmurhash" />
+          <option value="networkx" />
+          <option value="numpy" />
+          <option value="onnxruntime" />
+          <option value="packaging" />
+          <option value="pillow" />
+          <option value="preshed" />
+          <option value="protobuf" />
+          <option value="pydantic" />
+          <option value="pydantic_core" />
+          <option value="Pygments" />
+          <option value="PyYAML" />
+          <option value="regex" />
+          <option value="requests" />
+          <option value="rich" />
+          <option value="safetensors" />
+          <option value="sentencepiece" />
+          <option value="setuptools" />
+          <option value="shellingham" />
+          <option value="smart_open" />
+          <option value="sniffio" />
+          <option value="spacy" />
+          <option value="spacy-legacy" />
+          <option value="spacy-loggers" />
+          <option value="srsly" />
+          <option value="starlette" />
+          <option value="sympy" />
+          <option value="thinc" />
+          <option value="tokenizers" />
+          <option value="torch" />
+          <option value="torchvision" />
+          <option value="tqdm" />
+          <option value="transformers" />
+          <option value="typer" />
+          <option value="typing-inspection" />
+          <option value="typing_extensions" />
+          <option value="urllib3" />
+          <option value="uvicorn" />
+          <option value="wasabi" />
+          <option value="weasel" />
+          <option value="wrapt" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
+      <option name="processCode" value="true" />
+      <option name="processLiterals" value="true" />
+      <option name="processComments" value="true" />
+    </inspection_tool>
+    <inspection_tool class="SqlNoDataSourceInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+  </profile>
+</component>
