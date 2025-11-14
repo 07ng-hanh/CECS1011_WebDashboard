@@ -36,4 +36,4 @@ NOTE: The initial database structure has been implemented. No foreign key assign
 Update 2: All columns keeping temperature, CO2 density and humidity
 readings/min/max are configured as FLOAT4 to store floating-point data of up to 6-point precision.
 
-
+14/11/2025: Designing DB done!
