@@ -1,7 +1,9 @@
 This file is for reference purpose when building and interacting with the database
 
-TBL StockInfo (BATCH_ID, PRODUCE_ID FOREIGN ProduceInfo, BATCH_WEIGHT, BATCH_QTY, DATE_IN, DATE_OUT Nullable, ASSIGNED_ORDER_NO Nullable, DATE_EXP, IS_SHIPPED)
-TBL ProduceInfo (PRODUCE_ID, SPECIES_NAME, EXP_DATE, THRESH_TEMP_LO, THRESH_TEMP_HI, THRESH_HUMIDITY_LO, THRESH_HUMIDITY_HI, THRESH_CO2_LO, THRESH_CO2_HI)
+TBL BatchInfo (BATCH_ID, PRODUCE_ID FOREIGN ProduceInfo, BATCH_WEIGHT, BATCH_QTY, DATE_IN, DATE_OUT Nullable, ASSIGNED_ORDER_NO Nullable, DATE_EXP, IS_IN_WAREHOUSE)
+TBL ProduceInfo (PRODUCE_ID, HARVEST_TYPE_NAME, SHELF_LIFE, THRESH_TEMP_LO, THRESH_TEMP_HI, THRESH_HUMIDITY_LO, THRESH_HUMIDITY_HI, THRESH_CO2_LO, THRESH_CO2_HI)
+# Timestamp unit will be in seconds, since we don't need to do operations at the millisecond level (best we'd do is to the date level), and second is one of the two units of the unix timestamp.
+# Note: rename exp_date to shelf_life. shelf_life's unit should be the same as the timestamp, in this case, seconds, for ease of calculation (avoiding having to convert from one unit to another when checking expiry date)
 # We do foreign-key'ing into ProduceInfo for each row of StockInfo so we don't store duplicate data if we're keeping multiple batches of same type (since ideally, they'd have the same threshold and shelf-life)
 # We can join two tables to get all the info stored about a product at query time.
 # DATE_OUT refers to the finalized shipping date, since in real scenarios, there could be a delay between the time the order is finalized to the time the order is shipped.
@@ -9,7 +11,7 @@ TBL ProduceInfo (PRODUCE_ID, SPECIES_NAME, EXP_DATE, THRESH_TEMP_LO, THRESH_TEMP
 # DATE_OUT and ASSIGNED_ORDER_NO are Nullable since we don't know these information yet when we first import the batch into our warehouse. We only know it when these batches are selected for a shipping order.
 # Every date info in this document will be stored in the 64-bit signed integer UNIX timestamp, prorated to the seconds, in UTC time
 # When represented in the frontend, the UTC time stamp should be converted back to whatever time stamp the viewing device is in, in our region, it's UTC minus 7.
-
+# IS_SHIPPED property is now changed to IS_IN_WAREHOUSE - this accounts for the situations where a batch has to leave the warehouse due to past-expiry disposal, shipping, and lots more case. Simply put, this column name generalizes better.
 TBL EnvironmentReading (TIMESTAMP, TEMPERATURE, CO2, HUMIDITY)
 
 TBL ExportOrder (ORDER_ID, DEPARTURE_PORT_NAME, DEPARTURE_PORT_LAT, DEPARTURE_PORT_LON, DESTINATION_PORT_NAME, DESTINATION_PORT_LAT, DESTINATURE_PORT_LON, DEPARTURE_DAY, STATUS ("pending", "finalized", "shipped"))
@@ -19,3 +21,19 @@ TBL ExportOrder (ORDER_ID, DEPARTURE_PORT_NAME, DEPARTURE_PORT_LAT, DEPARTURE_PO
 
 TBL Users (USERNAME, PASSWORD_HASH, ISADMIN)
 # This does not need much explanation.
+
+# Deciding datatype
+- 64-bit integers are designated for timestamp (stored as UNIX timestamp, since such values can be large in the future, and 32-bit timestamp would have a hard limit at year 2038, Jan 19)
+- Why not going all in 64-bit integers for other numeric data (IDs and so on?) For such cases, 32-bit integers are more storage-efficient, and we postulate that there wouldn't be a need for tracking more than 2 billion batch codes/user IDs/etc.
+16-bit integers can be even more efficient, but risks running out of range sooner (32,767 is the limit max for such numbers)
+-> 32-bit ints are the middle ground (2x as space-efficient as 64-bit ints, but still guarantee a safe theoretical limit)
+
+- Why not UUID?
+Simply put, UUID takes up more space (it's longer, and made up of characters - not numbers), requires a strategy to avoid duplicate data (we can't just blindly roll a random sequence here - it might repeat itself). Also, sequential INT4 is faster for indexing (due to DB-level optimizations), instead of a bunch of randomly placed UUID strings.
+
+NOTE: The initial database structure has been implemented. No foreign key assignment yet.
+
+Update 2: All columns keeping temperature, CO2 density and humidity
+readings/min/max are configured as FLOAT4 to store floating-point data of up to 6-point precision.
+
+

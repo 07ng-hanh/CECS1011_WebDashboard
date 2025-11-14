@@ -17,6 +17,14 @@ pgpool = psycopg_pool.ThreadedConnectionPool(minconn=5, maxconn=60, user=os.gete
 # Mount the web dashboard interface
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+@app.post("/session")
+async def create_session():
+    pass
+
+@app.delete("/session")
+async def revoke_session():
+    pass
+
 @app.get("/")
 async def reroute_to_dashboard_ui():
     """
