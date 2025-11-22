@@ -1,10 +1,18 @@
 import os
 from http import HTTPStatus
+from pydoc import HTMLRepr
 
+import glide
+from fastapi.params import Depends
+from starlette.responses import HTMLResponse
 
+from routes.users import rt as users_api_route
+import dependency_injection as di
+from dependency_injection import get_vk, get_pgpool
 import argon2.exceptions
 import asyncpg.pool
 import uvicorn
+# from dependency_injection import vk1, pgpool
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
@@ -35,37 +43,47 @@ app = FastAPI()
 # argon2 password hasher with optimal settings
 passwordHasher = PasswordHasher(memory_cost=64, time_cost=3, parallelism=1 )
 
-# Set up database connection
-# pgpool = psycopg_pool.ThreadedConnectionPool(minconn=5, maxconn=60, user=os.getenv("PG_USER"), password=os.getenv("PG_PASSWORD"), host=os.getenv("PG_HOST"), port=os.getenv("PG_PORT"), database=os.getenv("PG_DATABASE"))
 # Mount the web dashboard interface
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-vk1: GlideClient = None
-pgpool: asyncpg.pool.Pool = None
 # Initialize DB and session storage
 @app.on_event("startup")
 async def startup_event():
-    global vk1, pgpool
+    # assign new valkey client and database pool directly to dependency_injection.py globals
+    # this allows FastAPI's Dependency Injection to expose those things in routes
+    import dependency_injection as di
+    # global vk1, pgpool
     # Connect to session cache
     vk1_conf = GlideClientConfiguration([NodeAddress("0.0.0.0", 6379)], request_timeout=1000)
-    vk1 = await GlideClient.create(vk1_conf)
+    di.vk1 = await GlideClient.create(vk1_conf)
 
     # Connect to DB
-    pgpool = await asyncpg.create_pool(f"postgres://{os.getenv("PG_USER")}:{os.getenv("PG_PASSWORD")}@{os.getenv("PG_HOST")}:{os.getenv("PG_PORT")}/{os.getenv("PG_DATABASE")}", min_size=5, max_size=30)
+    di.pgpool = await asyncpg.create_pool(f"postgres://{os.getenv("PG_USER")}:{os.getenv("PG_PASSWORD")}@{os.getenv("PG_HOST")}:{os.getenv("PG_PORT")}/{os.getenv("PG_DATABASE")}", min_size=5, max_size=30)
+
+    app.include_router(users_api_route, prefix="/api/users")
+
 
 # Session Checker Middleware
 @app.middleware("http")
 async def check_session_validity(request: Request, call_next):
 
+    vk1 = await get_vk()
     # If the request targets /api endpoints or /admin endpoints, check cookie against server store for validity
     if request.url.path.startswith("/api") or request.url.path.startswith("/admin"):
-        sent_cookie_token = request.cookies["sessionID"]
-        username = request.cookies["username"]
+        sent_cookie_token = request.cookies.get("sessionID")
+
+        # No session cookie, no proceeding
+        if sent_cookie_token == None:
+
+            return RedirectResponse("/static/session_invalid.html", status_code=HTTPStatus.SEE_OTHER)
+
+        username = request.cookies.get("username")
         # Check if the key is valid AND the user owns that key
         # For invalid or expired ttl-bound keys, valkey returns a value <= 0.
         if (await vk1.ttl(sent_cookie_token)) <= 0 and (await vk1.get(sent_cookie_token)) == username:
             # Reject access and redirect to Session Expired page
-            return RedirectResponse("/static/session_invalid.html")
+
+            return RedirectResponse("/static/session_invalid.html", status_code=HTTPStatus.SEE_OTHER)
         else:
             if request.url.path.startswith("/admin"):
                 # Check against DB if user is really admin before granting access to admin APIs
@@ -77,7 +95,7 @@ async def check_session_validity(request: Request, call_next):
                 #         return await call_next(request)
                 #     else:
                 #         return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
-
+                pgpool = await get_pgpool()
                 async with pgpool.acquire() as con:
                     is_admin = await con.fetchval("select is_admin from users where username = $1", username, )
                     if is_admin:
@@ -97,7 +115,8 @@ async def check_session_validity(request: Request, call_next):
 
 
 @app.post("/session")
-async def create_session(credentials: Credentials, response: Response):
+async def create_session(credentials: Credentials, response: Response, vk1 = Depends(get_vk), pgpool = Depends(get_pgpool)):
+    print(type(pgpool), type(vk1))
     async with pgpool.acquire() as con:
         # Get the provided credentials and compare them to the one in the database via hashing
 
@@ -148,8 +167,6 @@ async def create_session(credentials: Credentials, response: Response):
         except argon2.exceptions.VerifyMismatchError:
             return JSONResponse({"status": "failed"}, HTTPStatus.UNAUTHORIZED)
 
-
-
 @app.get("/")
 async def reroute_to_dashboard_ui():
     """
@@ -157,5 +174,8 @@ async def reroute_to_dashboard_ui():
     Otherwise, redirect to the login page
     """
     return RedirectResponse("/static/login.html")
+
+
+
 # Run the app
 uvicorn.run(app)
