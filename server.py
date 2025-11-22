@@ -1,13 +1,17 @@
 import os
 from http import HTTPStatus
-from http.client import responses
+
 
 import argon2.exceptions
-import fastapi
+import asyncpg.pool
 import uvicorn
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
-import psycopg2.pool as psycopg_pool
+
+# use asyncpg instead of psycopg2 to prevent event loop blocking when doing DB calls
+# import psycopg2.pool as psycopg_pool
+import asyncpg
+
 import dotenv
 from argon2 import PasswordHasher
 from fastapi.responses import JSONResponse
@@ -26,26 +30,32 @@ dotenv.load_dotenv("private.env")
 #TODO: Change to True in production dotenv
 secure_cookie = True if os.getenv("SECURE_COOKIE") == "true" else False
 session_exp = 2 * 60 * 60
-# Load session cache
-vk1_conf = GlideClientConfiguration([NodeAddress("0.0.0.0", 6379)], request_timeout=1000)
-vk1 = None
+
 app = FastAPI()
 # argon2 password hasher with optimal settings
 passwordHasher = PasswordHasher(memory_cost=64, time_cost=3, parallelism=1 )
 
 # Set up database connection
-pgpool = psycopg_pool.ThreadedConnectionPool(minconn=5, maxconn=60, user=os.getenv("PG_USER"), password=os.getenv("PG_PASSWORD"), host=os.getenv("PG_HOST"), port=os.getenv("PG_PORT"), database=os.getenv("PG_DATABASE"))
-
+# pgpool = psycopg_pool.ThreadedConnectionPool(minconn=5, maxconn=60, user=os.getenv("PG_USER"), password=os.getenv("PG_PASSWORD"), host=os.getenv("PG_HOST"), port=os.getenv("PG_PORT"), database=os.getenv("PG_DATABASE"))
 # Mount the web dashboard interface
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+vk1: GlideClient = None
+pgpool: asyncpg.pool.Pool = None
+# Initialize DB and session storage
+@app.on_event("startup")
+async def startup_event():
+    global vk1, pgpool
+    # Connect to session cache
+    vk1_conf = GlideClientConfiguration([NodeAddress("0.0.0.0", 6379)], request_timeout=1000)
+    vk1 = await GlideClient.create(vk1_conf)
+
+    # Connect to DB
+    pgpool = await asyncpg.create_pool(f"postgres://{os.getenv("PG_USER")}:{os.getenv("PG_PASSWORD")}@{os.getenv("PG_HOST")}:{os.getenv("PG_PORT")}/{os.getenv("PG_DATABASE")}", min_size=5, max_size=30)
 
 # Session Checker Middleware
 @app.middleware("http")
 async def check_session_validity(request: Request, call_next):
-
-    global vk1
-    if vk1 == None:
-        vk1 = await GlideClient.create(vk1_conf)
 
     # If the request targets /api endpoints or /admin endpoints, check cookie against server store for validity
     if request.url.path.startswith("/api") or request.url.path.startswith("/admin"):
@@ -60,9 +70,16 @@ async def check_session_validity(request: Request, call_next):
             if request.url.path.startswith("/admin"):
                 # Check against DB if user is really admin before granting access to admin APIs
                 # if yes, pass on, else, reject
-                with pgpool.getconn().cursor() as cur:
-                    cur.execute("select is_admin from users where username = %s", (username,))
-                    is_admin = cur.fetchone()[0]
+                # async with pgpool.acquire() as cur:
+                #     await cur.("select is_admin from users where username = %s", (username,))
+                #     is_admin = cur.fetchone()[0]
+                #     if is_admin:
+                #         return await call_next(request)
+                #     else:
+                #         return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
+
+                async with pgpool.acquire() as con:
+                    is_admin = await con.fetchval("select is_admin from users where username = $1", username, )
                     if is_admin:
                         return await call_next(request)
                     else:
@@ -81,10 +98,13 @@ async def check_session_validity(request: Request, call_next):
 
 @app.post("/session")
 async def create_session(credentials: Credentials, response: Response):
-    with pgpool.getconn().cursor() as cur:
+    async with pgpool.acquire() as con:
         # Get the provided credentials and compare them to the one in the database via hashing
-        cur.execute("select password_hash, is_admin from users where username = %s", (credentials.username, ))
-        correct_p_hash, is_admin = cur.fetchone()
+
+        db_return = await con.fetchrow("select password_hash, is_admin from users where username = $1", credentials.username)
+        if db_return == None:
+            return JSONResponse({"status": "failed"}, HTTPStatus.UNAUTHORIZED)
+        correct_p_hash, is_admin = db_return
         try:
             # If the password and the hash matches, issue a session cookie that lasts until the browser is closed.
             # Otherwise, handle the exception raised by PasswordHasher
