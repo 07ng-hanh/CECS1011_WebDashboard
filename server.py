@@ -7,6 +7,7 @@ from fastapi.params import Depends
 from starlette.responses import HTMLResponse
 
 from routes.users import rt as users_api_route
+from routes.admin import rt as admin_api_route
 import dependency_injection as di
 from dependency_injection import get_vk, get_pgpool
 import argon2.exceptions
@@ -61,6 +62,7 @@ async def startup_event():
     di.pgpool = await asyncpg.create_pool(f"postgres://{os.getenv("PG_USER")}:{os.getenv("PG_PASSWORD")}@{os.getenv("PG_HOST")}:{os.getenv("PG_PORT")}/{os.getenv("PG_DATABASE")}", min_size=5, max_size=30)
 
     app.include_router(users_api_route, prefix="/api/users")
+    app.include_router(admin_api_route, prefix="/admin")
 
 
 # Session Checker Middleware
@@ -69,45 +71,52 @@ async def check_session_validity(request: Request, call_next):
 
     vk1 = await get_vk()
     # If the request targets /api endpoints or /admin endpoints, check cookie against server store for validity
-    if request.url.path.startswith("/api") or request.url.path.startswith("/admin"):
+    if request.url.path.startswith("/api"):
         sent_cookie_token = request.cookies.get("sessionID")
 
         # No session cookie, no proceeding
         if sent_cookie_token == None:
-
             return RedirectResponse("/static/session_invalid.html", status_code=HTTPStatus.SEE_OTHER)
 
         username = request.cookies.get("username")
         # Check if the key is valid AND the user owns that key
         # For invalid or expired ttl-bound keys, valkey returns a value <= 0.
-        if (await vk1.ttl(sent_cookie_token)) <= 0 and (await vk1.get(sent_cookie_token)) == username:
+        if (await vk1.ttl(sent_cookie_token)) <= 0 or (await vk1.get(sent_cookie_token)).decode() != username:
             # Reject access and redirect to Session Expired page
-
             return RedirectResponse("/static/session_invalid.html", status_code=HTTPStatus.SEE_OTHER)
         else:
-            if request.url.path.startswith("/admin"):
-                # Check against DB if user is really admin before granting access to admin APIs
-                # if yes, pass on, else, reject
-                # async with pgpool.acquire() as cur:
-                #     await cur.("select is_admin from users where username = %s", (username,))
-                #     is_admin = cur.fetchone()[0]
-                #     if is_admin:
-                #         return await call_next(request)
-                #     else:
-                #         return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
-                pgpool = await get_pgpool()
-                async with pgpool.acquire() as con:
-                    is_admin = await con.fetchval("select is_admin from users where username = $1", username, )
-                    if is_admin:
-                        return await call_next(request)
-                    else:
-                        return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
-            else:
-                # Not requesting admin API access - can pass to the actual request
-                # For each server-side request, we reset the inactivity timeout.
-                # await vk1.setex("sessionID", session_exp, sent_cookie_token)
-                await vk1.set(sent_cookie_token, username, conditional_set=None, expiry=ExpirySet(ExpiryType.SEC, session_exp))
-                return await call_next(request)
+            # Not requesting admin API access - can pass to the actual request
+            # For each server-side request, we reset the inactivity timeout.
+            # await vk1.setex("sessionID", session_exp, sent_cookie_token)
+            await vk1.set(sent_cookie_token, username, conditional_set=None, expiry=ExpirySet(ExpiryType.SEC, session_exp))
+            return await call_next(request)
+
+    # Fix a bug where the admin endpoint cant be accessed because the program was looking for both adminID and sessionID, the latter of which aren't sent with requests to admin APIs.
+    elif request.url.path.startswith("/admin"):
+        sent_cookie_token = request.cookies.get("adminID")
+
+        # No session cookie, no proceeding
+        if sent_cookie_token == None:
+            # Since this is to block non-admins from accessing admin features, there's no point in showing the "Session Invalid/Expired" Screen here.
+            return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
+
+        username = request.cookies.get("username")
+        # Check if the key is valid AND the user owns that key
+        # For invalid or expired ttl-bound keys, valkey returns a value <= 0.
+        if (await vk1.ttl(sent_cookie_token)) <= 0 or (await vk1.get(sent_cookie_token)).decode() != username:
+            # Reject access and redirect to Session Expired page
+            return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
+        else:
+            # Check with database if it's actual administrator.
+
+            pgpool = await get_pgpool()
+            async with pgpool.acquire() as con:
+                is_admin = await con.fetchval("select is_admin from users where username = $1", username, )
+                if is_admin:
+                    return await call_next(request)
+                else:
+                    return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
+
 
     else:
         # DO NOT capture other requests (for login, dashboard html, etc.)

@@ -4,8 +4,9 @@ from fastapi.params import Depends
 from fastapi import APIRouter
 from fastapi.responses import Response
 from fastapi.requests import Request
-
 from dependency_injection import get_pgpool, get_vk
+
+
 
 rt = APIRouter()
 
@@ -13,9 +14,9 @@ rt = APIRouter()
 async def log_out(request: Request, response: Response, vk: glide.GlideClient = Depends(get_vk)):
     # Remove session from valkey
     sessionID = request.cookies.get("sessionID")
-    print(sessionID)
 
-    await vk.delete(sessionID)
+    await vk.delete([sessionID])
+    # print(d)
     try:
         response.delete_cookie("sessionID", path="/api")
         response.delete_cookie("username", path="/")

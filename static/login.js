@@ -7,5 +7,8 @@ function run_login_flow() {
 
 function toggle_password_visibility() {
     let e = document.getElementById("password")
+    let d = document.getElementById("show-password-toggle")
+
     e.type = e.type == "password" ? "text" : "password"
+    d.innerText = e.type == "password" ? "Show" : "Hide"
 }
