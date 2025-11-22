@@ -4,3 +4,4 @@ from argon2 import PasswordHasher
 # argon2 password hasher with optimal settings
 pwdHash = PasswordHasher(memory_cost=64, time_cost=3, parallelism=1 )
 print(pwdHash.hash("admin::admin123"))
+print(pwdHash.verify(pwdHash.hash("admin::admin123"), "admin::admin123"))
