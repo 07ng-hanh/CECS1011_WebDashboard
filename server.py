@@ -65,7 +65,7 @@ async def startup_event():
     app.include_router(admin_api_route, prefix="/admin")
 
 
-# Session Checker Middleware
+# Session Checker Middleware for APIs
 @app.middleware("http")
 async def check_session_validity(request: Request, call_next):
 
@@ -117,7 +117,6 @@ async def check_session_validity(request: Request, call_next):
                 else:
                     return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
 
-
     else:
         # DO NOT capture other requests (for login, dashboard html, etc.)
         return await call_next(request)
@@ -142,7 +141,7 @@ async def create_session(credentials: Credentials, response: Response, vk1 = Dep
                 response.set_cookie(
                     key="sessionID",
                     value= cookie_token,
-                    path="/api",
+                    path="/",
                     secure=secure_cookie,
                     httponly=True,
                     samesite="strict",
@@ -177,14 +176,24 @@ async def create_session(credentials: Credentials, response: Response, vk1 = Dep
             return JSONResponse({"status": "failed"}, HTTPStatus.UNAUTHORIZED)
 
 @app.get("/")
-async def reroute_to_dashboard_ui():
+async def reroute_to_dashboard_ui(request: Request, vk1: glide.GlideClient = Depends(get_vk)):
     """
     If the session cookie is present, redirect user to dashboard or admin page.
     Otherwise, redirect to the login page
     """
-    return RedirectResponse("/static/login.html")
 
+    # Check session validity
+    # If session is valid, redirect straight to dashboard
 
+    uid = request.cookies.get("sessionID")
+    print(uid, request.cookies.get("sessionID"))
+    if not uid:
+        return RedirectResponse("/static/login.html")
+
+    if (await vk1.get(uid)).decode() == request.cookies.get("username") and (await vk1.ttl(uid)) > 0:
+        return RedirectResponse("/static/dashboard.html")
+    else:
+        return RedirectResponse("/static/login.html")
 
 # Run the app
 uvicorn.run(app)
