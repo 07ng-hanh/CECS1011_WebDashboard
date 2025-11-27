@@ -57,11 +57,82 @@ input[type='password'] {
     .metrics-board {
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
+
+    .entry-card-action-btn {
+        display: flex; flex-direction: column; gap: 10px
+    }
+
+    .entry-card {
+            align-items: center;
+    }
 }
 
 @media screen and (max-width: 740px) {
     .metrics-board {
         grid-template-columns: 1fr 1fr;
     }
+    .entry-card-action-btn {
+        right: 0;
+        display: flex; flex-direction: row; gap: 10px;
+    }
+
+    .entry-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .entry-card-img {
+        display: none;
+    }
 
 }
+
+.card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: absolute;
+    top:150px;
+    padding: 10px;
+    padding-top: 0px;
+    width: 100%;
+}
+
+.entry-card {
+    display: flex;
+    width: 100%;
+    gap:10px;
+    border-radius: 10px;
+    border: 1px solid lightgray;
+    padding: 10px;
+
+}
+
+.card-info-entry {
+    margin-bottom: 0px;
+}
+
+.card-info {
+    flex-grow: 1;
+}
+
+.accented-indicator {
+    color: var(--primary)
+}
+
+.accented-green {
+    color: var(--green)
+}
+
+.accented-purple {
+    color: var(--purple);
+}
+
+.accented-danger {
+    color: var(--danger)
+}
+
+.hidden {
+    display: none;
+}
+

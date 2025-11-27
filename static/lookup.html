@@ -10,7 +10,7 @@
 </head>
 <body>
 <!--    Lookup filter -->
-    <div style="padding: 10px; gap: 10px; display: flex; flex-direction: column;">
+    <div style="padding: 10px; gap: 10px; display: flex; flex-direction: column; position: fixed; top: 0px; width: 100%; background: white">
         <label for="produce-name" class="form-label">Search for batches</label>
 
         <div style="display: grid; gap: 10px; grid-template-columns: 2fr 1fr 1fr">
@@ -36,31 +36,36 @@
     </div>
 
 <!--Lookup result -->
-    <div style="padding: 10px; padding-top: 0px; margin-top: 0px; width: 100%; overflow-x:scroll">
-        <table class="table table-striped" style="font-size: 1rem;">
-            <tr>
-                <th>#</th>
-                <th>Produce type</th>
-                <th>Quantity</th>
-                <th>Weight</th>
-                <th>Import Date</th>
-                <th>Shelf life</th>
-                <th>Status</th>
+<!-- Use list of cards for optimized information representation on both mobile and widescreen devices -->
+    <div class="card-container">
+        <div class="entry-card">
+            <img class="entry-card-img" width="100px" height="100px" src="https://placehold.co/100">
+            <div class="card-info">
+                <b id="batch-name-and-id">#000000 Produce-Name (500 pcs)</b>
+                <p class="card-info-entry"> <span class="card-entry-label">Weight:</span> <b id="weight-counter">-- kg</b> </p>
+                <p class="card-info-entry"> <span class="card-entry-label">Harvest At:</span> <b id="import-date-entry">DD-MM-YYYY HH:MM:SS</b> </p>
+                <p class="card-info-entry"> <span class="card-entry-label">Shelf Life Remaining:</span> <b class="accented-indicator" id="shelf-life-remaining">-- days</b> </p>
 
-            </tr>
+                <!-- Different Status Indicators-->
+                <!-- When dealing with real data, only one of those shows at the same time -->
+                <p class="card-info-entry"> <span class="card-entry-label">Status:</span>
+                    <b id="stat-available" class="accented-indicator hidden">Available</b>
+                    <b id="stat-marked" class="accented-purple hidden">Marked for export <span id="order-and-place">to PlaceA (order 000000)</span></b>
+                    <b id="stat-discarded" class="accented-danger hidden">Discarded (reason: <span id="discard-reason">discard-reason</span></b>
+                    <b id="stat-exported" class="accented-green">Exported <span id="exp-order-and-place">to PlaceA (order 000000)</span></b>
+                </p>
 
-            <tr>
-                <td>--</td>
-                <td>--</td>
-                <td>--</td>
-                <td>--</td>
-                <td>--</td>
-                <td>--</td>
-                <td>--</td>
-            </tr>
+            </div>
+            <div class="entry-card-action-btn">
+                <button class="btn btn-outline-primary">Export</button>
+                <button class="btn btn-outline-primary">Suggest route</button>
+                <button class="btn btn-outline-danger">Discard</button>
+            </div>
 
-        </table>
+        </div>
+
     </div>
+
 
 </body>
 </html>
