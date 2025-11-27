@@ -9,17 +9,19 @@
 </head>
 <body>
 <!--    Lookup filter -->
-    <div style="padding: 10px; gap: 10px; display: flex; flex-direction: column; position: fixed; top: 0px; width: 100%; background: white">
+    <div style="padding: 10px; gap: 10px; display: flex; flex-direction: column; position: fixed; top: 0px; width: 100%; background: white; z-index: 10">
         <span style="display: flex; align-items: center; gap: 10px">
             <button class="btn btn-secondary" onclick="window.location.href = 'dashboard.html'">X</button>
-            <label style="margin-bottom: 0px" for="produce-name" class="form-label"><b>Search for batches</b></label>
+            <label style="margin-bottom: 0px" for="produce-name" class="form-label"><b>Warehouse Search</b></label>
         </span>
 
-        <div style="display: grid; gap: 10px; grid-template-columns: 2fr 1fr 1fr">
+        <div class="lookup-top-bar">
         <input class="form-control" style="width: 100%" name="produce-name" id="produce-name" placeholder="Produce Name or Batch ID" list="produce-list">
         <datalist id="produce-list">
                 <!-- TODO: Programmatically set produce list here-->
         </datalist>
+                        <input id="exp-date" type="number" class="form-control" placeholder="Max. shelf life (days)" >
+
             <select id="status-dropdown" class="form-control">
                 <option value="">Any Status</option>
                 <option value="pending">Available</option>
@@ -28,7 +30,16 @@
                 <option value="finalized">Discarded</option>
 
             </select>
-            <input id="exp-date" type="number" class="form-control" placeholder="Max. shelf life (days)" >
+            <select id="sort-dropdown" class="form-control">
+                <option value="">Sort by</option>
+                <option value="batchID">Batch ID</option>
+                <option value="produceID">Produce ID</option>
+                <option value="weight">Weight</option>
+                <option value="weight">Quantity</option>
+                <option value="harvestTime">Harvest Date/Time</option>
+                <option value="harvestTime">Remaining Shelf Life</option>
+
+            </select>
         </div>
         <div style="display: grid; grid-template-columns: 1fr; gap: 10px">
             <button class="btn btn-primary" id="search">Search</button>
