@@ -14,12 +14,19 @@
     <div class="top-bar">
         <p>Username</p>
         <div style="display: flex; gap: 10px">
+            <button class="btn btn-secondary">Settings</button>
             <button class="btn btn-danger">Log out</button>
         </div>
+
     </div>
 
     <!-- metrics -->
-    <div class="metrics-board">
+    <div>
+        <div style="height: 50px">
+            <p>&nbsp;</p>
+        </div>
+            <div class="metrics-board">
+
         <div class="gauge">
             <p>Temperature</p>
             <h2>-- &degC</h2>
@@ -38,6 +45,8 @@
             <h2>--</h2>
         </div>
     </div>
+    </div>
+
 
 <!--    Warning banners-->
     <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow-y: scroll">
@@ -98,9 +107,6 @@
             </button>
             <button class="btn btn-outline-primary">
                 Sensor History
-            </button>
-             <button class="btn btn-outline-secondary">
-                Admin Panel
             </button>
         </div>
     </div>

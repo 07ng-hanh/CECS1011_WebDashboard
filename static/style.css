@@ -34,6 +34,7 @@ input[type='password'] {
 }
 
 .top-bar {
+    z-index: 10;
     width: 100%;
     box-shadow: #0c13212d 0px 0px 5px 5px;
     padding: 5px;
@@ -50,6 +51,7 @@ input[type='password'] {
 }
 
 .metrics-board {
+
     gap: 10px;
     padding: 10px;
     display: grid;
