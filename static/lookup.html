@@ -5,7 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Warehouse Search</title>
     <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.7/awesomplete.min.css" integrity="sha512-YKJCE4m/eXP9bG0UEQp6Y4It4J1byWp9gN4vxtD4QHuUm26JV7D2Vue2CDrBjQvcRy3mKxlwgrGV+d4j7EZB8Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.7/awesomplete.min.js" integrity="sha512-Pc3/aEr2FIVZhHxe0RAC9SFrd+pxBJHN3pNJfJNTKc2XAFnXUjgQGIh6X935ePSXNMN6rFa3yftxSnZfJE8ZAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        <!-- Make Awesomeplete autocomplete bubble open on product search box focused -->
+        let lst = []
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            let produce_name_inputbox = document.getElementById("produce-name")
+            console.log(produce_name_inputbox)
+            let produce_name_autocomplete =  new Awesomplete(produce_name_inputbox, {
+                minChars: 0,
+                maxItems: 15,
+                list: lst
+            })
+            console.log(produce_name_autocomplete)
+            produce_name_autocomplete.evaluate()
+            produce_name_autocomplete.close()
+            produce_name_inputbox.addEventListener("focus", () => {
+                console.log("focused")
+                produce_name_autocomplete.open()
+            })
+
+        })
+
+
+
+
+    </script>
 </head>
 <body>
 <!--    Lookup filter -->
@@ -16,11 +45,8 @@
         </span>
 
         <div class="lookup-top-bar">
-        <input class="form-control" style="width: 100%" name="produce-name" id="produce-name" placeholder="Produce Name or Batch ID" list="produce-list">
-        <datalist id="produce-list">
-                <!-- TODO: Programmatically set produce list here-->
-        </datalist>
-                        <input id="exp-date" type="number" class="form-control" placeholder="Max. shelf life (days)" >
+            <input class="form-control" style="width: 100%" name="produce-name" id="produce-name" placeholder="Produce Name or Batch ID">
+            <input id="exp-date" type="number" class="form-control" placeholder="Max. shelf life (days)" >
 
             <select id="status-dropdown" class="form-control">
                 <option value="">Any Status</option>
