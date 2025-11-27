@@ -1,0 +1,30 @@
+* {
+    font-family: sans-serif;
+}
+
+button {
+
+    font-size: 1rem;
+    background-color: white;
+    border: 1px solid;
+    border-radius: 5px;
+    color: dodgerblue;
+    padding: 10px;
+
+
+}
+
+input[type='text'] {
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid lightgray;
+}
+
+input[type='password'] {
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid lightgray;
+}
+
+
+

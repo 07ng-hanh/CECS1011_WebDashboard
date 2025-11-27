@@ -71,25 +71,27 @@ async def check_session_validity(request: Request, call_next):
 
     vk1 = await get_vk()
     # If the request targets /api endpoints or /admin endpoints, check cookie against server store for validity
-    if request.url.path.startswith("/api"):
+    if request.url.path.startswith("/api") or (request.url.path.startswith("/static") and not request.url.path.startswith("/static/login")):
         sent_cookie_token = request.cookies.get("sessionID")
 
         # No session cookie, no proceeding
         if sent_cookie_token == None:
-            return RedirectResponse("/static/session_invalid.html", status_code=HTTPStatus.SEE_OTHER)
+            return RedirectResponse("/static/login.html", status_code=HTTPStatus.SEE_OTHER)
 
         username = request.cookies.get("username")
         # Check if the key is valid AND the user owns that key
         # For invalid or expired ttl-bound keys, valkey returns a value <= 0.
+
         if (await vk1.ttl(sent_cookie_token)) <= 0 or (await vk1.get(sent_cookie_token)).decode() != username:
             # Reject access and redirect to Session Expired page
-            return RedirectResponse("/static/session_invalid.html", status_code=HTTPStatus.SEE_OTHER)
+            return RedirectResponse("/static/login.html", status_code=HTTPStatus.UNAUTHORIZED)
         else:
             # Not requesting admin API access - can pass to the actual request
             # For each server-side request, we reset the inactivity timeout.
             # await vk1.setex("sessionID", session_exp, sent_cookie_token)
             await vk1.set(sent_cookie_token, username, conditional_set=None, expiry=ExpirySet(ExpiryType.SEC, session_exp))
             return await call_next(request)
+
 
     # Fix a bug where the admin endpoint cant be accessed because the program was looking for both adminID and sessionID, the latter of which aren't sent with requests to admin APIs.
     elif request.url.path.startswith("/admin"):
@@ -188,12 +190,19 @@ async def reroute_to_dashboard_ui(request: Request, vk1: glide.GlideClient = Dep
 
     uid = request.cookies.get("sessionID")
     print("uid", uid, request.cookies.get("sessionID"))
-    if not uid:
-        return RedirectResponse("/static/login.html")
+    try:
+        if not uid:
+            print("no uid or invalid uid")
+            return RedirectResponse("/static/login.html")
 
-    elif (await vk1.get(uid)).decode() == request.cookies.get("username") and (await vk1.ttl(uid)) > 0:
-        return RedirectResponse("/static/dashboard.html")
-    else:
+        elif (await vk1.get(uid)).decode() == request.cookies.get("username") and (await vk1.ttl(uid)) > 0:
+            return RedirectResponse("/static/dashboard.html")
+        else:
+            print("no uid or invalid uid")
+
+            return RedirectResponse("/static/login.html")
+    except:
+        print("no uid or invalid uid")
         return RedirectResponse("/static/login.html")
 
 # Run the app
