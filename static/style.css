@@ -63,7 +63,7 @@ input[type='password'] {
     flex-direction: column;
     gap: 10px;
     position: absolute;
-    top:160px;
+    top:190px;
     padding: 10px;
     padding-top: 0px;
     width: 100%;
@@ -134,7 +134,7 @@ input[type='password'] {
     }
 
     .card-container {
-        top: 210px
+        top: 240px
     }
 
 }
