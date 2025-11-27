@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+<!--    Lookup filter -->
+    <div style="padding: 10px; gap: 10px; display: flex; flex-direction: column;">
+        <label for="produce-name" class="form-label">Search for batches</label>
+
+        <div style="display: grid; gap: 10px; grid-template-columns: 2fr 1fr 1fr">
+        <input class="form-control" style="width: 100%" name="produce-name" id="produce-name" placeholder="Produce Name or Batch ID" list="produce-list">
+        <datalist id="produce-list">
+                <!-- TODO: Programmatically set produce list here-->
+        </datalist>
+            <select id="status-dropdown" class="form-control">
+                <option value="">Any Status</option>
+                <option value="pending">Available</option>
+                <option value="finalized">Marked for export</option>
+                <option value="finalized">Exported</option>
+                <option value="finalized">Discarded</option>
+
+            </select>
+            <input id="exp-date" type="number" class="form-control" placeholder="Max. shelf life (days)" >
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 10px">
+            <button class="btn btn-primary" id="search">Search</button>
+
+        </div>
+
+    </div>
+
+<!--Lookup result -->
+    <div style="padding: 10px; padding-top: 0px; margin-top: 0px; width: 100%; overflow-x:scroll">
+        <table class="table table-striped" style="font-size: 1rem;">
+            <tr>
+                <th>#</th>
+                <th>Produce type</th>
+                <th>Quantity</th>
+                <th>Weight</th>
+                <th>Import Date</th>
+                <th>Shelf life</th>
+                <th>Status</th>
+
+            </tr>
+
+            <tr>
+                <td>--</td>
+                <td>--</td>
+                <td>--</td>
+                <td>--</td>
+                <td>--</td>
+                <td>--</td>
+                <td>--</td>
+            </tr>
+
+        </table>
+    </div>
+
+</body>
+</html>

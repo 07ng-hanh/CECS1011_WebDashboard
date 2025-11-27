@@ -1,5 +1,5 @@
 * {
-    font-family: system-ui;
+    font-family: sans-serif;
 }
 
 button {
@@ -13,4 +13,55 @@ input[type='text'] {
 
 input[type='password'] {
     padding: 7px;
+}
+
+.gauge {
+    background: #dfdfdf;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 10px;
+}
+
+.gauge p {
+    text-transform: uppercase;
+    font-size: 1rem;
+    color: dimgray;
+}
+
+.gauge h2 {
+    font-weight: bold;
+}
+
+.top-bar {
+    width: 100%;
+    box-shadow: #0c13212d 0px 0px 5px 5px;
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+
+}
+.top-bar p {
+    margin-top: auto;
+    margin-bottom: auto
+}
+
+.metrics-board {
+    gap: 10px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+@media screen and (min-width: 740px) {
+    .metrics-board {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+}
+
+@media screen and (max-width: 740px) {
+    .metrics-board {
+        grid-template-columns: 1fr 1fr;
+    }
+
 }

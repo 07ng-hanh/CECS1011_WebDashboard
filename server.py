@@ -119,6 +119,7 @@ async def check_session_validity(request: Request, call_next):
 
     else:
         # DO NOT capture other requests (for login, dashboard html, etc.)
+        print(str(request))
         return await call_next(request)
 
 
@@ -186,11 +187,11 @@ async def reroute_to_dashboard_ui(request: Request, vk1: glide.GlideClient = Dep
     # If session is valid, redirect straight to dashboard
 
     uid = request.cookies.get("sessionID")
-    print(uid, request.cookies.get("sessionID"))
+    print("uid", uid, request.cookies.get("sessionID"))
     if not uid:
         return RedirectResponse("/static/login.html")
 
-    if (await vk1.get(uid)).decode() == request.cookies.get("username") and (await vk1.ttl(uid)) > 0:
+    elif (await vk1.get(uid)).decode() == request.cookies.get("username") and (await vk1.ttl(uid)) > 0:
         return RedirectResponse("/static/dashboard.html")
     else:
         return RedirectResponse("/static/login.html")
