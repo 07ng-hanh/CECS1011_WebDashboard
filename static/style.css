@@ -74,6 +74,11 @@ input[type='password'] {
     background: white;
 }
 
+
+.orders-top-bar {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; padding: 10px
+}
+
 @media screen and (min-width: 740px) {
     .metrics-board {
         grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -93,7 +98,11 @@ input[type='password'] {
         display: grid;
         gap: 10px;
         grid-template-columns: 1.5fr 1fr 1fr 1fr
-}
+    }
+
+    .orders-top-bar {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
 }
 
 @media screen and (max-width: 740px) {
@@ -118,6 +127,10 @@ input[type='password'] {
         gap: 10px;
         grid-template-columns: 1fr 1fr;
         background: white;
+    }
+
+    .orders-top-bar {
+        grid-template-columns: 1fr 1fr;
     }
 
     .card-container {
@@ -166,4 +179,3 @@ input[type='password'] {
 .hidden {
     display: none;
 }
-

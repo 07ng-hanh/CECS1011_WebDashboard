@@ -10,10 +10,22 @@
     <meta charset="UTF-8">
 
 </head>
-<body>
+<body style="width: 100%">
 <!--Order lookup-->
-    <div>
         <label>Search for Orders</label>
+
+    <div class="orders-top-bar">
+        <input class="form-control" id="loc-from" placeholder="From...">
+        <input class="form-control" id="loc-to" placeholder="To...">
+         <input class="form-control" id="export-date" placeholder="Departure Date (Range)">
+        <input class="form-control" id="export-type" placeholder="Produce Type">
+
+        <select class="form-control" id="status">
+            <option>Any Status</option>
+        </select>
+        <select class="form-control" id="sort-by">
+            <option>Sort By...</option>
+        </select>
     </div>
 </body>
 </html>
