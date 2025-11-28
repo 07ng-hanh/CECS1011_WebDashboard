@@ -108,6 +108,8 @@ input[type='password'] {
         display: flex; flex-direction: column; gap: 10px
     }
 
+
+
     .entry-card {
             align-items: center;
     }
@@ -136,7 +138,11 @@ input[type='password'] {
     }
     .entry-card-action-btn {
         right: 0;
-        display: flex; flex-direction: row; gap: 10px;
+        display: flex; flex-direction: row; gap: 5px;
+    }
+    .entry-card-action-btn button {
+        padding-left: 7px;
+        padding-right: 7px;
     }
 
     .orders-card-container {
@@ -218,4 +224,14 @@ input[type='password'] {
 
 .hidden {
     display: none;
+}
+
+.orders-card-btn {
+    display: flex;
+    gap: 5px;
+}
+
+.orders-card-btn button {
+    padding-left: 10px;
+    padding-right: 10px;
 }
