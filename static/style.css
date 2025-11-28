@@ -74,9 +74,29 @@ input[type='password'] {
     background: white;
 }
 
+.orders-top-bar-container {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: white;
+    padding: 10px;
+    z-index: 30;
+
+}
+
+
 
 .orders-top-bar {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; padding-bottom: 10px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; padding-bottom: 10px; padding-top: 10px;
+}
+
+.orders-card-container {
+    position: absolute;
+    top: 200px;
+    width: 100%;
+    padding-right: 10px;
+    padding-left: 10px;
+    overflow-y: scroll;
 }
 
 @media screen and (min-width: 740px) {
@@ -100,9 +120,14 @@ input[type='password'] {
         grid-template-columns: 1.5fr 1fr 1fr 1fr
     }
 
+    .orders-card-container {
+        top: 210px;
+    }
+
     .orders-top-bar {
         grid-template-columns: 1fr 1fr 1fr;
     }
+
 }
 
 @media screen and (max-width: 740px) {
@@ -112,6 +137,10 @@ input[type='password'] {
     .entry-card-action-btn {
         right: 0;
         display: flex; flex-direction: row; gap: 10px;
+    }
+
+    .orders-card-container {
+        top: 260px;
     }
 
     .entry-card {
@@ -174,7 +203,18 @@ input[type='password'] {
     color: var(--danger)
 }
 
+.orders-card {
+    padding: 10px;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+}
 
+
+
+.orders-card-info p {
+    margin-bottom: 5px
+
+}
 
 .hidden {
     display: none;

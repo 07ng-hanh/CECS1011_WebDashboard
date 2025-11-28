@@ -1,4 +1,8 @@
 # TO-DOs
+
+- NOTE: On finalizing late shipment, check for batches that might not survive.
+- NOTE_2: Only export shipments if target is fulfilled.
+
 - [User/Warehouse] Show quantity of all produces
 - [User/Warehouse] Show warnings and push notification if quantity exceed storage capacity
 - [User/Sensors] Show latest temperature, CO2 concentration and humidity

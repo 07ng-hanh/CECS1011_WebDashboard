@@ -75,24 +75,32 @@
 
             <select id="status-dropdown" class="form-control">
                 <option value="">Any Status</option>
-                <option value="pending">Available</option>
-                <option value="finalized">Marked for export</option>
-                <option value="finalized">Exported</option>
-                <option value="finalized">Discarded</option>
-
-            </select>
-            <select id="sort-dropdown" class="form-control">
-                <option value="">Sort By...</option>
-                <option value="batchID">Batch ID</option>
-                <option value="produceID">Produce ID</option>
-                <option value="weight">Weight</option>
-                <option value="weight">Quantity</option>
-                <option value="harvestTime">Harvest Date/Time</option>
-                <option value="harvestTime">Remaining Shelf Life</option>
+                <option value="available">Available</option>
+                <option value="marked">Marked for export</option>
+                <option value="exported">Exported</option>
+                <option value="discarded">Discarded</option>
 
             </select>
 
+            <span style="display: grid; gap: 10px; grid-template-columns: 1fr 58px">
 
+                <select id="sort-dropdown" class="form-control">
+                    <option value="">Sort By...</option>
+                    <option value="batchID">Batch ID</option>
+                    <option value="produceID">Produce ID</option>
+                    <option value="weight">Weight</option>
+                    <option value="weight">Quantity</option>
+                    <option value="harvestTime">Harvest Date/Time</option>
+                    <option value="harvestTime">Remaining Shelf Life</option>
+
+                </select>
+
+                <select id="sort-direction" class="form-control" >
+                    <option name="ascending">     &#x25B2;  </option>
+                    <option name="descending">    &#x25BC;  </option>
+                </select>
+
+            </span>
 
 
 
@@ -133,8 +141,7 @@
 
             </div>
             <div class="entry-card-action-btn">
-                <button class="btn btn-outline-primary">Export</button>
-                <button class="btn btn-outline-primary">Suggest route</button>
+                <button class="btn btn-outline-primary">Assign/Suggest Order</button>
                 <button class="btn btn-outline-danger">Discard</button>
             </div>
 
