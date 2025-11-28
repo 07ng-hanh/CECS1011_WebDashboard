@@ -10,6 +10,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.7/awesomplete.min.js" integrity="sha512-Pc3/aEr2FIVZhHxe0RAC9SFrd+pxBJHN3pNJfJNTKc2XAFnXUjgQGIh6X935ePSXNMN6rFa3yftxSnZfJE8ZAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/litepicker/2.0.12/litepicker.min.js" integrity="sha512-yNEsQERO50LM6mQgUWnWFo453wVwrxOzTnCxYgawLggDtt5VuU/U7sAPx1wcHhUvqPbbvwVJgVBnJ+FOOmeZIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/litepicker/2.0.12/css/litepicker.min.css" integrity="sha512-wcj3civV5+29DLKdrR2zMcQWSCbWOTqeVPFvOth4zTDBZ7/24DAFTswuqymhGuguAZD3IQ7Te/+ef5WsfTo1zw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.8/umd/popper.min.js" integrity="sha512-TPh2Oxlg1zp+kz3nFA0C5vVC6leG/6mm1z9+mA81MI5eaUVqasPLO8Cuk4gMF4gUfP5etR73rgU/8PNMsSesoQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.min.js" integrity="sha512-nKXmKvJyiGQy343jatQlzDprflyB5c+tKCzGP3Uq67v+lmzfnZUi/ZT+fc6ITZfSC5HhaBKUIvr/nTLCV+7F+Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script>
         let lst = ["awk"]
         let harvest_date_range_picker = undefined
@@ -112,7 +115,21 @@
 
                             <label class="form-check-label" for="almost-expire-toggle">Only show almost expired batches</label>
             </div>
-            <button class="btn btn-primary" id="search">Search</button>
+            <span style="display: grid; grid-template-columns: 1fr 150px; gap: 10px">
+                <button class="btn btn-primary" id="search">Search</button>
+                <div class="dropdown">
+                  <button style="width: 100%" class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Export as
+                  </button>
+
+                  <ul class="dropdown-menu">
+                    <li><button class="dropdown-item">CSV (Filtered)</button></li>
+                    <li><button class="dropdown-item">XLSX (Filtered)</button></li>
+                    <li><button class="dropdown-item">CSV (All)</button></li>
+                    <li><button class="dropdown-item">XLSX (All)</button></li>
+                  </ul>
+                </div>
+            </span>
 
         </div>
 
