@@ -1,13 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Shipment Management</title>
-        <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.7/awesomplete.min.js" integrity="sha512-Pc3/aEr2FIVZhHxe0RAC9SFrd+pxBJHN3pNJfJNTKc2XAFnXUjgQGIh6X935ePSXNMN6rFa3yftxSnZfJE8ZAg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/litepicker/2.0.12/litepicker.min.js" integrity="sha512-yNEsQERO50LM6mQgUWnWFo453wVwrxOzTnCxYgawLggDtt5VuU/U7sAPx1wcHhUvqPbbvwVJgVBnJ+FOOmeZIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/litepicker/2.0.12/css/litepicker.min.css" integrity="sha512-wcj3civV5+29DLKdrR2zMcQWSCbWOTqeVPFvOth4zTDBZ7/24DAFTswuqymhGuguAZD3IQ7Te/+ef5WsfTo1zw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.7/awesomplete.min.css" integrity="sha512-YKJCE4m/eXP9bG0UEQp6Y4It4J1byWp9gN4vxtD4QHuUm26JV7D2Vue2CDrBjQvcRy3mKxlwgrGV+d4j7EZB8Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
     <meta charset="UTF-8">
+
+    <script>
+
+        let port_name_list = ["AA"]
+        let produce_types = ["a"]
+
+        document.addEventListener("DOMContentLoaded", () => {
+            departure_date_picker = new Litepicker({
+                element: document.getElementById("export-date"),
+                mobileFriendly: true,
+                format: "YYYY-MM-DD",
+                singleMode: false,
+                useResetBtn: true,
+                  buttonText: {
+                    reset: "Reset"
+                  },
+            })
+
+            let port_from = document.getElementById("loc-from")
+            let port_to = document.getElementById("loc-to")
+            let prod_type = document.getElementById("export-type")
+
+            let port_from_autocomplete = new Awesomplete(port_from, {
+                minChars: 0,
+                maxItems: 15,
+                list: port_name_list
+            })
+            port_from_autocomplete.evaluate()
+            port_from_autocomplete.close()
+
+            let port_to_autocomplete = new Awesomplete(port_to, {
+                minChars: 0,
+                maxItems: 15,
+                list: port_name_list
+            })
+            port_to_autocomplete.evaluate()
+            port_to_autocomplete.close()
+
+            let export_produce_type_autocomplete = new Awesomplete(prod_type, {
+                minChars: 0,
+                maxItems: 15,
+                list: produce_types
+            })
+            export_produce_type_autocomplete.evaluate()
+            export_produce_type_autocomplete.close()
+
+            port_from.addEventListener("focus", () => {
+                port_from_autocomplete.open()
+            })
+
+            port_to.addEventListener("focus", () => {
+                port_to_autocomplete.open()
+            })
+
+            prod_type.addEventListener("focus", () => {
+                export_produce_type_autocomplete.open()
+            })
+
+
+
+        })
+
+    </script>
 
 </head>
 <body style="width: 100dvw;">
@@ -22,7 +91,7 @@
         <div class="orders-top-bar">
             <input class="form-control" id="loc-from" placeholder="From...">
             <input class="form-control" id="loc-to" placeholder="To...">
-             <input class="form-control" id="export-date" placeholder="Departure Date (Range)">
+            <input class="form-control" id="export-date" placeholder="Departure Date (Range)">
             <input class="form-control" id="export-type" placeholder="Produce Type">
 
             <select class="form-control" id="status">
@@ -35,12 +104,12 @@
             <span style="display: grid; gap: 10px; grid-template-columns: 1fr 58px">
                 <select class="form-control" id="sort-by">
                     <option name="sort-default">Sort By...</option>
-                    <option>Order ID</option>
-                    <option>Departure Port</option>
-                    <option>Destination Port</option>
-                    <option>Produce Name</option>
-                    <option>Quantity</option>
-                    <option>Scheduled Departure Time</option>
+                    <option name="sort-order-id">Order ID</option>
+                    <option name="sort-departure-port">Departure Port</option>
+                    <option name="sort-destination-port">Destination Port</option>
+                    <option name="sort-produce-name">Produce Name</option>
+                    <option name="sort-quantity">Quantity</option>
+                    <option name="sort-scheduled-departure">Scheduled Departure Time</option>
                 </select>
                 <select id="sort-direction" class="form-control" >
                     <option name="ascending">     &#x25B2;  </option>
