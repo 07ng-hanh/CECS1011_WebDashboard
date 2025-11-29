@@ -25,21 +25,25 @@
 </head>
 <body>
 <div>
+
         <span style="display: flex; flex-direction: column; padding: 10px">
-            <label for="date-range-for-recordings"><b>View sensor recordings for the last:</b></label>
-            <select autofocus id="date-range-for-recordings" class="form-control">
+            <span style="padding-bottom: 10px">
+            <button class="btn btn-secondary" onclick="window.location.href = 'dashboard.html'">X</button>
+            <label for="date-range-for-recordings"><b>Sensor Recordings</b></label>
+            </span>
+                <select autofocus id="date-range-for-recordings" class="form-control">
                 <optgroup label="Short-term">
-                    <option name="1hr">1 hour</option>
-                    <option name="1hr">4 hours</option>
-                    <option name="1hr">8 hours</option>
-                    <option name="12hr">12 hours</option>
-                    <option name="24hr">24 hours</option>
+                    <option name="1hr">Last 1 hour</option>
+                    <option name="1hr">Last 4 hours</option>
+                    <option name="1hr">Last 8 hours</option>
+                    <option name="12hr">Last 12 hours</option>
+                    <option name="24hr">Last 24 hours</option>
                 </optgroup>
                 <optgroup label="Long-term">
-                    <option name="2d">2 days</option>
-                    <option name="2d">7 days</option>
-                    <option name="2d">14 days</option>
-                    <option name="2d">30 days</option>
+                    <option name="2d">Last 2 days</option>
+                    <option name="2d">Last 7 days</option>
+                    <option name="2d">Last 14 days</option>
+                    <option name="2d">Last 30 days</option>
                 </optgroup>
 
             </select>
