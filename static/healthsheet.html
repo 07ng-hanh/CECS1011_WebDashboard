@@ -24,12 +24,12 @@
 
 </head>
 <body>
-<div>
+<div style="position: fixed; background: white; width: 100%; z-index: 10">
 
         <span style="display: flex; flex-direction: column; padding: 10px">
-            <span style="padding-bottom: 10px">
+            <span style="padding-bottom: 10px; display: flex; gap: 10px; align-items: center">
             <button class="btn btn-secondary" onclick="window.location.href = 'dashboard.html'">X</button>
-            <label for="date-range-for-recordings"><b>Sensor Recordings</b></label>
+            <label style="margin: 0px" for="date-range-for-recordings"><b>Sensor Recordings</b></label>
             </span>
                 <select autofocus id="date-range-for-recordings" class="form-control">
                 <optgroup label="Short-term">
@@ -49,15 +49,25 @@
             </select>
         </span>
 </div>
-
-<div style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px">
-    <label><b>Temperature</b></label>
-</div>
-<div style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px">
-    <label><b>Humidity</b></label>
-</div>
-<div style="padding-left: 10px; padding-right: 10px; padding-bottom: 10px">
-    <label><b>CO2 Concentration</b></label>
+<div style="position: absolute; top: 110px; width: 100%">
+    <div class="healthsheet-entry">
+        <label><b>Temperature (&deg;C)</b></label>
+        <div class="chart-container" style="position: relative; height: 200px; width: 100%">
+            <canvas id="temperature-plot"></canvas>
+        </div>
+    </div>
+    <div class="healthsheet-entry">
+        <label><b>Humidity (%)</b></label>
+        <div class="chart-container" style="position: relative; height: 200px; width: 100%">
+            <canvas id="humidity-plot"></canvas>
+        </div>
+    </div>
+    <div class="healthsheet-entry">
+        <label><b>CO2 Concentration (ppm)</b></label>
+        <div class="chart-container" style="position: relative; height: 200px; width: 100%">
+            <canvas id="co2-plot"></canvas>
+        </div>
+    </div>
 </div>
 </body>
 </html>

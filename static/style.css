@@ -239,3 +239,7 @@ input[type='password'] {
 .suggested-row {
     background-color: rgba(0, 122, 255, 0.16) !important;
 }
+
+.healthsheet-entry {
+    padding-left: 10px; padding-right: 10px; padding-bottom: 10px; display: flex; flex-direction: column; gap: 10px
+}
