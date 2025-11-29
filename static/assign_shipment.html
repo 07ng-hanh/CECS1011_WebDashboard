@@ -37,35 +37,31 @@
 <body>
 
 <span style="display: flex; align-items: center; gap: 10px; padding: 10px; position: fixed; background: white; width: 100%; z-index: 10 ">
-            <button class="btn btn-secondary" onclick="window.location.href = 'orders.html'">X</button>
-            <label style="margin-bottom: 0px" for="produce-name" class="form-label"><b>Assign Batches</b> (<span
-                    id="topbar-fulfilled">300</span>/<span
-                    id="topbar-target">500</span>, min. <span>xx</span> days)</label>
+    <button class="btn btn-secondary" onclick="window.location.href = 'lookup.html'">X</button>
+    <label style="margin-bottom: 0px" for="produce-name" class="form-label"><b>Assign Shipment</b> for <span id="prod-count">500</span> <span id="prod-name">Product-Name</span> (<span>xx</span>-day shelf life)</label>
 
-        </span>
-<div style="position: absolute; top: 50px; width: 100%;">
-    <div style="padding: 10px">
-        Order <b id="order-id">#000000</b> requires <b id="prod-count">500</b> <b id="prod-name">Product-Type</b> with a
-        minimum shelf life of <b id="min-shelf-life">xx days</b>.
-        <br>
-        Fulfilled: <b id="fulfilled-count">300</b>/<span id="target-count">500</span> units.
-    </div>
+</span>
+
+<div style="position: absolute; top: 85px; width: 100%;">
+
     <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px; padding-top: 0px;">
 
-
-        <input autofocus class="form-control" type="input" placeholder="Search Batch ID/Name/Quantity">
+        <input autofocus class="form-control" type="input" placeholder="Search Shipment Details">
         <button class="btn btn-primary">Search</button>
         <table class="table table-striped" style="padding: 10px">
             <thead style="font-weight: bold">
             <tr>
                 <td>
-                    Check
+                    Select
                 </td>
                 <td>
-                    Batch ID/Name/Qty
+                    Shipment Details
                 </td>
                 <td>
-                    Shelf Life Remaining
+                    Scheduled Departure Date
+                </td>
+                <td>
+                    ETA
                 </td>
                 <td>
                     Suggested?
@@ -75,10 +71,12 @@
             <tbody>
             <tr class="suggested-row">
                 <td>
-                    <input class="form-control" type="checkbox">
+                    <input data-order-id="000000" class="form-control" type="checkbox">
                 </td>
-                <td>#000000 Product-Name (500 pcs)</td>
-
+                <td>#000000 PortA <i class="bi bi-arrow-right"></i>
+                    PortB <br>(500 Product-Types)
+                </td>
+                <td>YYYY-MM-DD</td>
                 <td class="accented-indicator">3 days</td>
                 <td>Yes</td>
             </tr>
@@ -91,7 +89,7 @@
 </div>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; position: fixed; bottom: 10px; right: 10px; left: 10px">
     <button class="btn btn-primary">Save</button>
-    <button class="btn btn-secondary" onclick="window.location.href = 'orders.html'">Discard</button>
+    <button class="btn btn-secondary" onclick="window.location.href = 'lookup.html'">Discard</button>
 </div>
 </body>
 </html>
