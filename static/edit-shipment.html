@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Create/Edit Shipment</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <meta charset="UTF-8">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Create/Edit Shipment</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
+              integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g=="
+              crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+              integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+              crossorigin="anonymous">
+        <meta charset="UTF-8">
 
-</head>
+    </head>
 </head>
 <body>
-    <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px">
-        <!-- TODO: Add autocomplete-->
-        <label for="port-from">Export Route</label>
-        <input class="form-control" id="port-from" placeholder="Departure Port...">
-        <input class="form-control" id="port-to" placeholder="Destination Port...">
-        <label for="scheduled-departure-date">Scheduled Departure Date</label>
-        <input id="scheduled-departure-date" format="yyyy-mm-dd" class="form-control" type="date" placeholder="Scheduled Departure Date">
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 10px">
+    <!-- TODO: Add autocomplete-->
+    <label for="port-from">Export Route</label>
+    <input class="form-control" id="port-from" placeholder="Departure Port...">
+    <input class="form-control" id="port-to" placeholder="Destination Port...">
+    <label for="scheduled-departure-date">Scheduled Departure Date</label>
+    <input id="scheduled-departure-date" format="yyyy-mm-dd" class="form-control" type="date"
+           placeholder="Scheduled Departure Date">
 
-        <p><i class="bi bi-arrow-right"></i> ETA: <b>YYYY-MM-DD</b> (<span>--</span> days)</p>
+    <p><i class="bi bi-arrow-right"></i> ETA: <b>YYYY-MM-DD</b> (<span>--</span> days)</p>
 
-        <label for="produce-name">Produce Name & Quantity</label>
-        <input class="form-control" id="produce-name" type="text" placeholder="Produce Name...">
-        <input class="form-control" id="produce-qty" type="number" placeholder="Produce Quantity...">
+    <label for="produce-name">Produce Name & Quantity</label>
+    <input class="form-control" id="produce-name" type="text" placeholder="Produce Name...">
+    <input class="form-control" id="produce-qty" type="number" placeholder="Produce Quantity...">
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
-            <button class="btn btn-primary">Save</button>
-            <button class="btn btn-secondary" onclick="window.location.href = 'orders.html'">Discard</button>
-        </div>
-
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; position: absolute; bottom: 10px; right: 10px; left: 10px">
+        <button class="btn btn-primary">Save</button>
+        <button class="btn btn-secondary" onclick="window.location.href = 'orders.html'">Discard</button>
     </div>
+
+</div>
 </body>
 </html>
