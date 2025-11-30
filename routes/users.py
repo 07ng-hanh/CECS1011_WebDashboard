@@ -38,7 +38,7 @@ async def check_logon():
     # Which is checked at the authentication middleware
     # Hence, we can return 200 here
 
-    return PlainTextResponse("")
+    return PlainTextResponse("User logged in.")
 
 @rt.get("/request-settings-page")
 async def request_settings_page(request: Request):

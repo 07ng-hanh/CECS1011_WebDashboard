@@ -30,3 +30,9 @@ function toggle_password_visibility() {
     d.innerText = e.type == "password" ? "Show" : "Hide"
 }
 
+document.addEventListener("DOMContentLoaded", async () => {
+    let d = await axios.get("/api/users/check-logon")
+    if (d.data === "User logged in.") {
+        window.location.href = 'dashboard.html'
+    }
+})
