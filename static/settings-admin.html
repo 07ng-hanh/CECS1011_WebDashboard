@@ -2,9 +2,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+    <link rel="stylesheet" href="login.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <title>Settings</title>
+</head>
+<body >
+
+<!--FAB-->
+<div style="position: fixed; bottom: 10px; right: 10px">
+    <a href="#top"><button> &uarr; Top</button></a>
+</div>
+
+<button onclick="window.location.href = 'dashboard.html'">X</button>
+
+<h2>Administration Settings</h2>
+<div>
+    <span>
+        Go to: <a href="#reset-password">Reset Password</a>, <a href="#manage-users">Manage Users</a>, <a href="#manage-produce">Manage Produce List</a>
+    </span>
+</div>
+<h3 id="reset-password" style="font-weight: bold">Reset Password</h3>
+<div style="display: flex; gap: 10px; flex-direction: column">
+<div style="display: flex; gap: 10px; width: 100%; flex-direction: column">
+    <input id="password" type="password" placeholder="Old Password">
+    <input id="new-password" type="password" placeholder="New Password">
+    <input id="retype-new-password" type="password" placeholder="Retype New Password">
+
+</div>
+<div>
+    <input type="checkbox" id="show-pwd">
+    <label for="show-pwd">Show Password</label>
+
+</div>
+    <button>Update Password</button>
+</div>
+<br>
+<hr>
+<h3 id="manage-users">Manage Users</h3>
+
+
+<button style="margin-bottom: 10px">Add user</button>
+<br>
+<span>
+<label>Search:</label>
+<input type="text" id="search-user" placeholder="Search Username">
+
+<label>Page:</label>
+<input style="width: 50px; padding: 10px" type="number" id="search-user-page" placeholder="Page..." value="1" >
+<button>Load</button>
+</span>
+<p><i>(50 items/page)</i></p>
+<div style="max-width: 100%; overflow-x: scroll;">
+<table style="width: 100%; margin-bottom: 50px">
+    <thead>
+    <tr style="font-weight: bold">
+        <td style="min-width: 50px">#</td>
+        <td style="min-width: 150px">Username</td>
+        <td style="min-width: 50px">Is Admin?</td>
+        <td style="min-width: 400px">Action</td>
+    </tr>
+
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>user-name</td>
+            <td>Yes</td>
+            <td>
+                <button class="sm">Reset Password</button>
+                <button class="sm">Toggle Admin Status</button>
+                <button class="sm danger">Remove</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</div>
+
+<br><hr>
+<h3 id="manage-produce">Manage Produce List</h3>
+
+<button style="margin-bottom: 10px">Add produce</button>
+<br>
+<span>
+<label>Search:</label>
+<input type="text" id="search-prod" placeholder="Search Produce Name">
+
+<label>Page:</label>
+<input style="width: 50px; padding: 10px" type="number" id="search-prod-page" placeholder="Page..." value="1" >
+<button>Load</button>
+</span>
+<p><i>(50 items/page)</i></p>
+<div style="width: 100%; overflow-x: scroll">
+<table style="width: 100%; margin-bottom: 50px">
+    <thead>
+    <tr style="font-weight: bold">
+        <td rowspan="2" style="min-width: 50px">#</td>
+        <td rowspan="2" style="min-width: 200px">Produce Name</td>
+        <td rowspan="2" style="min-width: 100px">Shelf Life</td>
+        <td colspan="3" style="min-width: 400px">Environmental Threshold</td>
+        <td rowspan="2" style="min-width: 100px">Action</td>
+    </tr>
+    <tr>
+        <td colspan="1">Temperature</td>
+        <td colspan="1">Humidity</td>
+        <td colspan="1">CO2 Concentration</td>
+    </tr>
+
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+</div>
 </body>
 </html>

@@ -12,15 +12,20 @@ button {
     padding: 10px;
 }
 
+button.sm {
+
+    padding: 5px;
+}
+
+button.danger {
+    color: red
+}
+
 button:hover {
     color:white;
     background-color: dodgerblue;
 }
 
-button:active {
-    color:white;
-    background-color: dodgerblue;
-}
 
 input[type='text'] {
     padding: 12px;
@@ -34,5 +39,8 @@ input[type='password'] {
     border: 1px solid lightgray;
 }
 
-
-
+table, th, td {
+  border: 1px solid lightgray;
+  border-collapse: collapse;
+    padding: 5px;
+}
