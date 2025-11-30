@@ -1,9 +1,13 @@
+import http.client
+
 import asyncpg.pool
 import glide
 from fastapi.params import Depends
 from fastapi import APIRouter
 from fastapi.responses import Response
 from fastapi.requests import Request
+from starlette.responses import RedirectResponse
+
 from dependency_injection import get_pgpool, get_vk
 from fastapi.responses import PlainTextResponse
 
@@ -35,3 +39,21 @@ async def check_logon():
     # Hence, we can return 200 here
 
     return PlainTextResponse("")
+
+@rt.get("/request-settings-page")
+async def request_settings_page(request: Request):
+    # This endpoint can only be reached when the user is authenticated via the middleware
+    # This endpoint is for redirecting users to their corresponding settings page (admin, non-admin),
+    # and does not do strict restriction enforcement.
+
+    # Enforcement is actually done by the middleware when requesting /users or /admin endpoints.
+    # Hence, a non-admin user navigating to the admin's settings page would not automatically bypass the restrictions.
+
+    username = request.cookies.get("username")
+    adminID = request.cookies.get("adminID")
+
+
+    if adminID:
+        return RedirectResponse("/static/settings-admin.html", http.client.SEE_OTHER)
+    else:
+        return RedirectResponse("/static/settings-nonprivileged.html", http.client.SEE_OTHER)
