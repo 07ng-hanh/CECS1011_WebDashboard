@@ -10,8 +10,16 @@ button {
     border-radius: 5px;
     color: dodgerblue;
     padding: 10px;
+}
 
+button:hover {
+    color:white;
+    background-color: dodgerblue;
+}
 
+button:active {
+    color:white;
+    background-color: dodgerblue;
 }
 
 input[type='text'] {
