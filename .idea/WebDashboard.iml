@@ -15,5 +15,7 @@
     <orderEntry type="library" name="bootstrap-icons" level="application" />
     <orderEntry type="library" name="popper.js" level="application" />
     <orderEntry type="library" name="axios" level="application" />
+    <orderEntry type="library" name="Chart.js" level="application" />
+    <orderEntry type="library" name="chartjs-plugin-streaming" level="application" />
   </component>
 </module>
