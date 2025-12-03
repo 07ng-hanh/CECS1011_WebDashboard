@@ -8,6 +8,7 @@ from starlette.responses import HTMLResponse
 
 from routes.users import rt as users_api_route
 from routes.admin import rt as admin_api_route
+from routes.sensors import rt as sensors_api_route
 import dependency_injection as di
 from dependency_injection import get_vk, get_pgpool
 import argon2.exceptions
@@ -34,8 +35,12 @@ from glide import GlideClient, GlideClientConfiguration, NodeAddress, ExpirySet,
 
 from datamodels import Credentials
 
-# Load environment variables
-dotenv.load_dotenv("private.env")
+# Load environment variables (dev env only)
+try:
+    dotenv.load_dotenv("private_dev.env")
+except:
+    pass
+
 #TODO: Change to True in production dotenv
 secure_cookie = True if os.getenv("SECURE_COOKIE") == "true" else False
 session_exp = 2 * 60 * 60
@@ -63,7 +68,7 @@ async def startup_event():
 
     app.include_router(users_api_route, prefix="/api/users")
     app.include_router(admin_api_route, prefix="/admin")
-
+    app.include_router(sensors_api_route, prefix="/api/sensors")
 
 # Session Checker Middleware for APIs
 @app.middleware("http")

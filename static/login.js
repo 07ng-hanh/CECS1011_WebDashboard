@@ -11,6 +11,10 @@ async function run_login_flow() {
         let r = await axios.post("/session", {
             username: id_input,
             password: password_input
+        }, {
+            validateStatus: function (status) {
+                return status >= 200 && status <= 500
+            }
         })
         console.log("reached", r)
         if (r.status === 200) {
