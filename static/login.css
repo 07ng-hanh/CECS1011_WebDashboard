@@ -33,6 +33,12 @@ input[type='text'] {
     border: 1px solid lightgray;
 }
 
+input[type='number'] {
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid lightgray;
+}
+
 input[type='password'] {
     padding: 12px;
     border-radius: 5px;

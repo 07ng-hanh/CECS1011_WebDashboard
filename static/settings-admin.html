@@ -6,45 +6,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Settings</title>
+    <script src="settings-admin.js"></script>
 </head>
 <body>
 
 <!--FAB-->
 <div style="position: fixed; bottom: 10px; right: 10px">
     <a href="#top">
-        <button> &uarr; Top</button>
+        <button style="color: gray; box-shadow: rgba(0,0,0,0.24) 0px 0px 5px 0px; border-radius: 45px; font-weight: bold"> &uarr; Top</button>
     </a>
 </div>
 
 <button onclick="window.location.href = 'dashboard.html'">X</button>
 
-<h2>Administration Settings</h2>
+<h2>Administrator Settings</h2>
 <div>
     <span>
-        Go to: <a href="#reset-password">Reset Password</a>, <a href="#manage-users">Manage Users</a>, <a
-            href="#manage-produce">Manage Produce List</a>
+        Go to:
+        <a href="#warehouse-config">Warehouse Configuration</a>,
+        <a
+            href="#manage-produce">Manage Produce List</a>,
+        <a href="#manage-users">Manage Users</a>,
+        <a href="#reset-password">Reset Password</a>
     </span>
 </div>
-<h3 id="reset-password" style="font-weight: bold">Reset Password</h3>
-<div style="display: flex; gap: 10px; flex-direction: column; min-height: 500px">
-    <div style="display: flex; gap: 10px; width: 100%; flex-direction: column">
-        <input id="password" type="password" placeholder="Old Password" autocomplete="off">
-        <input id="new-password" type="password" placeholder="New Password">
-        <input id="retype-new-password" type="password" placeholder="Retype New Password">
 
-    </div>
-    <div>
-        <input type="checkbox" id="show-pwd">
-        <label for="show-pwd">Show Password</label>
 
-    </div>
-    <button>Update Password</button>
+
+<h3 id="warehouse-config">Warehouse Configuration</h3>
+<div style="min-height: 500px">
+<div style="display: grid; gap: 10px; grid-template-columns: 180px 1fr">
+    <p>Max. Capacity (Quantity)</p>
+    <input id="max-capacity" type="number" placeholder="Enter positive integer">
+
 </div>
+    <p style="font-weight: bold">Environmental Metrics Threshold</p>
+    <input type="checkbox" id="auto-threshold">
+    <label for="auto-threshold" style="margin-bottom: 10px">Automatically infer the thresholds from the currently stored warehouse items.</label>
+<div style="margin-top: 10px; display: grid; gap: 10px; grid-template-columns: 180px 1fr">
+    <p>Temperature</p>
+    <span><input id="threshold-temp-from" type="number" placeholder="From"> - <input id="threshold-temp-to" type="number" placeholder="To"></span>
+
+    <p>CO2 Concentration</p>
+    <span><input id="threshold-co2-from" type="number" placeholder="From"> - <input id="threshold-co2-to" type="number" placeholder="To"></span>
+
+    <p>Humidity</p>
+    <span><input id="threshold-humidity-from" type="number" placeholder="From"> - <input id="threshold-humidity-to" type="number" placeholder="To"></span>
+</div>
+<button style="margin-top: 10px">Update Configuration</button>
+
+</div>
+<hr>
+
+
 <br>
+
+
+<h3 id="manage-produce">Manage Produce List</h3>
+<span>
+<label>Search:</label>
+<input type="text" id="search-prod" placeholder="Search Produce Name">
+
+<button>Search</button>
+    <button>Add produce...</button>
+</span>
+<p><i>Page 1/x</i> (<a>Prev</a>, <a>Next</a>)</p>
+<div style="width: 100%; overflow-x: scroll; min-height: 500px">
+    <table style="width: 100%; margin-bottom: 50px">
+        <thead>
+        <tr style="font-weight: bold">
+            <td rowspan="2" style="width: 50px">#</td>
+            <td rowspan="2" style="min-width: 200px">Produce Name</td>
+            <td rowspan="2" style="min-width: 100px">Shelf Life</td>
+            <td colspan="3" style="min-width: 400px">Environmental Threshold</td>
+            <td rowspan="2" style="min-width: 100px">Action</td>
+        </tr>
+        <tr>
+            <td colspan="1">Temperature</td>
+            <td colspan="1">Humidity</td>
+            <td colspan="1">CO2 Concentration</td>
+        </tr>
+
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+
 <hr>
 <h3 id="manage-users">Manage Users</h3>
-
-
 <div>
     <span>
         <label>Search:</label>
@@ -84,40 +135,24 @@
     </table>
 </div>
 
-<br>
 <hr>
-<h3 id="manage-produce">Manage Produce List</h3>
+<h3 id="reset-password" style="font-weight: bold">Reset Password</h3>
+<div style="display: flex; gap: 10px; flex-direction: column;">
+    <div style="display: flex; gap: 10px; width: 100%; flex-direction: column">
+        <input id="password" type="password" placeholder="Old Password" autocomplete="off">
+        <input id="new-password" type="password" placeholder="New Password">
+        <input id="retype-new-password" type="password" placeholder="Retype New Password">
 
+    </div>
+    <div>
+        <input type="checkbox" id="show-pwd">
+        <label for="show-pwd">Show Password</label>
 
-<span>
-<label>Search:</label>
-<input type="text" id="search-prod" placeholder="Search Produce Name">
-
-<button>Search</button>
-    <button>Add produce...</button>
-</span>
-<p><i>Page 1/x</i> (<a>Prev</a>, <a>Next</a>)</p>
-<div style="width: 100%; overflow-x: scroll; min-height: 500px">
-    <table style="width: 100%; margin-bottom: 50px">
-        <thead>
-        <tr style="font-weight: bold">
-            <td rowspan="2" style="width: 50px">#</td>
-            <td rowspan="2" style="min-width: 200px">Produce Name</td>
-            <td rowspan="2" style="min-width: 100px">Shelf Life</td>
-            <td colspan="3" style="min-width: 400px">Environmental Threshold</td>
-            <td rowspan="2" style="min-width: 100px">Action</td>
-        </tr>
-        <tr>
-            <td colspan="1">Temperature</td>
-            <td colspan="1">Humidity</td>
-            <td colspan="1">CO2 Concentration</td>
-        </tr>
-
-        </thead>
-        <tbody>
-
-        </tbody>
-    </table>
+    </div>
+    <button>Update Password</button>
 </div>
+<br>
+
+
 </body>
 </html>
