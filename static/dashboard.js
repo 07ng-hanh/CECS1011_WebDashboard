@@ -15,10 +15,26 @@ function update_sensor_metrics(temperature, humidity, co2) {
     document.getElementById("co2-label").innerText = co2
 }
 
+async function navigate_to_settings() {
+
+    r = await axios.get("/admin/request-settings-page",
+        {
+            validateStatus: function (status) {
+                return status >= 200 && status <= 500
+            }
+        }
+    )
+    if (r.status !== 200) {
+        window.location.href = "/api/users/request-settings-page"
+    } else {
+         window.location.href = "/admin/request-settings-page"
+    }
+
+}
+
 // Connect to event source to read sensor data at 1s interval
 const sensor_evt_source = new EventSource("/api/sensors/sensor-data-stream?interval=1")
 sensor_evt_source.addEventListener("message", (ev) => {
-
     let d = JSON.parse(ev.data)
     update_sensor_metrics(d.temperature, d.humidity, d.co2)
 })

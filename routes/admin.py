@@ -7,6 +7,9 @@ from dependency_injection import get_vk, get_pgpool
 from datamodels import NewUserForm
 from fastapi.responses import JSONResponse
 from argon2 import PasswordHasher
+from fastapi import Request
+from fastapi.responses import RedirectResponse
+import http.client
 
 rt = APIRouter()
 passwordHasher = PasswordHasher(memory_cost=64, time_cost=3, parallelism=1 )
@@ -36,3 +39,21 @@ async def delete_user(username: str):
 @rt.put("/user/toggle-admin")
 async def toggle_admin(username: str, is_admin: bool):
     pass
+
+@rt.get("/request-settings-page")
+async def request_settings_page(request: Request):
+    # This endpoint can only be reached when the user is authenticated via the middleware
+    # This endpoint is for redirecting users to their corresponding settings page (admin, non-admin),
+    # and does not do strict restriction enforcement.
+
+    # Enforcement is actually done by the middleware when requesting /users or /admin endpoints.
+    # Hence, a non-admin user navigating to the admin's settings page would not automatically bypass the restrictions.
+
+    username = request.cookies.get("username")
+    adminID = request.cookies.get("adminID")
+
+
+    if adminID:
+        return RedirectResponse("/static/settings-admin.html", http.client.SEE_OTHER)
+    else:
+        return RedirectResponse("/static/settings-nonprivileged.html", http.client.SEE_OTHER)
