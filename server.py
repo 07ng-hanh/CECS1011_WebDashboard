@@ -95,6 +95,10 @@ async def check_session_validity(request: Request, call_next):
             # For each server-side request, we reset the inactivity timeout.
             # await vk1.setex("sessionID", session_exp, sent_cookie_token)
             await vk1.set(sent_cookie_token, username, conditional_set=None, expiry=ExpirySet(ExpiryType.SEC, session_exp))
+
+            # Create a reverse map of user to list of available session tokens for easier mass revocation
+            await vk1.sadd(username, [sent_cookie_token, ])
+
             return await call_next(request)
 
 
@@ -145,7 +149,7 @@ async def create_session(credentials: Credentials, response: Response, vk1 = Dep
             # Otherwise, handle the exception raised by PasswordHasher
 
             if passwordHasher.verify(correct_p_hash, f"{credentials.username}::{credentials.password}"):
-                cookie_token = token_urlsafe(32)
+                cookie_token = f"{credentials.username}_{token_urlsafe(32)}"
                 response.set_cookie(
                     key="sessionID",
                     value= cookie_token,
@@ -211,4 +215,4 @@ async def reroute_to_dashboard_ui(request: Request, vk1: glide.GlideClient = Dep
         return RedirectResponse("/static/login.html")
 
 # Run the app
-uvicorn.run(app)
+uvicorn.run(app, timeout_keep_alive=0, timeout_graceful_shutdown=0)

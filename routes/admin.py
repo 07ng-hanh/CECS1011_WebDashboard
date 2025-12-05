@@ -4,7 +4,7 @@ import asyncpg.pool
 import glide
 from fastapi import Depends, APIRouter
 from dependency_injection import get_vk, get_pgpool
-from datamodels import NewUserForm
+from datamodels import NewUserForm, Credentials
 from fastapi.responses import JSONResponse
 from argon2 import PasswordHasher
 from fastapi import Request
@@ -24,21 +24,48 @@ async def add_user(newUser: NewUserForm, pgpool: asyncpg.pool.Pool = Depends(get
             return JSONResponse({"status": "adding new user failed. might be duplicating username?"}, HTTPStatus.UNPROCESSABLE_ENTITY)
 
 @rt.get("/list-users")
-async def list_users(page: int = 1, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+async def list_users(page: int = 1, limit: int = 20, query: str = "", pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
     async with pgpool.acquire() as con:
         try:
-            users = await con.fetchall("select username, is_admin from users limit 20 offset $1", (page - 1) * 20)
-            return JSONResponse(users)
-        except:
+            users = await con.fetch("select username, is_admin from users where username like $1 limit $2 offset $3", f'%{query}%', limit, (page - 1) * limit)
+            return JSONResponse([{"username": user["username"], "isadmin": user["is_admin"]} for user in users])
+        except BaseException as e:
+            print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 @rt.delete("/user")
-async def delete_user(username: str):
-    pass
+async def delete_user(username: str, pgpool: asyncpg.pool.Pool = Depends(get_pgpool), vk1 = Depends(get_vk)):
+    async with pgpool.acquire() as con:
+        try:
+            await con.execute("delete from users where username = $1", username)
+        except BaseException as e:
+            print(e)
+            return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    # Step 2: Invalidate all sessions. At the moment, this does not log out the user yet, but prevents their session from querying APIs further.
+    sessions_toks = await vk1.smembers(username)
+    await vk1.delete(list(sessions_toks))
+    await vk1.delete([username, ])
 
 @rt.put("/user/toggle-admin")
 async def toggle_admin(username: str, is_admin: bool):
     pass
+
+@rt.post("/change-user-password")
+async def change_user_password(u: Credentials, pgpool: asyncpg.pool.Pool = Depends(get_pgpool), vk1: glide.GlideClient = Depends(get_vk)):
+    # Step 1: update password on database.
+    async with pgpool.acquire() as con:
+        try:
+
+            await con.execute("update users set password_hash = $1 where username = $2", passwordHasher.hash(f"{u.username}::{u.password}"), u.username)
+        except:
+            return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+    # Step 2: Invalidate all sessions. At the moment, this does not log out the user yet, but prevents their session from querying APIs further.
+    sessions_toks = await vk1.smembers(u.username)
+    await vk1.delete(list(sessions_toks))
+    await vk1.delete([u.username, ])
+
 
 @rt.get("/request-settings-page")
 async def request_settings_page(request: Request):
@@ -49,7 +76,6 @@ async def request_settings_page(request: Request):
     # Enforcement is actually done by the middleware when requesting /users or /admin endpoints.
     # Hence, a non-admin user navigating to the admin's settings page would not automatically bypass the restrictions.
 
-    username = request.cookies.get("username")
     adminID = request.cookies.get("adminID")
 
 
