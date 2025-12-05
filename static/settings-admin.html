@@ -31,8 +31,6 @@
     </span>
 </div>
 
-
-
 <h3 id="warehouse-config">Warehouse Configuration</h3>
 <div style="min-height: 500px">
 <div style="display: grid; gap: 10px; grid-template-columns: 180px 1fr">
@@ -70,6 +68,7 @@
 <button>Search</button>
     <button>Add produce...</button>
 </span>
+
 <p><i>Page 1/x</i> (<a>Prev</a>, <a>Next</a>)</p>
 <div style="width: 100%; overflow-x: scroll; min-height: 500px">
     <table style="width: 100%; margin-bottom: 50px">
@@ -127,7 +126,6 @@
             <td>Yes</td>
             <td>
                 <button class="sm">Reset Password</button>
-                <button class="sm">Toggle Admin Status</button>
                 <button class="sm danger">Remove</button>
             </td>
         </tr>
@@ -155,4 +153,52 @@
 
 
 </body>
+
+<!-- POPUP VIEW TO ADD PRODUCE TO LIST -->
+<div id="editor-item-modal" style="display: none; width: 100dvw; height: 100dvh; background: #000000dd; position: fixed; z-index: 10; top: 0; left: 0; justify-content: center; align-items: center;">
+    <div style="width: 100%; max-width: 800px ; background: white; padding: 20px">
+        <h3>Add/Edit Produce Info</h3>
+
+        <div style="margin-top: 10px; display: grid; gap: 10px; grid-template-columns: 150px 1fr">
+            <p>Name</p>
+            <input id="editor-item-name" type="text" placeholder="">
+            <p>Temperature Threshold</p>
+            <span><input id="editor-item-threshold-temp-from" type="number" placeholder="From"> - <input id="threshold-temp-to" type="number" placeholder="To"></span>
+
+            <p>CO2 Concentration Threshold</p>
+            <span><input id="editor-item-threshold-co2-from" type="number" placeholder="From"> - <input id="threshold-co2-to" type="number" placeholder="To"></span>
+
+            <p>Humidity Threshold</p>
+            <span><input id="editor-item-threshold-humidity-from" type="number" placeholder="From"> - <input id="threshold-humidity-to" type="number" placeholder="To"></span>
+
+            <p>Expected Lifespan</p>
+            <input id="editor-item-lifespan" type="number">
+        </div>
+
+        <span style="display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 15px">
+            <button class="danger">Cancel</button>
+            <button>Save</button>
+        </span>
+    </div>
+</div>
+
+<div id="editor-user-modal" style="display: none; width: 100dvw; height: 100dvh; background: #000000dd; position: fixed; z-index: 10; top: 0; left: 0; justify-content: center; align-items: center;">
+    <div style="width: 100%; max-width: 800px ; background: white; padding: 20px">
+        <h3>Add User</h3>
+
+        <div style="margin-top: 10px; display: grid; gap: 10px; grid-template-columns: 150px 1fr">
+            <p>Username</p>
+            <input id="edit-username-text" type="text">
+            <p>Password</p>
+            <input id="edit-user-password" type="text">
+
+        </div>
+
+        <span style="display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 15px">
+            <button class="danger">Cancel</button>
+            <button>Save</button>
+        </span>
+    </div>
+</div>
+
 </html>
