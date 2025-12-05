@@ -70,7 +70,7 @@ async def sensor_yield(interval):
 
 @rt.get("/sensor-data-stream")
 async def sensor_push(interval: float):
-    return StreamingResponse(sensor_yield(interval), media_type="text/event-source")
+    return StreamingResponse(sensor_yield(interval), media_type="text/event-stream")
 
 
 @rt.get("/sensor-data-historic")
