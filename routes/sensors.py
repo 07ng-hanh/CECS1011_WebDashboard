@@ -51,7 +51,6 @@ async def write_sensor_data(ws: fastapi.WebSocket):
 
 
 async def sensor_yield(interval):
-    # yield every second
     last_push = 0
     Q = asyncio.Queue(maxsize=100)
     client_queues.add(Q)
@@ -60,7 +59,7 @@ async def sensor_yield(interval):
             e = await Q.get()
             if e["timestamp"] - last_push >= interval:
                 last_push = e["timestamp"]
-                yield f"data: {json.dumps(e)}"
+                yield f"data: {json.dumps(e)}\n\n"
             Q.task_done()
         except (asyncio.QueueFull, BrokenPipeError, ConnectionResetError, ClientDisconnect):
             # Disconnect stale clients
@@ -71,7 +70,7 @@ async def sensor_yield(interval):
 
 @rt.get("/sensor-data-stream")
 async def sensor_push(interval: float):
-    return StreamingResponse(sensor_yield(interval))
+    return StreamingResponse(sensor_yield(interval), media_type="text/event-source")
 
 
 @rt.get("/sensor-data-historic")
