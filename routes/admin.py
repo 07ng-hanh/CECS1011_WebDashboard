@@ -4,7 +4,7 @@ import asyncpg.pool
 import glide
 from fastapi import Depends, APIRouter
 from dependency_injection import get_vk, get_pgpool
-from datamodels import NewUserForm, Credentials
+from datamodels import NewUserForm, Credentials, ProduceInfoForm
 from fastapi.responses import JSONResponse
 from argon2 import PasswordHasher
 from fastapi import Request
@@ -83,3 +83,22 @@ async def request_settings_page(request: Request):
         return RedirectResponse("/static/settings-admin.html", http.client.SEE_OTHER)
     else:
         return RedirectResponse("/static/settings-nonprivileged.html", http.client.SEE_OTHER)
+
+@rt.post("/add-produce")
+async def add_produce(n: ProduceInfoForm, pg: asyncpg.pool.Pool = Depends(get_pgpool)):
+
+    async with pg.acquire() as con:
+        try:
+            d = await con.fetchone("insert into produceinfo (harvest_type, shelf_life, thresh_temp_lo, thresh_temp_hi, thresh_humidity_lo, thresh_humidity_hi, thresh_co2_lo, thresh_co2_hi) values ($1, $2, $3, $4, $5, $6, $7, $8) returning id",
+                        n.harvest_type_name,
+                        n.shelf_life,
+                        n.thresh_temp_lo,
+                        n.thresh_temp_hi,
+                        n.thresh_humidity_lo,
+                        n.thresh_humidity_hi,
+                        n.thresh_co2_lo,
+                        n.thresh_co2_hi)
+            return JSONResponse({"id": d, "prod": n}, 200)
+        except:
+            return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
+

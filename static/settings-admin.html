@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Settings</title>
-    <script src="settings-admin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
+    <script src="settings-admin-usermanagement.js"></script>
+    <script src="settings-admin-productmanagement.js"></script>
 </head>
 <body>
 
@@ -70,7 +70,7 @@
 <input type="text" id="search-prod" placeholder="Search Produce Name">
 
 <button>Search</button>
-    <button>Add produce...</button>
+    <button onclick="toggleProduceEditModal(true)">Add produce...</button>
 </span>
 
 <p><i>Page <span id="page-prod">1</span></i> (<a>Prev</a>, <a>Next</a>)</p>
@@ -159,20 +159,20 @@
             <p>Name</p>
             <input id="editor-item-name" type="text" placeholder="">
             <p>Temperature Threshold</p>
-            <span><input id="editor-item-threshold-temp-from" type="number" placeholder="From"> - <input id="threshold-temp-to" type="number" placeholder="To"></span>
+            <span><input id="editor-item-threshold-temp-from" type="number" placeholder="From"> - <input id="edit-threshold-temp-to" type="number" placeholder="To"></span>
 
             <p>CO2 Concentration Threshold</p>
-            <span><input id="editor-item-threshold-co2-from" type="number" placeholder="From"> - <input id="threshold-co2-to" type="number" placeholder="To"></span>
+            <span><input id="editor-item-threshold-co2-from" type="number" placeholder="From"> - <input id="edit-threshold-co2-to" type="number" placeholder="To"></span>
 
             <p>Humidity Threshold</p>
-            <span><input id="editor-item-threshold-humidity-from" type="number" placeholder="From"> - <input id="threshold-humidity-to" type="number" placeholder="To"></span>
+            <span><input id="editor-item-threshold-humidity-from" type="number" placeholder="From"> - <input id="edit-threshold-humidity-to" type="number" placeholder="To"></span>
 
-            <p>Expected Lifespan</p>
+            <p>Expected Shelf Life</p>
             <input id="editor-item-lifespan" type="number">
         </div>
 
         <span style="display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 15px">
-            <button class="danger">Cancel</button>
+            <button onclick="toggleProduceEditModal(false)" class="danger">Cancel</button>
             <button>Save</button>
         </span>
     </div>
