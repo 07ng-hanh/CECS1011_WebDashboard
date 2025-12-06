@@ -22,12 +22,12 @@ class NewBatchForm(BaseModel):
 class ProduceInfoForm(BaseModel):
     harvest_type_name: str
     shelf_life: int
-    thresh_temp_lo: float
-    thresh_temp_hi: float
-    thresh_humidity_lo: float
-    thresh_humidity_hi: float
-    thresh_co2_lo: float
-    thresh_co2_hi: float
+    thresh_temp_lo: Optional[float] = float('-inf')
+    thresh_temp_hi: Optional[float] = float('inf')
+    thresh_humidity_lo: Optional[float] = float('-inf')
+    thresh_humidity_hi: Optional[float] = float('inf')
+    thresh_co2_lo: Optional[float] = float('-inf')
+    thresh_co2_hi: Optional[float] = float('inf')
 
 class EnvironmentReading(BaseModel):
     timestamp: int # UNIX timestamp at UTC time (seconds)

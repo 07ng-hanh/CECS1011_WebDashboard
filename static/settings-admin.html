@@ -154,9 +154,9 @@
 <div id="editor-item-modal" style="display: none; width: 100dvw; height: 100dvh; background: #000000dd; position: fixed; z-index: 10; top: 0; left: 0; justify-content: center; align-items: center;">
     <div style="width: 100%; max-width: 800px ; background: white; padding: 20px">
         <h2>Add/Edit Produce Info</h2>
-
+        <p style="color: red"><i>(*) required</i></p>
         <div style="margin-top: 10px; display: grid; gap: 10px; grid-template-columns: 150px 1fr">
-            <p>Name</p>
+            <p>Name (*)</p>
             <input id="editor-item-name" type="text" placeholder="">
             <p>Temperature Threshold</p>
             <span><input id="editor-item-threshold-temp-from" type="number" placeholder="From"> - <input id="edit-threshold-temp-to" type="number" placeholder="To"></span>
@@ -167,13 +167,13 @@
             <p>Humidity Threshold</p>
             <span><input id="editor-item-threshold-humidity-from" type="number" placeholder="From"> - <input id="edit-threshold-humidity-to" type="number" placeholder="To"></span>
 
-            <p>Expected Shelf Life</p>
+            <p>Expected Shelf Life (days) (*)</p>
             <input id="editor-item-lifespan" type="number">
         </div>
 
         <span style="display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 15px">
             <button onclick="toggleProduceEditModal(false)" class="danger">Cancel</button>
-            <button>Save</button>
+            <button onclick="promptUploadProduceInfo()">Save</button>
         </span>
     </div>
 </div>

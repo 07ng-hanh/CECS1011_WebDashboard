@@ -87,18 +87,40 @@ async def request_settings_page(request: Request):
 @rt.post("/add-produce")
 async def add_produce(n: ProduceInfoForm, pg: asyncpg.pool.Pool = Depends(get_pgpool)):
 
+    # thresh_temp_lo: Optional[float] = float('-inf')
+    # thresh_temp_hi: Optional[float] = float('inf')
+    # thresh_humidity_lo: Optional[float] = float('-inf')
+    # thresh_humidity_hi: Optional[float] = float('inf')
+    # thresh_co2_lo: Optional[float] = float('-inf')
+    # thresh_co2_hi: Optional[float] = float('inf')
+    _n = n
+    if not _n.thresh_temp_lo:
+        _n.thresh_temp_lo = float('-inf')
+    if not _n.thresh_co2_lo:
+        _n.thresh_co2_lo = float('-inf')
+    if not _n.thresh_humidity_lo:
+            _n.thresh_humidity_lo = float('-inf')
+
+    if not _n.thresh_temp_hi:
+        _n.thresh_temp_hi = float('inf')
+    if not _n.thresh_co2_hi:
+        _n.thresh_co2_hi = float('inf')
+    if not _n.thresh_humidity_hi:
+            _n.thresh_humidity_hi = float('inf')
+
     async with pg.acquire() as con:
         try:
-            d = await con.fetchone("insert into produceinfo (harvest_type, shelf_life, thresh_temp_lo, thresh_temp_hi, thresh_humidity_lo, thresh_humidity_hi, thresh_co2_lo, thresh_co2_hi) values ($1, $2, $3, $4, $5, $6, $7, $8) returning id",
-                        n.harvest_type_name,
-                        n.shelf_life,
-                        n.thresh_temp_lo,
-                        n.thresh_temp_hi,
-                        n.thresh_humidity_lo,
-                        n.thresh_humidity_hi,
-                        n.thresh_co2_lo,
-                        n.thresh_co2_hi)
-            return JSONResponse({"id": d, "prod": n}, 200)
-        except:
+            d = await con.fetch("insert into produceinfo (harvest_type_name, shelf_life, thresh_temp_lo, thresh_temp_hi, thresh_humidity_lo, thresh_humidity_hi, thresh_co2_lo, thresh_co2_hi) values ($1, $2, $3, $4, $5, $6, $7, $8) returning id",
+                        _n.harvest_type_name,
+                        _n.shelf_life,
+                        _n.thresh_temp_lo,
+                        _n.thresh_temp_hi,
+                        _n.thresh_humidity_lo,
+                        _n.thresh_humidity_hi,
+                        _n.thresh_co2_lo,
+                        _n.thresh_co2_hi)
+            return JSONResponse({"id": d[0]['id']}, 200)
+        except Exception as e:
+            print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
