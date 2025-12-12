@@ -47,10 +47,6 @@ async def delete_user(username: str, pgpool: asyncpg.pool.Pool = Depends(get_pgp
     await vk1.delete(list(sessions_toks))
     await vk1.delete([username, ])
 
-@rt.put("/user/toggle-admin")
-async def toggle_admin(username: str, is_admin: bool):
-    pass
-
 @rt.post("/change-user-password")
 async def change_user_password(u: Credentials, pgpool: asyncpg.pool.Pool = Depends(get_pgpool), vk1: glide.GlideClient = Depends(get_vk)):
     # Step 1: update password on database.
@@ -123,4 +119,3 @@ async def add_produce(n: ProduceInfoForm, pg: asyncpg.pool.Pool = Depends(get_pg
         except Exception as e:
             print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
-

@@ -18,6 +18,9 @@ client_queues: set[asyncio.Queue] = set()
 
 @rt.websocket("/write-sensor-data")
 async def write_sensor_data(ws: fastapi.WebSocket):
+
+    # TODO: Add mechanism for admin to rotate sensor API key. Propagate change to DB and valkey. If key changes, force disconnect sensor.
+
     authkey = ws.headers.get("Authorization")
     pgpool = await get_pgpool()
 

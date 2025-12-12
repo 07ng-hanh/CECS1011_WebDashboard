@@ -38,3 +38,9 @@ sensor_evt_source.addEventListener("message", (ev) => {
     let d = JSON.parse(ev.data)
     update_sensor_metrics(d.temperature, d.humidity, d.co2)
 })
+
+
+
+window.addEventListener("beforeunload", () => {
+    sensor_evt_source.close()
+})
