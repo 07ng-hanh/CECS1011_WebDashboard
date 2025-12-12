@@ -33,7 +33,7 @@ async def list_users(page: int = 1, limit: int = 20, query: str = "", pgpool: as
             print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
-@rt.delete("/user")
+@rt.delete("/delete-user")
 async def delete_user(username: str, pgpool: asyncpg.pool.Pool = Depends(get_pgpool), vk1 = Depends(get_vk)):
     async with pgpool.acquire() as con:
         try:

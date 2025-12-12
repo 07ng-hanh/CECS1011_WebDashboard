@@ -117,7 +117,7 @@ function showUsersInGrid(users, start_index) {
 
 async function removeUserByUserName(username) {
     if (confirm(`Delete user ${username}?`)) {
-        a = await axios.delete("/admin/user",  {
+        a = await axios.delete("/admin/delete-user",  {
             validateStatus: function (status) {
                 return status >= 200 && status <= 500
             },
