@@ -63,7 +63,7 @@ input[type='password'] {
     flex-direction: column;
     gap: 10px;
     position: absolute;
-    top:190px;
+    top:240px;
     padding: 10px;
     padding-top: 0px;
     width: 100%;
@@ -119,7 +119,6 @@ input[type='password'] {
         background: white;
         display: grid;
         gap: 10px;
-        grid-template-columns: 1.5fr 1fr 1fr 1fr
     }
 
     .orders-card-container {
@@ -160,7 +159,7 @@ input[type='password'] {
     .lookup-top-bar {
         display: grid;
         gap: 10px;
-        grid-template-columns: 1fr 1fr;
+
         background: white;
     }
 

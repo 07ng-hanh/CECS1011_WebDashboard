@@ -8,6 +8,7 @@ import time
 from asyncpg import Pool
 import fastapi
 from fastapi.params import Depends
+from glide_shared import GlideClientConfiguration
 from starlette.requests import ClientDisconnect
 from starlette.responses import PlainTextResponse, StreamingResponse, JSONResponse
 
@@ -18,9 +19,8 @@ client_queues: set[asyncio.Queue] = set()
 
 @rt.websocket("/write-sensor-data")
 async def write_sensor_data(ws: fastapi.WebSocket):
-
     # TODO: Add mechanism for admin to rotate sensor API key. Propagate change to DB and valkey. If key changes, force disconnect sensor.
-
+    # TODO: Instead of fanning out responses to the client, send to a Redis Pub/Sub channel to prevent clogging the event loop. The propagation server will pick up on the Pub/Sub messages and distribute them.
     authkey = ws.headers.get("Authorization")
     pgpool = await get_pgpool()
 
@@ -59,11 +59,13 @@ async def sensor_yield(interval):
     client_queues.add(Q)
     while True:
         try:
+            # TODO: In a "separate yielding loop" scenario, await for new chunks from the fan-out server and simply yield that chunk
             e = await Q.get()
             if e["timestamp"] - last_push >= interval:
                 last_push = e["timestamp"]
                 yield f"data: {json.dumps(e)}\n\n"
             Q.task_done()
+            # end of replacement
         except (asyncio.QueueFull, BrokenPipeError, ConnectionResetError, ClientDisconnect):
             # Disconnect stale clients
             client_queues.remove(Q)

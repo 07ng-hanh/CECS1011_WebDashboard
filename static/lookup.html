@@ -25,7 +25,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.min.js"
             integrity="sha512-nKXmKvJyiGQy343jatQlzDprflyB5c+tKCzGP3Uq67v+lmzfnZUi/ZT+fc6ITZfSC5HhaBKUIvr/nTLCV+7F+Q=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css" integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="lookup.js"></script>
 </head>
 <body>
@@ -37,8 +37,9 @@
         </span>
 
     <div class="lookup-top-bar">
+        <span style="display: grid ; gap: 10px; grid-template-columns: 1.5fr 1fr 1fr">
         <input class="form-control" style="width: 100%" name="produce-name" id="produce-name"
-               placeholder="Produce Name or Batch ID">
+               placeholder="Name or Batch ID">
 
         <!-- Replacing maximum shelf life with harvest date range.
         This is more flexible and more intuitive than “maximum shelf life.”
@@ -56,8 +57,8 @@
             <option value="discarded">Discarded</option>
 
         </select>
-
-        <span style="display: grid; gap: 10px; grid-template-columns: 1fr 58px">
+        </span>
+        <span style="display: grid; gap: 10px; grid-template-columns: 1fr 58px;">
 
                 <select id="sort-dropdown" class="form-control">
                     <option value="">Sort By...</option>
@@ -86,7 +87,7 @@
 
             <label class="form-check-label" for="almost-expire-toggle">Only show almost expired batches</label>
         </div>
-        <span style="display: grid; grid-template-columns: 1fr 150px; gap: 10px">
+        <span style="display: grid; grid-template-columns: 1fr 150px 150px; gap: 10px">
                 <button class="btn btn-primary" id="search">Search</button>
                 <div class="dropdown">
                   <button style="width: 100%" class="btn btn-secondary dropdown-toggle" href="#" role="button"
@@ -101,6 +102,7 @@
                     <li><button class="dropdown-item">XLSX (All)</button></li>
                   </ul>
                 </div>
+                <button class="btn btn-secondary">Clear Filters</button>
             </span>
 
     </div>
@@ -117,10 +119,10 @@
             <b id="batch-name-and-id">#000000 Produce-Name (500 pcs)</b>
             <p class="card-info-entry"><span class="card-entry-label">Weight:</span> <b id="weight-counter">-- kg</b>
             </p>
-            <p class="card-info-entry"><span class="card-entry-label">Harvest At:</span> <b id="import-date-entry">DD-MM-YYYY
+            <p class="card-info-entry"><span class="card-entry-label">Harvested At:</span> <b id="import-date-entry">YYYY-MM-DD
                 HH:MM:SS</b></p>
-            <p class="card-info-entry"><span class="card-entry-label">Shelf Life Remaining:</span> <b
-                    class="accented-indicator" id="shelf-life-remaining">-- days</b></p>
+            <p class="card-info-entry"><span class="card-entry-label">Expires At:</span> <b class="accented-indicator" id="expire-date-entry">YYYY-MM-DD</b> <span
+                    class="accented-indicator" id="shelf-life-remaining">(-- days)</span></p>
 
             <!-- Different Status Indicators-->
             <!-- When dealing with real data, only one of those shows at the same time -->
@@ -134,11 +136,13 @@
         </div>
         <div class="entry-card-action-btn">
             <button class="btn btn-outline-primary">Assign/Suggest Shipment</button>
-            <button class="btn btn-outline-primary">Batch Health</button>
+            <button class="btn btn-outline-primary">Health</button>
             <button class="btn btn-outline-danger">Discard</button>
         </div>
+    <button class="btn btn-outline-primary" style="position: fixed; bottom: 10px; left:10px; right:10px; padding: 10px; font-weight: bold"> <i class="bi bi-stars"></i> Suggest shipment for all batches</button>
 
     </div>
+
 
 </div>
 
