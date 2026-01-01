@@ -54,3 +54,13 @@ class ExportOrder(BaseModel):
     destination_port_lat: float
     destination_port_lon: float
     departure_day: int
+
+class WarehouseConfig(BaseModel):
+    capacity: int
+    threshold_auto: bool
+    temperature_low: float | None = None
+    temperature_hi: float | None = None
+    co2_low: float | None = None
+    co2_hi: float | None = None
+    humidity_lo: float | None = None
+    humidity_hi: float | None = None

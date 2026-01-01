@@ -167,3 +167,11 @@ async def edit_produce(produceId: int, n: ProduceInfoForm, pg: asyncpg.pool.Pool
         except Exception as e:
             print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+@rt.get("/get-warehouse-config")
+def get_warehouse_config():
+    pass
+
+@rt.get("/set-warehouse-config")
+def set_warehouse_config():
+    pass
