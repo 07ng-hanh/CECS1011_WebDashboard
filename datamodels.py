@@ -1,4 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
+import math
 from typing import Optional
 
 class Credentials(BaseModel):
@@ -28,6 +29,16 @@ class ProduceInfoForm(BaseModel):
     thresh_humidity_hi: Optional[float] = float('inf')
     thresh_co2_lo: Optional[float] = float('-inf')
     thresh_co2_hi: Optional[float] = float('inf')
+
+    # Since threshold values can contain inf and -inf which are not JSON-compliant
+    # the following code serializes such to "Infinity" / "-Infinity" string representation
+    @field_serializer('thresh_temp_lo', 'thresh_temp_hi', 'thresh_humidity_lo', 'thresh_humidity_hi', 'thresh_co2_lo', 'thresh_co2_hi')
+    def serialize_float(self, v: float):
+        if math.isinf(v):
+            return "Infinity" if v > 0 else "-Infinity"
+        if math.isnan(v):
+            return None
+        return v
 
 class EnvironmentReading(BaseModel):
     timestamp: int # UNIX timestamp at UTC time (seconds)

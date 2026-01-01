@@ -9,6 +9,7 @@ from starlette.responses import HTMLResponse
 from routes.users import rt as users_api_route
 from routes.admin import rt as admin_api_route
 from routes.sensors import rt as sensors_api_route
+from routes.produce import rt as produce_api_route
 import dependency_injection as di
 from dependency_injection import get_vk, get_pgpool
 import argon2.exceptions
@@ -69,6 +70,7 @@ async def startup_event():
     app.include_router(users_api_route, prefix="/api/users")
     app.include_router(admin_api_route, prefix="/admin")
     app.include_router(sensors_api_route, prefix="/api/sensors")
+    app.include_router(produce_api_route, prefix="/api/produce")
 
 # Session Checker Middleware for APIs
 @app.middleware("http")
