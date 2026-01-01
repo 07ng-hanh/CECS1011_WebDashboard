@@ -29,7 +29,7 @@ async def add_user(newUser: NewUserForm, pgpool: asyncpg.pool.Pool = Depends(get
 async def list_users(page: int = 1, limit: int = 20, query: str = "", pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
     async with pgpool.acquire() as con:
         try:
-            users = await con.fetch("select username, is_admin from users where username like $1 limit $2 offset $3", f'%{query}%', limit, (page - 1) * limit)
+            users = await con.fetch("select username, is_admin from users where username ilike $1 limit $2 offset $3", f'%{query}%', limit, (page - 1) * limit)
             return JSONResponse([{"username": user["username"], "isadmin": user["is_admin"]} for user in users])
         except BaseException as e:
             print(e)
@@ -45,9 +45,12 @@ async def delete_user(username: str, pgpool: asyncpg.pool.Pool = Depends(get_pgp
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
     # Step 2: Invalidate all sessions. At the moment, this does not log out the user yet, but prevents their session from querying APIs further.
-    sessions_toks = await vk1.smembers(username)
-    await vk1.delete(list(sessions_toks))
-    await vk1.delete([username, ])
+    try:
+        sessions_toks = await vk1.smembers(username)
+        await vk1.delete(list(sessions_toks))
+        await vk1.delete([username, ])
+    except:
+        pass
 
 @rt.post("/change-user-password")
 async def change_user_password(u: Credentials, pgpool: asyncpg.pool.Pool = Depends(get_pgpool), vk1: glide.GlideClient = Depends(get_vk)):

@@ -73,9 +73,9 @@
     <button onclick="toggleProduceEditModal(true)">Add produce...</button>
 </span>
 
-<p><i>Page <span id="page-prod">1</span></i> (<a>Prev</a>, <a>Next</a>)</p>
+<p> <button class="sm" onclick="getAndShowProduceList(produce_page - 1)"><</button>  <i>Page <span id="page-produce">1</span></i> <button class="sm" onclick="getAndShowProduceList(produce_page + 1)"> > </button></p>
 <div style="width: 100%; overflow-x: scroll; min-height: 500px">
-    <table style="width: 100%; margin-bottom: 50px">
+    <table id="produce-table" style="width: 100%; margin-bottom: 50px">
         <thead>
         <tr style="font-weight: bold">
             <td rowspan="2" style="width: 50px">#</td>

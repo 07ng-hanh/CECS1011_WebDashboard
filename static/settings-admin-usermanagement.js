@@ -167,7 +167,8 @@ async function promptReplaceUserPassword(username) {
 
 let user_page = 1
 let user_page_lim = 50
-async function getAndShowUsers(page, query = "") {
+let user_page_query = ""
+async function getAndShowUsers(page) {
 
     if (page < 1) {
         page = 1
@@ -181,7 +182,7 @@ async function getAndShowUsers(page, query = "") {
             params: {
                 page: user_page,
                 limit: user_page_lim,
-                query: query
+                query: user_page_query
             }
         })
 
@@ -195,9 +196,9 @@ async function getAndShowUsers(page, query = "") {
 }
 
 async function queryUsers() {
-    let q = document.getElementById("search-username-00x").value
+    user_page_query = document.getElementById("search-username-00x").value
     user_page = 1
-    getAndShowUsers(user_page, q)
+    getAndShowUsers(user_page)
 }
 
 
