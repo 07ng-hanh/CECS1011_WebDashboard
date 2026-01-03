@@ -6,7 +6,7 @@ from fastapi import Depends, APIRouter
 from starlette.responses import PlainTextResponse
 
 from dependency_injection import get_vk, get_pgpool
-from datamodels import NewUserForm, Credentials, ProduceInfoForm
+from datamodels import NewUserForm, Credentials, ProduceInfoForm, WarehouseConfig
 from fastapi.responses import JSONResponse
 from argon2 import PasswordHasher
 from fastapi import Request
@@ -168,10 +168,19 @@ async def edit_produce(produceId: int, n: ProduceInfoForm, pg: asyncpg.pool.Pool
             print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
-@rt.get("/get-warehouse-config")
-def get_warehouse_config():
-    pass
 
-@rt.get("/set-warehouse-config")
-def set_warehouse_config():
-    pass
+
+@rt.post("/set-warehouse-config")
+async def set_warehouse_config(config: WarehouseConfig, pg: asyncpg.pool.Pool = Depends(get_pgpool)):
+    async with pg.acquire() as conn:
+        # iterate each key
+        for key, val in config:
+            # Check if key exists
+            if (await conn.fetch("select 1 from configuration where key = $1", key)):
+                print(key, "key exists")
+                # Routine for updating existing key
+                await conn.execute("update configuration set value = $1 where key = $2", str(val), key)
+            else:
+                print(key, "key not exists")
+                # Routine for adding new key
+                await conn.execute("insert into configuration (value, key) values ($1, $2)", str(val), key)
