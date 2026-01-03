@@ -5,6 +5,8 @@ import json
 from datetime import timezone
 import os
 import time
+
+import asyncpg.pool
 from asyncpg import Pool
 import fastapi
 from fastapi.params import Depends
@@ -22,7 +24,7 @@ async def write_sensor_data(ws: fastapi.WebSocket):
     # TODO: Add mechanism for admin to rotate sensor API key. Propagate change to DB and valkey. If key changes, force disconnect sensor.
     # TODO: Instead of fanning out responses to the client, send to a Redis Pub/Sub channel to prevent clogging the event loop. The propagation server will pick up on the Pub/Sub messages and distribute them.
     authkey = ws.headers.get("Authorization")
-    pgpool = await get_pgpool()
+    pgpool: asyncpg.pool.Pool = await get_pgpool()
 
     if not authkey:
         await ws.send_denial_response(PlainTextResponse("missing api key"))
@@ -32,25 +34,31 @@ async def write_sensor_data(ws: fastapi.WebSocket):
         await ws.send_denial_response(PlainTextResponse("api key mismatch"))
         return PlainTextResponse("", 404)
     await ws.accept()
+
     last_t = 0
-    while True:
-        e = await ws.receive_json()
-        t = int(datetime.datetime.now(timezone.utc).timestamp())
-        if t > last_t:
-            # ensure the sensor data is only written once per sec
-            last_t = t
-            e["timestamp"] = t
+    con = await pgpool.acquire()
+    try:
+        while True:
+            e = await ws.receive_json()
+            t = int(datetime.datetime.now(timezone.utc).timestamp())
+            if t > last_t:
+                # ensure the sensor data is only written once per sec
+                last_t = t
+                e["timestamp"] = t
 
-            for c in client_queues:
-                try:
-                    c.put_nowait(e)
-                except:
-                    pass
+                for c in client_queues:
+                    try:
+                        c.put_nowait(e)
+                    except:
+                        pass
 
-            async with pgpool.acquire() as con:
-                await con.execute("insert into environmentreading (timestamp, temperature, co2, humidity) values ($1, $2, $3, $4)",
-                            e["timestamp"], e["temperature"], e["co2"], e["humidity"])
 
+                await con.execute("insert into environmentreading (timestamp, temperature, co2, humidity) values ($1, $2, $3, $4)", e["timestamp"], e["temperature"], e["co2"], e["humidity"])
+    finally:
+        # On exit, clean up
+        # pass
+        print("CONN CLOSED!")
+        await con.close()
 
 
 async def sensor_yield(interval):
