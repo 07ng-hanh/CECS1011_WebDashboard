@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="settings-admin-usermanagement.js"></script>
     <script src="settings-admin-productmanagement.js"></script>
+    <script src="settings-admin-warehouseconfig.js"></script>
 </head>
 <body>
 
@@ -56,7 +57,7 @@
     <p>Humidity</p>
     <span><input id="threshold-humidity-from" type="number" placeholder="From"> - <input id="threshold-humidity-to" type="number" placeholder="To"></span>
 </div>
-<button style="margin-top: 10px">Update Configuration</button>
+<button style="margin-top: 10px" onclick="set_warehouse_configuration()">Update Configuration</button>
 
 </div>
 <hr>
