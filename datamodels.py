@@ -56,11 +56,11 @@ class ExportOrder(BaseModel):
     departure_day: int
 
 class WarehouseConfig(BaseModel):
-    capacity: int
-    threshold_auto: bool
-    temperature_low: float | None = None
-    temperature_hi: float | None = None
-    co2_low: float | None = None
-    co2_hi: float | None = None
-    humidity_lo: float | None = None
-    humidity_hi: float | None = None
+    capacity: Optional[int | None] = None
+    threshold_auto: Optional[bool | None] = None
+    temperature_low: Optional[float | None] = None
+    temperature_hi: Optional[float | None] = None
+    co2_low: Optional[float | None] = None
+    co2_hi: Optional[float | None] = None
+    humidity_lo: Optional[float | None] = None
+    humidity_hi: Optional[float | None] = None

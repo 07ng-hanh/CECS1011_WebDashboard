@@ -175,6 +175,8 @@ async def set_warehouse_config(config: WarehouseConfig, pg: asyncpg.pool.Pool = 
     async with pg.acquire() as conn:
         # iterate each key
         for key, val in config:
+            if val == None:
+                continue
             # Check if key exists
             if (await conn.fetch("select 1 from configuration where key = $1", key)):
                 print(key, "key exists")
