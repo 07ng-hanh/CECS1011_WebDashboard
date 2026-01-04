@@ -168,8 +168,6 @@ async def edit_produce(produceId: int, n: ProduceInfoForm, pg: asyncpg.pool.Pool
             print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
-
-
 @rt.post("/set-warehouse-config")
 async def set_warehouse_config(config: WarehouseConfig, pg: asyncpg.pool.Pool = Depends(get_pgpool)):
     async with pg.acquire() as conn:

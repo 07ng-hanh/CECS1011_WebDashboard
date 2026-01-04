@@ -1,16 +1,14 @@
 import os
 from http import HTTPStatus
-from pydoc import HTMLRepr
 
 import glide
 from fastapi.params import Depends
-from starlette.responses import HTMLResponse
 
 from routes.users import rt as users_api_route
 from routes.admin import rt as admin_api_route
 from routes.sensors import rt as sensors_api_route
 from routes.produce import rt as produce_api_route
-import dependency_injection as di
+from routes.config import rt as config_api_route
 from dependency_injection import get_vk, get_pgpool
 import argon2.exceptions
 import asyncpg.pool
@@ -71,6 +69,7 @@ async def startup_event():
     app.include_router(admin_api_route, prefix="/admin")
     app.include_router(sensors_api_route, prefix="/api/sensors")
     app.include_router(produce_api_route, prefix="/api/produce")
+    app.include_router(config_api_route, prefix="/api/config")
 
 # Session Checker Middleware for APIs
 @app.middleware("http")
