@@ -10,6 +10,7 @@ from routes.sensors import rt as sensors_api_route
 from routes.produce import rt as produce_api_route
 from routes.config import rt as config_api_route
 from routes.batch import rt as batch_api_route
+from routes.shipments import rt as shipments_api_route
 from dependency_injection import get_vk, get_pgpool
 
 import argon2.exceptions
@@ -73,6 +74,7 @@ async def startup_event():
     app.include_router(produce_api_route, prefix="/api/produce")
     app.include_router(config_api_route, prefix="/api/config")
     app.include_router(batch_api_route, prefix="/api/batch")
+    app.include_router(shipments_api_route, prefix="/api/shipments")
 
 # Session Checker Middleware for APIs
 @app.middleware("http")
