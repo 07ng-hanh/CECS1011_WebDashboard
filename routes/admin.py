@@ -170,6 +170,7 @@ async def edit_produce(produceId: int, n: ProduceInfoForm, pg: asyncpg.pool.Pool
 
 @rt.post("/set-warehouse-config")
 async def set_warehouse_config(config: WarehouseConfig, pg: asyncpg.pool.Pool = Depends(get_pgpool)):
+    print(config)
     async with pg.acquire() as conn:
         # iterate each key
         for key, val in config:

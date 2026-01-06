@@ -101,7 +101,7 @@ async function promptUploadProduceInfo() {
 }
 
 let produce_page = 1
-let produce_lim = 50
+let produce_lim = 15
 let produce_query = ""
 async function getAndShowProduceList(page) {
     if (page < 1) {
@@ -109,8 +109,6 @@ async function getAndShowProduceList(page) {
     }
     produce_page = page
     console.log(produce_page)
-
-
 
     ret = await axios.get("/api/produce/list-produces", {
         validateStatus: function (status) {

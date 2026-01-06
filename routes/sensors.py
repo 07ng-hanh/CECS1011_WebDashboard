@@ -40,7 +40,7 @@ async def write_sensor_data(ws: fastapi.WebSocket):
     try:
         while True:
             e = await ws.receive_json()
-            t = int(datetime.datetime.now(timezone.utc).timestamp())
+            t = int(datetime.datetime.now(timezone.utc).timestamp() * 1000)
             if t > last_t:
                 # ensure the sensor data is only written once per sec
                 last_t = t
@@ -89,7 +89,7 @@ async def sensor_push(interval: float):
 @rt.get("/sensor-data-historic")
 async def sensor_historic(period: int, aggregation_range: int = 1, pgpool: Pool = Depends(get_pgpool)):
     # obtain timestamp cutoff
-    t = datetime.datetime.now(timezone.utc).timestamp() - period
+    t = datetime.datetime.now(timezone.utc).timestamp() * 1000 - period
 
 
     async with pgpool.acquire() as con:

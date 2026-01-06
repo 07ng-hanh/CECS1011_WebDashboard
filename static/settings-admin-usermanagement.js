@@ -166,7 +166,7 @@ async function promptReplaceUserPassword(username) {
 }
 
 let user_page = 1
-let user_page_lim = 50
+let user_page_lim = 15
 let user_page_query = ""
 async function getAndShowUsers(page) {
 

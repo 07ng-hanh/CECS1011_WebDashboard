@@ -1,6 +1,6 @@
 from pydantic import BaseModel, field_serializer
 import math
-from typing import Optional
+from typing import Optional, Any
 
 # test push
 
@@ -18,9 +18,22 @@ class NewBatchForm(BaseModel):
     product_type_id: int
     weight: float
     quantity: int
-    import_date: int # UNIX timestamp at UTC time (seconds)
-    export_date: int # UNIX timestamp at UTC time (seconds)
-    assigned_order_no: int # UNIX timestamp at UTC time (seconds)
+    import_datetime_utc_int: int # UNIX timestamp at UTC time (milliseconds)
+
+class BatchInfo(BaseModel):
+    @classmethod
+    def from_list(cls, data: list[Any]):
+        return cls(**dict(zip(cls.model_fields, data)))
+    batch_id: int
+    harvest_type_name: str
+    quantity: int
+    weight: float
+    import_date: int
+    exp_date: int
+    export_date: Optional[int] = None
+    assigned_order_no: Optional[int] = None
+    is_in_warehouse: bool
+    discard_reason: Optional[str] = None
 
 class ProduceInfoForm(BaseModel):
     harvest_type_name: str
@@ -58,11 +71,11 @@ class ExportOrder(BaseModel):
     departure_day: int
 
 class WarehouseConfig(BaseModel):
-    capacity: Optional[int | None] = None
-    threshold_auto: Optional[bool | None] = None
-    temperature_low: Optional[float | None] = None
-    temperature_hi: Optional[float | None] = None
-    co2_low: Optional[float | None] = None
-    co2_hi: Optional[float | None] = None
-    humidity_lo: Optional[float | None] = None
-    humidity_hi: Optional[float | None] = None
+    capacity: Optional[int] = None
+    threshold_auto: Optional[bool] = False
+    temperature_low: Optional[float] = float('-inf')
+    temperature_hi: Optional[float] = float('inf')
+    co2_low: Optional[float] = float('-inf')
+    co2_hi: Optional[float] = float('inf')
+    humidity_lo: Optional[float] = float('-inf')
+    humidity_hi: Optional[float] = float('inf')

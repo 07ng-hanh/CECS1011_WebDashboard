@@ -48,13 +48,13 @@
     <input type="checkbox" id="auto-threshold">
     <label for="auto-threshold" style="margin-bottom: 10px">Automatically infer the thresholds from the currently stored warehouse items.</label>
 <div style="margin-top: 10px; display: grid; gap: 10px; grid-template-columns: 180px 1fr">
-    <p>Temperature</p>
+    <p>Temperature (&deg;C)</p>
     <span><input id="threshold-temp-from" type="number" placeholder="From"> - <input id="threshold-temp-to" type="number" placeholder="To"></span>
 
-    <p>CO2 Concentration</p>
+    <p>CO2 Concentration (PPM)</p>
     <span><input id="threshold-co2-from" type="number" placeholder="From"> - <input id="threshold-co2-to" type="number" placeholder="To"></span>
 
-    <p>Humidity</p>
+    <p>Humidity (%)</p>
     <span><input id="threshold-humidity-from" type="number" placeholder="From"> - <input id="threshold-humidity-to" type="number" placeholder="To"></span>
 </div>
 <button style="margin-top: 10px" onclick="set_warehouse_configuration()">Update Configuration</button>
