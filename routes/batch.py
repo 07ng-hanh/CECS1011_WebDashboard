@@ -40,15 +40,15 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
         async with pg.acquire() as conn:
             # need to get produce-name, batch-id, batch-quantity, batch-weight, harvest-at, expiration-date, assigned_order_no, is-in-warehouse, discard-reason
             if status == "any" or not status:
-                dbString = "select batch_id, produceinfo.harvest_type_name, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3)"
+                dbString = "select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3)"
             elif status == "discarded":
-                dbString = "select batch_id, produceinfo.harvest_type_name, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and discard_reason is not null and is_in_warehouse = false"
+                dbString = "select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and discard_reason is not null and is_in_warehouse = false"
             elif status == "available":
-                dbString = "select batch_id, produceinfo.harvest_type_name, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and assigned_order_no is null and is_in_warehouse = true"
+                dbString = "select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and assigned_order_no is null and is_in_warehouse = true"
             elif status == "marked":
-                dbString = "select batch_id, produceinfo.harvest_type_name, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and assigned_order_no is not null and is_in_warehouse = true"
+                dbString = "select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and assigned_order_no is not null and is_in_warehouse = true"
             elif status == "exported":
-                dbString = "select batch_id, produceinfo.harvest_type_name, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and assigned_order_no is not null and is_in_warehouse = false"
+                dbString = "select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and assigned_order_no is not null and is_in_warehouse = false"
             else:
                 return JSONResponse({}, HTTPStatus.UNPROCESSABLE_ENTITY)
 
@@ -56,7 +56,24 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
             retLst = [BatchInfo.from_list(row) for row in ret]
             return retLst
 
-
     except BaseException as e:
         print(e)
         return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+@rt.delete("/discard-batch")
+async def discard_batch(batch_id: int, reason: str, pg = Depends(get_pgpool)):
+    dbstring = "update batchinfo set is_in_warehouse = false and discard_reason = $1 where batch_id = $2"
+    async with pg.acquire() as conn:
+        conn.execute(dbstring, reason, batch_id)
+
+@rt.post("/assign-order-to-batch")
+async def assign_batch_to_order(batch_id: int, order_id: int, pg = Depends(get_pgpool)):
+    dbstring = "update batchinfo set assigned_order_no = $1 where batch_id = $2"
+    async with pg.acquire() as conn:
+        conn.execute(dbstring, order_id, batch_id)
+
+@rt.delete("/remove-order-from-batch")
+async def remove_order_from_batch(batch_id: int, pg = Depends(get_pgpool)):
+    dbstring = "update batchinfo set assigned_order_no = null where batch_id = $2"
+    async with pg.acquire() as conn:
+        conn.execute(dbstring, batch_id)

@@ -26,6 +26,7 @@ class BatchInfo(BaseModel):
         return cls(**dict(zip(cls.model_fields, data)))
     batch_id: int
     harvest_type_name: str
+    harvest_type_id: int
     quantity: int
     weight: float
     import_date: int
@@ -36,6 +37,10 @@ class BatchInfo(BaseModel):
     discard_reason: Optional[str] = None
 
 class ProduceInfoForm(BaseModel):
+    @classmethod
+    def from_list(cls, data: list[Any]):
+        return cls(**dict(zip(cls.model_fields, data)))
+
     harvest_type_name: str
     shelf_life: int
     thresh_temp_lo: Optional[float] = float('-inf')
@@ -56,10 +61,18 @@ class ProduceInfoForm(BaseModel):
         return v
 
 class EnvironmentReading(BaseModel):
-    timestamp: int # UNIX timestamp at UTC time (seconds)
+    timestamp: int # UNIX timestamp at UTC time (milliseconds)
     temperature: float
     co2: float
     humidity: float
+
+class ExportOrderMinimal(BaseModel):
+    departure_port_id: int
+    destination_port_id: int
+    departure_day_utc_int: int # milliseconds timestamp
+    produce_id: int
+    produce_qty: int
+
 
 class ExportOrder(BaseModel):
     departure_port_name: str
@@ -70,6 +83,8 @@ class ExportOrder(BaseModel):
     destination_port_lon: float
     departure_day: int
 
+
+
 class WarehouseConfig(BaseModel):
     capacity: Optional[int] = None
     threshold_auto: Optional[bool] = False
@@ -79,3 +94,9 @@ class WarehouseConfig(BaseModel):
     co2_hi: Optional[float] = float('inf')
     humidity_lo: Optional[float] = float('-inf')
     humidity_hi: Optional[float] = float('inf')
+
+class PortInfo(BaseModel):
+    id: str
+    port_name: str
+    port_lat: float
+    port_lon: float

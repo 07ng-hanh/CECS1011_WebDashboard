@@ -18,4 +18,9 @@ async def list_produces(page: int = 1, limit: int = 20, query: str = "", pgpool:
         except BaseException as e:
             print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
-        
+
+@rt.get("/get-thresholds")
+async def get_thresholds(produce_id: int, pgpool = Depends(get_pgpool)):
+    async with pgpool.acquire() as conn:
+        row = await conn.fetch("select harvest_type_name, shelf_life, thresh_temp_lo, thresh_temp_hi, thresh_humidity_lo, thresh_humidity_hi, thresh_co2_lo, thresh_co2_hi from produceinfo where id = $1", produce_id)
+        return ProduceInfoForm.from_list(row[0])
