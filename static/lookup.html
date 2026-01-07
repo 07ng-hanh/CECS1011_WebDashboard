@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Warehouse Search</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.7/awesomplete.min.css"
@@ -39,7 +41,7 @@
     <div class="lookup-top-bar">
         <span style="display: grid ; gap: 10px; grid-template-columns: 1.5fr 1fr 1fr">
         <input class="form-control" style="width: 100%" name="produce-name" id="produce-name"
-               placeholder="Name or Batch ID">
+               placeholder="Name or Batch ID" oninput="debounceSearch(150)">
 
         <!-- Replacing maximum shelf life with harvest date range.
         This is more flexible and more intuitive than “maximum shelf life.”
@@ -49,7 +51,7 @@
         -->
         <input id="harvest-date-range" type="text" class="form-control" placeholder="Harvest Date (Range YYYY-MM-DD)">
 
-        <select id="status-dropdown" class="form-control">
+        <select id="status-dropdown" class="form-control" onchange="debounceSearch()">
             <option value="">Any Status</option>
             <option value="available">Available</option>
             <option value="marked">Marked for export</option>
@@ -60,20 +62,20 @@
         </span>
         <span style="display: grid; gap: 10px; grid-template-columns: 1fr 58px;">
 
-                <select id="sort-dropdown" class="form-control">
+                <select id="sort-dropdown" class="form-control" onchange="debounceSearch()">
                     <option value="">Sort By...</option>
-                    <option value="batchID">Batch ID</option>
-                    <option value="produceID">Produce ID</option>
+                    <option value="batch_id">Batch ID</option>
+                    <option value="harvest_type_name">Name</option>
                     <option value="weight">Weight</option>
-                    <option value="weight">Quantity</option>
-                    <option value="harvestTime">Harvest Date/Time</option>
-                    <option value="harvestTime">Remaining Shelf Life</option>
+                    <option value="quantity">Quantity</option>
+                    <option value="harvest_date">Harvest Date/Time</option>
+                    <option value="remaining_shelf_life">Remaining Shelf Life</option>
 
                 </select>
 
-                <select id="sort-direction" class="form-control">
-                    <option name="ascending">     &#x25B2;  </option>
-                    <option name="descending">    &#x25BC;  </option>
+                <select id="sort-direction" class="form-control" onchange="debounceSearch()">
+                    <option value="ascending">     &#x25B2;  </option>
+                    <option value="descending">    &#x25BC;  </option>
                 </select>
 
             </span>
@@ -83,12 +85,12 @@
 
     <div style="display: grid; grid-template-columns: 1fr; gap: 10px">
         <div class="form-check form-check-inline">
-            <input class="form-check-input" id="almost-expire-toggle" type="checkbox">
+            <input class="form-check-input" id="almost-expire-toggle" type="checkbox" onclick="debounceSearch(1)">
 
             <label class="form-check-label" for="almost-expire-toggle">Only show almost expired batches</label>
         </div>
         <span style="display: grid; grid-template-columns: 1fr 150px 150px; gap: 10px">
-                <button class="btn btn-primary" id="search">Search</button>
+                <button class="btn btn-primary" id="search" onclick="debounceSearch(1)">Search</button>
                 <div class="dropdown">
                   <button style="width: 100%" class="btn btn-secondary dropdown-toggle" href="#" role="button"
                           data-bs-toggle="dropdown" aria-expanded="false">
@@ -102,7 +104,7 @@
                     <li><button class="dropdown-item">XLSX (All)</button></li>
                   </ul>
                 </div>
-                <button class="btn btn-secondary">Clear Filters</button>
+                <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
             </span>
 
     </div>
@@ -112,40 +114,41 @@
 
 <!--Lookup result -->
 <!-- Use list of cards for optimized information representation on both mobile and widescreen devices -->
+<!--<div class="card-container">-->
+<!--    <div class="entry-card">-->
+<!--        <img class="entry-card-img" width="100px" height="100px" src="https://placehold.co/100">-->
+<!--        <div class="card-info">-->
+<!--            <b id="batch-name-and-id">#000000 Produce-Name (500 pcs)</b>-->
+<!--            <p class="card-info-entry"><span class="card-entry-label">Weight:</span> <b id="weight-counter">&#45;&#45; kg</b>-->
+<!--            </p>-->
+<!--            <p class="card-info-entry"><span class="card-entry-label">Harvested At:</span> <b id="import-date-entry">YYYY-MM-DD-->
+<!--                HH:MM:SS</b></p>-->
+<!--            <p class="card-info-entry"><span class="card-entry-label">Expires At:</span> <b class="accented-indicator" id="expire-date-entry">YYYY-MM-DD</b> <span-->
+<!--                    class="accented-indicator" id="shelf-life-remaining">(&#45;&#45; days)</span></p>-->
+
+<!--            &lt;!&ndash; Different Status Indicators&ndash;&gt;-->
+<!--            &lt;!&ndash; When dealing with real data, only one of those shows at the same time &ndash;&gt;-->
+<!--            <p class="card-info-entry"><span class="card-entry-label">Status:</span>-->
+<!--                <b id="stat-available" class="accented-indicator hidden">Available</b>-->
+<!--                <b id="stat-marked" class="accented-purple hidden">Marked for export <span id="order-and-place">to PlaceA (order 000000)</span></b>-->
+<!--                <b id="stat-discarded" class="accented-danger hidden">Discarded (reason: <span id="discard-reason">discard-reason</span></b>-->
+<!--                <b id="stat-exported" class="accented-green">Exported <span id="exp-order-and-place">to PlaceA (order 000000)</span></b>-->
+<!--            </p>-->
+
+<!--        </div>-->
+<!--        <div class="entry-card-action-btn">-->
+<!--            <button class="btn btn-outline-primary">Assign/Suggest Shipment</button>-->
+<!--            <button class="btn btn-outline-primary">Health</button>-->
+<!--            <button class="btn btn-outline-danger">Discard</button>-->
+<!--        </div>-->
+<!--    <button class="btn btn-outline-primary" style="position: fixed; bottom: 10px; left:10px; right:10px; padding: 10px; font-weight: bold"> <i class="bi bi-stars"></i> Suggest shipment for all batches</button>-->
+
+<!--    </div>-->
+
+
+<!--</div>-->
 <div class="card-container">
-    <div class="entry-card">
-        <img class="entry-card-img" width="100px" height="100px" src="https://placehold.co/100">
-        <div class="card-info">
-            <b id="batch-name-and-id">#000000 Produce-Name (500 pcs)</b>
-            <p class="card-info-entry"><span class="card-entry-label">Weight:</span> <b id="weight-counter">-- kg</b>
-            </p>
-            <p class="card-info-entry"><span class="card-entry-label">Harvested At:</span> <b id="import-date-entry">YYYY-MM-DD
-                HH:MM:SS</b></p>
-            <p class="card-info-entry"><span class="card-entry-label">Expires At:</span> <b class="accented-indicator" id="expire-date-entry">YYYY-MM-DD</b> <span
-                    class="accented-indicator" id="shelf-life-remaining">(-- days)</span></p>
-
-            <!-- Different Status Indicators-->
-            <!-- When dealing with real data, only one of those shows at the same time -->
-            <p class="card-info-entry"><span class="card-entry-label">Status:</span>
-                <b id="stat-available" class="accented-indicator hidden">Available</b>
-                <b id="stat-marked" class="accented-purple hidden">Marked for export <span id="order-and-place">to PlaceA (order 000000)</span></b>
-                <b id="stat-discarded" class="accented-danger hidden">Discarded (reason: <span id="discard-reason">discard-reason</span></b>
-                <b id="stat-exported" class="accented-green">Exported <span id="exp-order-and-place">to PlaceA (order 000000)</span></b>
-            </p>
-
-        </div>
-        <div class="entry-card-action-btn">
-            <button class="btn btn-outline-primary">Assign/Suggest Shipment</button>
-            <button class="btn btn-outline-primary">Health</button>
-            <button class="btn btn-outline-danger">Discard</button>
-        </div>
-    <button class="btn btn-outline-primary" style="position: fixed; bottom: 10px; left:10px; right:10px; padding: 10px; font-weight: bold"> <i class="bi bi-stars"></i> Suggest shipment for all batches</button>
-
-    </div>
-
-
 </div>
-
-
+    <button class="btn btn-outline-primary" style="position: fixed; bottom: 10px; left:10px; right:10px; padding: 10px; font-weight: bold"> <i class="bi bi-stars"></i> Suggest shipment for all batches</button>
 </body>
 </html>

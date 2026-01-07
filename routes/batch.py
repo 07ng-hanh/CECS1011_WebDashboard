@@ -33,7 +33,7 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
     :param harvest_timestamp_from: UTC timestamp by milliseconds
     :param harvest_timestamp_to: UTC timestamp by milliseconds
     :param status: accepts: any, available, marked, exported, discarded
-    :param sortBy: accepts: any, batch_id, produce_id, weight, quantity, harvest_date, remaining_shelf_life
+    :param sortBy: accepts: any, batch_id, harvest_type_name, weight, quantity, harvest_date, remaining_shelf_life
     :return:
     """
     try:

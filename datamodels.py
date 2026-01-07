@@ -69,7 +69,7 @@ class EnvironmentReading(BaseModel):
 class ExportOrderMinimal(BaseModel):
     departure_port_id: int
     destination_port_id: int
-    departure_day_utc_int: int # milliseconds timestamp
+    planned_departure_day_utc_int: int # milliseconds timestamp
     produce_id: int
     produce_qty: int
 
