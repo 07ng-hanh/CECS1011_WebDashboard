@@ -193,6 +193,28 @@ async function debounceSearch(timeout = 1) {
 }
 
 async function exportToXLSX(export_all = false){
+    let r = undefined
+    if (export_all) {
+        r = await warehouseSearch()
+    } else {
+        r = await searchWithFilters(false)
+    }
+
+    let rows = ["Batch ID, Harvest Type Name, Quantity, Weight (kg), Harvest Date, Expiration Date, Export Date (if any), In Stock?, Assigned Shipment No. (if any)".split(', '), ]
+    r.forEach((entry) => {
+
+        let export_date_str = null
+        if (entry.export_date != null) {
+            export_date_str = new Date(entry.export_date).toLocaleDateString()
+        }
+
+        rows.push([entry.batch_id.toString(), entry.harvest_type_name, entry.quantity, entry.weight.toFixed(3), new Date(entry.import_date).toLocaleDateString(), new Date(entry.exp_date).toLocaleDateString(), export_date_str, entry.is_in_warehouse, entry.assigned_order_no])
+    })
+
+    let xlsx_out = XLSX.utils.aoa_to_sheet(rows)
+    let wb = XLSX.utils.book_new(xlsx_out)
+
+    XLSX.writeFile(wb, "xlsx-out.xlsx")
 
 }
 
@@ -206,7 +228,11 @@ async function exportToCSV(export_all = false) {
 
     let rows = ["Batch ID, Harvest Type Name, Quantity, Weight (kg), Harvest Date, Expiration Date, Export Date (if any), In Stock?, Assigned Shipment No. (if any)", ]
     r.forEach((entry) => {
-        rows.push(`${entry.batch_id}, ${entry.harvest_type_name}, ${entry.quantity}, ${entry.weight.toFixed(3)}, ${new Date(entry.import_date).toLocaleDateString()}, ${new Date(entry.exp_date).toLocaleDateString()}, ${new Date(entry.export_date).toLocaleDateString()}, ${entry.is_in_warehouse}, ${entry.assigned_order_no}`)
+        let export_date_str = null
+        if (entry.export_date != null) {
+            export_date_str = new Date(entry.export_date).toLocaleDateString()
+        }
+        rows.push(`${entry.batch_id.toString()}, ${entry.harvest_type_name}, ${entry.quantity}, ${entry.weight.toFixed(3)}, ${new Date(entry.import_date).toLocaleDateString()}, ${new Date(entry.exp_date).toLocaleDateString()}, ${ export_date_str }, ${entry.is_in_warehouse}, ${entry.assigned_order_no}`)
 
     })
 
