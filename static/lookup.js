@@ -67,33 +67,53 @@ function showSearchResults(r) {
 
         let weight = document.createElement("p")
         weight.className = "card-info-entry"
-        weight.innerHTML = `Weight: <b>${v.weight.toFixed(2)} kg</b>`
+        weight.innerHTML = `Weight: <b>${v.weight.toFixed(3)} kg</b>`
 
         let importDate = document.createElement("p")
         importDate.className = "card-info-entry"
-        importDate.innerHTML = `Imported At: <b>${new Date(v.import_date).toLocaleDateString()}</b>`
+        importDate.innerHTML = `Harvested At: <b>${new Date(v.import_date).toLocaleDateString()}</b>`
 
         let expiration = document.createElement("p")
         expiration.className = "card-info-entry"
         let date_diff = Math.round((v.exp_date - (new Date()).getTime()) / 86400000)
-
-        if (date_diff > 20) {
-            expiration.innerHTML = `Expires At: <b>${new Date(v.exp_date).toLocaleDateString()}</b> (${date_diff} days)`
-        } else {
-            expiration.innerHTML = `Expires At: <b style="color: red">${new Date(v.exp_date).toLocaleDateString()}</b> <span style="color: red">(${date_diff} days)</span>`
+        let expired = false
+        if (date_diff <= 0) {
+            expiration.innerHTML = `Expired At: <b style="color: red">${new Date(v.exp_date).toLocaleDateString()}</b>`
+            card.style.borderColor = "rgba(255, 0, 0, 1)"
+            card.style.borderWidth = "2px"
+            expired = true
         }
-
+        else if (date_diff < 20) {
+            expiration.innerHTML = `Expires At: <b style="color: red">${new Date(v.exp_date).toLocaleDateString()}</b> <span style="color: red">(${date_diff} days)</span>`
+            card.style.backgroundColor = "rgba(255, 255, 0, 0.5)"
+        } else {
+            expiration.innerHTML = `Expires At: <b>${new Date(v.exp_date).toLocaleDateString()}</b> (${date_diff} days)`
+        }
 
         let status = document.createElement("p")
         status.className = "card-info-entry"
         // Check status
+
         if (v.is_in_warehouse && v.assigned_order_no == null ) {
-            status.innerHTML = "Status: <b class='accented-green'>Available</b>"
+            if (expired) {
+                status.innerHTML = "Status: <b class='accented-indicator' style='color: gray'>Expired, please discard.</b>"
+            } else {
+                status.innerHTML = "Status: <b class='accented-green'>Available</b>"
+            }
         } else if (v.is_in_warehouse && v.assigned_order_no != null) {
             // TODO: Add URL to order here
-            status.innerHTML = `Status: <b class='accented-purple'>Marked for Export <a style="text-decoration: underline;">(Order ${v.assigned_order_no})</a></b>`
+            // Warn against exporting expired stuff.
+
+            if (expired) {
+                status.innerHTML = `Status: <b class='accented-danger' style="color: gray">Expired, please remove from order <a style="text-decoration: underline;">${v.assigned_order_no}</a>.</b>`
+            } else {
+                status.innerHTML = `Status: <b class='accented-purple'>Marked for Export <a style="text-decoration: underline;">(Order ${v.assigned_order_no})</a></b>`
+            }
+
         } else if (!v.is_in_warehouse && v.assigned_order_no != null) {
             status.innerHTML = `Status: <b class="accented-purple" style="color: gray">Exported</b>`
+            // When an item is exported, we dont track its expiration anymore
+            expiration.style.display = "none"
         } else if (v.discard_reason != null && !v.is_in_warehouse) {
             status.innerHTML = `Status: <b class="accented-danger" style="color: gray">Discarded (${v.discard_reason})</b>`
         }
@@ -127,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     showSearchResults(r)
 })
 
-async function searchWithFilters() {
+async function searchWithFilters(show_results = true) {
     let q = document.getElementById("produce-name").value
     let harvestRange = document.getElementById("harvest-date-range").value
     let status = document.getElementById("status-dropdown").value
@@ -151,7 +171,12 @@ async function searchWithFilters() {
     }
 
     let r = await warehouseSearch(q, date_from_utc_timestamp, date_to_utc_timestamp, status, sortBy, sortAscending, almostExpiredOnly)
-    showSearchResults(r)
+    if (show_results) {
+        showSearchResults(r)
+    } else {
+        return r
+    }
+
 }
 
 let debounce_timer_id = undefined
@@ -165,4 +190,28 @@ async function debounceSearch(timeout = 1) {
             await searchWithFilters()
         }, timeout
     )
+}
+
+async function exportToXLSX(export_all = false){
+
+}
+
+async function exportToCSV(export_all = false) {
+    let r = undefined
+    if (export_all) {
+        r = await warehouseSearch()
+    } else {
+        r = await searchWithFilters(false)
+    }
+
+    let rows = ["Batch ID, Harvest Type Name, Quantity, Weight (kg), Harvest Date, Expiration Date, Export Date (if any), In Stock?, Assigned Shipment No. (if any)", ]
+    r.forEach((entry) => {
+        rows.push(`${entry.batch_id}, ${entry.harvest_type_name}, ${entry.quantity}, ${entry.weight.toFixed(3)}, ${new Date(entry.import_date).toLocaleDateString()}, ${new Date(entry.exp_date).toLocaleDateString()}, ${new Date(entry.export_date).toLocaleDateString()}, ${entry.is_in_warehouse}, ${entry.assigned_order_no}`)
+
+    })
+
+    let file = new Blob([rows.join("\n")], {type: 'text/csv'} )
+    let downloadLink = document.createElement("a")
+    downloadLink.href = window.URL.createObjectURL(file)
+    downloadLink.click()
 }

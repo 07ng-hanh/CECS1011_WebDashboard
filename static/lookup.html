@@ -98,10 +98,10 @@
                   </button>
 
                   <ul class="dropdown-menu">
-                    <li><button class="dropdown-item">CSV (Filtered)</button></li>
-                    <li><button class="dropdown-item">XLSX (Filtered)</button></li>
-                    <li><button class="dropdown-item">CSV (All)</button></li>
-                    <li><button class="dropdown-item">XLSX (All)</button></li>
+                    <li><button class="dropdown-item" onclick="exportToCSV(false)">CSV (Filtered)</button></li>
+                    <li><button class="dropdown-item" onclick="exportToXLSX(false)">XLSX (Filtered)</button></li>
+                    <li><button class="dropdown-item" onclick="exportToCSV(true)">CSV (All)</button></li>
+                    <li><button class="dropdown-item" onclick="exportToXLSX(true)">XLSX (All)</button></li>
                   </ul>
                 </div>
                 <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
