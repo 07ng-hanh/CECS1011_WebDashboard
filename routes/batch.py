@@ -1,6 +1,8 @@
+import datetime
 from http import HTTPStatus
-from typing import Optional
+from typing import Optional, Callable
 import asyncpg.pool
+import datetime
 from fastapi import APIRouter, HTTPException, Depends
 from starlette.responses import JSONResponse
 from dependency_injection import get_pgpool
@@ -26,7 +28,7 @@ async def new_batch(request: NewBatchForm, pg: asyncpg.pool.Pool = Depends(get_p
         return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 @rt.get("/list-batches")
-async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_from: Optional[int] = 0, harvest_timestamp_to: int = 9223372036854775807 , status: Optional[str] = "", sortBy: Optional[str] = "", sortAscending: Optional[bool] = True, pg: asyncpg.pool.Pool = Depends(get_pgpool)) -> JSONResponse:
+async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_from: Optional[int] = 0, harvest_timestamp_to: int = 9223372036854775807 , status: Optional[str] = "", sortBy: Optional[str] = "", sortAscending: Optional[bool] = True, almostExpiredOnly: Optional[bool] = False, pg: asyncpg.pool.Pool = Depends(get_pgpool)) -> JSONResponse:
     """
 
     :param name_or_id_query: a string
@@ -37,6 +39,7 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
     :return:
     """
     try:
+
         async with pg.acquire() as conn:
             # need to get produce-name, batch-id, batch-quantity, batch-weight, harvest-at, expiration-date, assigned_order_no, is-in-warehouse, discard-reason
             if status == "any" or not status:
@@ -53,7 +56,30 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
                 return JSONResponse({}, HTTPStatus.UNPROCESSABLE_ENTITY)
 
             ret = await conn.fetch(dbString, f'%{name_or_id_query}%', harvest_timestamp_from, harvest_timestamp_to)
-            retLst = [BatchInfo.from_list(row) for row in ret]
+
+
+            if almostExpiredOnly:
+                # List items that expire in 30 days or less.
+                timestamp_now_utc = datetime.datetime.now(datetime.UTC).timestamp() * 1000
+                retLst: list[BatchInfo] = [BatchInfo.from_list(row) for row in ret if row[6] - timestamp_now_utc <= 30 * 86400 * 1000]
+            else:
+                retLst: list[BatchInfo] = [BatchInfo.from_list(row) for row in ret]
+
+            match sortBy:
+                case "batch_id":
+                    retLst.sort(key=lambda x: x.batch_id, reverse=not sortAscending)
+                case "harvest_type_name":
+                    retLst.sort(key=lambda x: x.harvest_type_name, reverse=not sortAscending)
+                case "weight":
+                    retLst.sort(key=lambda x: x.weight, reverse=not sortAscending)
+                case "quantity":
+                    retLst.sort(key=lambda x: x.quantity, reverse=not sortAscending)
+                case "harvest_date":
+                    retLst.sort(key=lambda x: x.import_date, reverse=not sortAscending)
+                case "remaining_shelf_life":
+                    retLst.sort(key=lambda x: x.exp_date - x.import_date, reverse=not sortAscending)
+
+
             return retLst
 
     except BaseException as e:

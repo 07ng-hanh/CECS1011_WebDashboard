@@ -75,7 +75,7 @@ function showSearchResults(r) {
 
         let expiration = document.createElement("p")
         expiration.className = "card-info-entry"
-        let date_diff = Math.round((v.exp_date - v.import_date) / 86400000)
+        let date_diff = Math.round((v.exp_date - (new Date()).getTime()) / 86400000)
 
         if (date_diff > 20) {
             expiration.innerHTML = `Expires At: <b>${new Date(v.exp_date).toLocaleDateString()}</b> (${date_diff} days)`
