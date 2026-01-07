@@ -88,9 +88,9 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
 
 @rt.delete("/discard-batch")
 async def discard_batch(batch_id: int, reason: str, pg = Depends(get_pgpool)):
-    dbstring = "update batchinfo set is_in_warehouse = false and discard_reason = $1 where batch_id = $2"
+    dbstring = "update batchinfo set is_in_warehouse = false, discard_reason = $1 where batch_id = $2"
     async with pg.acquire() as conn:
-        conn.execute(dbstring, reason, batch_id)
+        await conn.execute(dbstring, reason, batch_id)
 
 @rt.post("/assign-order-to-batch")
 async def assign_batch_to_order(batch_id: int, order_id: int, pg = Depends(get_pgpool)):

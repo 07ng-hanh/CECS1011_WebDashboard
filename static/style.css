@@ -105,7 +105,7 @@ input[type='password'] {
     }
 
     .entry-card-action-btn {
-        display: flex; flex-direction: column; gap: 10px
+        display: flex; flex-direction: column; gap: 10px; min-width: 150px;
     }
 
 
