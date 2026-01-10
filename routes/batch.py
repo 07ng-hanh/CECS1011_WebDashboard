@@ -103,3 +103,9 @@ async def remove_order_from_batch(batch_id: int, pg = Depends(get_pgpool)):
     dbstring = "update batchinfo set assigned_order_no = null where batch_id = $2"
     async with pg.acquire() as conn:
         conn.execute(dbstring, batch_id)
+
+@rt.get("/simple-stats")
+async def get_simple_stats(pg = Depends(get_pgpool)):
+    async with pg.acquire() as conn:
+        db_row = await conn.fetch("select sum(quantity), sum((exp_date < 1398902400000)::int) > 0 from batchinfo where is_in_warehouse = true;")
+        return JSONResponse({"total_quantity": db_row[0][0], "has_expired": db_row[0][1]})

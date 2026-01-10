@@ -15,14 +15,16 @@
               crossorigin="anonymous">
         <meta charset="UTF-8">
 
+
+
     </head>
 </head>
 <body>
 <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px">
     <!-- TODO: Add autocomplete-->
     <label for="port-from">Export Route</label>
-    <input autofocus class="form-control" id="port-from" placeholder="Departure Port...">
-    <input class="form-control" id="port-to" placeholder="Destination Port...">
+    <input type="search" autofocus class="form-control" id="port-from" placeholder="Search Departure Port...">
+    <input type="search" class="form-control" id="port-to" placeholder="Search Destination Port...">
     <label for="scheduled-departure-date">Scheduled Departure Date</label>
     <input id="scheduled-departure-date" class="form-control" type="text"
            placeholder="YYYY-MM-DD">

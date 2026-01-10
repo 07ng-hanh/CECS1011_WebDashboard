@@ -10,12 +10,8 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.7/awesomplete.min.css"
-          integrity="sha512-YKJCE4m/eXP9bG0UEQp6Y4It4J1byWp9gN4vxtD4QHuUm26JV7D2Vue2CDrBjQvcRy3mKxlwgrGV+d4j7EZB8Q=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.7/awesomplete.min.js"
-            integrity="sha512-Pc3/aEr2FIVZhHxe0RAC9SFrd+pxBJHN3pNJfJNTKc2XAFnXUjgQGIh6X935ePSXNMN6rFa3yftxSnZfJE8ZAg=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/litepicker/2.0.12/litepicker.min.js"
             integrity="sha512-yNEsQERO50LM6mQgUWnWFo453wVwrxOzTnCxYgawLggDtt5VuU/U7sAPx1wcHhUvqPbbvwVJgVBnJ+FOOmeZIQ=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -90,9 +86,11 @@
 
             <label class="form-check-label" for="almost-expire-toggle">Only show batches that expire in 30 days or less.</label>
         </div>
-        <span style="display: grid; grid-template-columns: 1fr 150px 150px; gap: 10px">
-                <button class="btn btn-primary" id="search" onclick="debounceSearch(1)">Search</button>
-                <div class="dropdown">
+        <span style="display: grid; grid-template-columns: 1.5fr 50px 120px 120px; gap: 10px">
+            <button class="btn btn-primary" id="search" onclick="debounceSearch(1)">Search</button>
+            <button class="btn btn-secondary" onclick="window.location.href = 'scan_batch_qr.html'">QR</button>
+
+            <div class="dropdown">
                   <button style="width: 100%" class="btn btn-secondary dropdown-toggle" href="#" role="button"
                           data-bs-toggle="dropdown" aria-expanded="false">
                     Export as
@@ -105,7 +103,9 @@
                     <li><button class="dropdown-item" onclick="exportToXLSX(true)">XLSX (All)</button></li>
                   </ul>
                 </div>
-                <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                <button class="btn btn-secondary" onclick="clearFilters()">Clear Filter</button>
+
+
             </span>
 
     </div>
@@ -148,8 +148,9 @@
 
 
 <!--</div>-->
-<div class="card-container">
-</div>
+    <div class="card-container" style="padding-bottom: 100px">
+    </div>
+
     <button class="btn btn-outline-primary" style="position: fixed; bottom: 10px; left:10px; right:10px; padding: 10px; font-weight: bold"> <i class="bi bi-stars"></i> Suggest shipments</button>
 </body>
 </html>

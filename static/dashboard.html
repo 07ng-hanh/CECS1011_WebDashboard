@@ -30,22 +30,21 @@
     </div>
     <div class="metrics-board">
 
-        <div class="gauge">
+        <div class="gauge" id="temp-gauge">
             <p>Temperature</p>
             <h2><span id="temp-label">--</span> &degC</h2>
-
         </div>
-        <div class="gauge">
+        <div class="gauge" id="co2-gauge">
             <p>CO2</p>
             <h2><span id="co2-label">--</span> ppm</h2>
         </div>
-        <div class="gauge">
+        <div class="gauge" id="humidity-gauge">
             <p>Humidity</p>
             <h2><span id="humidity-label">--</span> %</h2>
         </div>
-        <div class="gauge">
+        <div class="gauge" id="total-quantity-gauge">
             <p>Total Quantity</p>
-            <h2>--</h2>
+            <h2><span id="total-quantity-label">--</span></h2>
         </div>
     </div>
 </div>
@@ -62,10 +61,10 @@
 
         <div style=" padding-bottom: 10px">
             <b>Warehouse reaching capacity:</b>
-            The warehouse has reached <b id="quantity-percent">--%</b> of its capacity.
+            The warehouse has reached <b id="quantity-percent">--</b>% of its capacity.
         </div>
         <!--            <br>-->
-        <button class="btn btn-outline-primary">Show near-expiry batches</button>
+        <button class="btn btn-outline-primary" onclick="window.location.href = 'lookup.html?almostExpiredOnly=true'">Show near-expiry batches</button>
 
     </div>
     <div id="expiry-date-warning-banner" class="alert alert-danger" role="alert"
@@ -81,7 +80,7 @@
 
     </div>
     <div id="threshold-reached-banner" class="alert alert-danger" role="alert"
-         style="font-size: 1rem; margin-bottom: 0px">
+         style="font-size: 1rem; margin-bottom: 0px; display: none">
         <b>Poor Storage Condition</b><br/>
         <span style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px">
                 <span id="batch-specific-poor-condition">
@@ -106,7 +105,7 @@
 <!--    Navigation btns-->
 <div style="padding: 10px; position: fixed; bottom: 0; width: 100%; background: white">
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
-        <button style="border-radius: 10px; font-weight: bold; border-width: 2px; padding: 15px" class="btn btn-outline-primary btn-lg">
+        <button style="border-radius: 10px; font-weight: bold; border-width: 2px; padding: 15px" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'scan_batch_qr.html'">
             Scan Batch QR
         </button>
         <button style="border-radius: 10px; font-weight: bold; border-width: 2px; padding: 15px" onclick="window.location.href = 'lookup.html'" class="btn btn-outline-primary btn-lg">

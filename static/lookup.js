@@ -49,6 +49,7 @@ async function promptDiscardBatch(batch_id) {
 
     if (reason === "" || reason == null) {
         alert("Failed to discard batch: Cancelled or empty reason.")
+        return
     }
 
     let r = await axios.delete("/api/batch/discard-batch", {
@@ -60,6 +61,7 @@ async function promptDiscardBatch(batch_id) {
     })
     if (r.status === 200) {
         alert("Discard done!")
+        await debounceSearch(0)
     } else {
         alert("Discarding failed: Error" + r.status)
     }
@@ -194,7 +196,15 @@ async function clearFilters() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    let r = await warehouseSearch()
+    let params = new URLSearchParams(document.location.search)
+    let id = params.get('id')
+    let r = null
+    if (id) {
+        document.getElementById("produce-name").value = id
+        r = await searchWithFilters(false)
+    } else {
+        r = await warehouseSearch()
+    }
     showSearchResults(r)
 })
 

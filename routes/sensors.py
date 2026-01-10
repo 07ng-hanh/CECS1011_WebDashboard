@@ -5,6 +5,7 @@ import json
 from datetime import timezone
 import os
 import time
+from http import HTTPStatus
 
 import asyncpg.pool
 from asyncpg import Pool
@@ -18,6 +19,8 @@ from dependency_injection import get_vk, get_pgpool
 
 rt = fastapi.APIRouter()
 client_queues: set[asyncio.Queue] = set()
+
+
 
 @rt.websocket("/write-sensor-data")
 async def write_sensor_data(ws: fastapi.WebSocket):
@@ -85,6 +88,20 @@ async def sensor_yield(interval):
 async def sensor_push(interval: float):
     return StreamingResponse(sensor_yield(interval), media_type="text/event-stream")
 
+@rt.get("/sensor-data-historic-v2")
+async def sensor_historic_v2(current_time_ms: int, length_ms: int, interval_ms: int, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+    try:
+        async with pgpool.acquire() as conn:
+            start_time_ms = current_time_ms - length_ms
+            rows = await conn.fetch("SELECT timestamp, temperature, co2, humidity FROM environmentreading WHERE timestamp >= $1 AND timestamp <= $2 ORDER BY timestamp DESC", start_time_ms, current_time_ms)
+            # select elements spaced apart by the specified interval_ms
+            prev = None
+            row_json = [prev := {"timestamp": row[0],"temperature": row[1], "co2": row[2], "humidity": row[3]} for index, row in enumerate(rows)
+                        if index == 0 or prev['timestamp'] - row['timestamp'] >= interval_ms]
+            return JSONResponse(row_json)
+    except:
+        return JSONResponse({"msg": "cannot return historical data"}, status_code=HTTPStatus.INTERNAL_SERVER_ERROR)
+
 
 @rt.get("/sensor-data-historic")
 async def sensor_historic(period: int, aggregation_range: int = 1, pgpool: Pool = Depends(get_pgpool)):
@@ -137,3 +154,4 @@ async def sensor_historic(period: int, aggregation_range: int = 1, pgpool: Pool 
 
         except:
             return PlainTextResponse("", http.HTTPStatus.INTERNAL_SERVER_ERROR)
+

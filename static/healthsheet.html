@@ -24,11 +24,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-streaming/2.0.0/chartjs-plugin-streaming.min.js"
             integrity="sha512-pSxAn0V22F4p92VllULJWP5yR5a5FfSPCzHum2P7MrbzmYNiaYsED0UZUF9JzRSZvRlemas5Yqf7F90xFvFthA=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <script src="healthsheet_temperature.js"></script>
-    <script src="healthsheet_humidity.js"></script>
-    <script src="healthsheet_co2.js"></script>
-
+    <script src="healthsheet.js"></script>
 </head>
 <body>
 <div style="position: fixed; background: white; width: 100%; z-index: 10">
@@ -41,27 +39,27 @@
         <span style="display: flex; gap: 10px">
         <select autofocus id="date-range-for-recordings" class="form-control">
             <optgroup label="Short-term (Update every second)">
-                <option value = "60" name="1min">Last minute</option>
-                <option value = "300" name="5min">Last 5 minutes</option>
+                <option value = "60000" name="1min">Last minute</option>
+                <option value = "300000" name="5min">Last 5 minutes</option>
 
             </optgroup>
             <optgroup label="Mid-term (Update every 10 seconds)">
-                <option value = "1800" name="30min">Last 30 minutes</option>
-                <option value = "3600" name="1hr">Last 1 hour</option>
+                <option value = "1800000" name="30min">Last 30 minutes</option>
+                <option value = "3600000" name="1hr">Last 1 hour</option>
 
             </optgroup>
             <optgroup label="Long-term (Manual refresh)">
-                <option value ="28800" name="8hr">Last 8 hours</option>
-                <option value ="43200" name="12hr">Last 12 hours</option>
-                <option value ="86400" name="24hr">Last 24 hours</option>
-                <option value ="172800" name="2d">Last 2 days</option>
-                <option value ="604800" name="7d">Last 7 days</option>
-                <option value ="1209600" name="14d">Last 14 days</option>
-                <option value ="2592000" name="30d">Last 30 days</option>
+                <option value ="28800000" name="8hr">Last 8 hours</option>
+                <option value ="43200000" name="12hr">Last 12 hours</option>
+                <option value ="86400000" name="24hr">Last 24 hours</option>
+                <option value ="172800000" name="2d">Last 2 days</option>
+                <option value ="604800000" name="7d">Last 7 days</option>
+                <option value ="1209600000" name="14d">Last 14 days</option>
+                <option value ="2592000000" name="30d">Last 30 days</option>
             </optgroup>
 
         </select>
-            <button class="btn btn-primary">Refresh</button>
+            <button class="btn btn-primary" id="manual-refresh-btn">Refresh</button>
         </span>
     </span>
 
@@ -84,6 +82,7 @@
         <div class="chart-container" style="position: relative; height: 200px; width: 100%">
             <canvas id="co2-plot"></canvas>
         </div>
+
     </div>
 </div>
 </body>
