@@ -4,6 +4,7 @@ let current_destination_port_id = undefined
 let scheduled_departure_datetime = undefined
 async function update_eta() {
 
+
 }
 
 async function update_port_from_selection(port_id) {
@@ -22,7 +23,7 @@ async function populate_search_port_from(ev) {
         port_from_debounce_timer = undefined
     }
 
-    setTimeout(async () => {
+    port_from_debounce_timer = setTimeout(async () => {
         const query = document.getElementById("port-from").value
         const container = document.getElementById("departure-port-selector")
 
@@ -79,7 +80,7 @@ async function populate_search_port_to(ev) {
         port_from_debounce_timer = undefined
     }
 
-    setTimeout(async () => {
+    port_from_debounce_timer = setTimeout(async () => {
         const query = document.getElementById("port-to").value
         const container = document.getElementById("dest-port-selector")
 
@@ -133,7 +134,18 @@ async function populate_search_port_to(ev) {
 
 
 document.addEventListener("DOMContentLoaded", () => {
+    current_date = new Date()
     document.getElementById("port-from").addEventListener("input", populate_search_port_from)
     document.getElementById("port-to").addEventListener("input", populate_search_port_to)
+    document.getElementById("form-control-hidden").setAttribute("min", `${current_date.getFullYear()}-${(current_date.getMonth()+1).toString().padStart(2, '0')}-${current_date.getDate().toString().padStart(2, '0')}T${current_date.getHours()}:${current_date.getMinutes()}`)
+    document.getElementById("form-control-hidden").addEventListener("input", async() => {
+        console.log(document.getElementById("form-control-hidden").value)
+        const date_string = document.getElementById("form-control-hidden").value
+        const date = date_string.split('T')[0]
+        const time = date_string.split('T')[1]
+        document.getElementById("scheduled-departure-date").value = `${date} ${time}`
+        scheduled_departure_datetime = new Date(date_string)
+        await update_eta()
+    })
 
 })
