@@ -22,6 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 })
 
+function get_localtime_iso_string(date = new Date()) {
+    return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+}
+
 async function warehouseSearch(q = "", harvest_timestamp_from, harvest_timestamp_to, status, sortBy, sortAscending, almostExpiredOnly = false) {
     let r = await axios.get("/api/batch/list-batches", {
         validateStatus: function (status) {
@@ -72,6 +76,10 @@ function showSearchResults(r) {
     let container = document.querySelector("div.card-container")
     container.innerHTML = ""
 
+    if (r.length == 0) {
+        container.innerHTML = "<h2>No Data</h2>"
+    }
+
     r.forEach((v) => {
         let card = document.createElement("div")
         let cardInfo = document.createElement("div")
@@ -93,22 +101,22 @@ function showSearchResults(r) {
 
         let importDate = document.createElement("p")
         importDate.className = "card-info-entry"
-        importDate.innerHTML = `Harvested At: <b>${new Date(v.import_date).toLocaleDateString()}</b>`
+        importDate.innerHTML = `Harvested At: <b>${get_localtime_iso_string(new Date(v.import_date))}</b>`
 
         let expiration = document.createElement("p")
         expiration.className = "card-info-entry"
         let date_diff = Math.round((v.exp_date - (new Date()).getTime()) / 86400000)
         let expired = false
         if (date_diff <= 0) {
-            expiration.innerHTML = `Expired At: <b style="color: red">${new Date(v.exp_date).toLocaleDateString()}</b>`
+            expiration.innerHTML = `Expired At: <b style="color: red">${get_localtime_iso_string(new Date(v.exp_date))}</b>`
             card.style.borderColor = "rgba(255, 0, 0, 1)"
             card.style.borderWidth = "2px"
             expired = true
         } else if (date_diff < 20) {
-            expiration.innerHTML = `Expires At: <b style="color: red">${new Date(v.exp_date).toLocaleDateString()}</b> <span style="color: red">(${date_diff} days)</span>`
+            expiration.innerHTML = `Expires At: <b style="color: red">${get_localtime_iso_string(new Date(v.exp_date))}</b> <span style="color: red">(${date_diff} days)</span>`
             card.style.backgroundColor = "rgba(255, 255, 0, 0.5)"
         } else {
-            expiration.innerHTML = `Expires At: <b>${new Date(v.exp_date).toLocaleDateString()}</b> (${date_diff} days)`
+            expiration.innerHTML = `Expires At: <b>${get_localtime_iso_string(new Date(v.exp_date))}</b> (${date_diff} days)`
         }
 
         let status = document.createElement("p")
@@ -198,15 +206,23 @@ async function clearFilters() {
 document.addEventListener("DOMContentLoaded", async () => {
     let params = new URLSearchParams(document.location.search)
     let id = params.get('id')
+    let almostExpiredOnly = params.get('almostExpiredOnly') == "true"
     let r = null
+
+    if (almostExpiredOnly) {
+        document.getElementById("almost-expire-toggle").checked = true
+        document.getElementById("status-dropdown").value = "instore"
+    }
+
     if (id) {
         document.getElementById("produce-name").value = id
-        r = await searchWithFilters(false)
-    } else {
-        r = await warehouseSearch()
     }
+
+    r = await searchWithFilters(false)
+
     showSearchResults(r)
 })
+
 
 async function searchWithFilters(show_results = true) {
     let q = document.getElementById("produce-name").value
@@ -265,10 +281,10 @@ async function exportToXLSX(export_all = false) {
 
         let export_date_str = null
         if (entry.export_date != null) {
-            export_date_str = new Date(entry.export_date).toLocaleDateString()
+            export_date_str = get_localtime_iso_string(new Date(entry.export_date))
         }
 
-        rows.push([entry.batch_id.toString(), entry.harvest_type_name, entry.quantity, entry.weight.toFixed(3), new Date(entry.import_date).toLocaleDateString(), new Date(entry.exp_date).toLocaleDateString(), export_date_str, entry.is_in_warehouse, entry.assigned_order_no])
+        rows.push([entry.batch_id.toString(), entry.harvest_type_name, entry.quantity, entry.weight.toFixed(3), get_localtime_iso_string(new Date(entry.import_date)), get_localtime_iso_string(new Date(entry.exp_date)), export_date_str, entry.is_in_warehouse, entry.assigned_order_no])
     })
 
     let xlsx_out = XLSX.utils.aoa_to_sheet(rows)
@@ -290,9 +306,9 @@ async function exportToCSV(export_all = false) {
     r.forEach((entry) => {
         let export_date_str = null
         if (entry.export_date != null) {
-            export_date_str = new Date(entry.export_date).toLocaleDateString()
+            export_date_str = get_localtime_iso_string(new Date(entry.export_date))
         }
-        rows.push(`${entry.batch_id.toString()}, ${entry.harvest_type_name}, ${entry.quantity}, ${entry.weight.toFixed(3)}, ${new Date(entry.import_date).toLocaleDateString()}, ${new Date(entry.exp_date).toLocaleDateString()}, ${export_date_str}, ${entry.is_in_warehouse}, ${entry.assigned_order_no}`)
+        rows.push(`${entry.batch_id.toString()}, ${entry.harvest_type_name}, ${entry.quantity}, ${entry.weight.toFixed(3)}, ${ get_localtime_iso_string(new Date(entry.import_date))}, ${get_localtime_iso_string( new Date(entry.exp_date))}, ${export_date_str}, ${entry.is_in_warehouse}, ${entry.assigned_order_no}`)
 
     })
 

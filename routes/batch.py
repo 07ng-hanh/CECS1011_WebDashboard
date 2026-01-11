@@ -34,7 +34,7 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
     :param name_or_id_query: a string
     :param harvest_timestamp_from: UTC timestamp by milliseconds
     :param harvest_timestamp_to: UTC timestamp by milliseconds
-    :param status: accepts: any, available, marked, exported, discarded
+    :param status: accepts: any, available, marked, exported, discarded, instore
     :param sortBy: accepts: any, batch_id, harvest_type_name, weight, quantity, harvest_date, remaining_shelf_life
     :return:
     """
@@ -52,6 +52,8 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
                 dbString = "select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and assigned_order_no is not null and is_in_warehouse = true"
             elif status == "exported":
                 dbString = "select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and assigned_order_no is not null and is_in_warehouse = false"
+            elif status == "instore":
+                dbString = "select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id where (batch_id::varchar ilike $1 or produceinfo.harvest_type_name ilike $1) and (import_date >= $2 and import_date <= $3) and is_in_warehouse = true"
             else:
                 return JSONResponse({}, HTTPStatus.UNPROCESSABLE_ENTITY)
 
@@ -105,7 +107,8 @@ async def remove_order_from_batch(batch_id: int, pg = Depends(get_pgpool)):
         conn.execute(dbstring, batch_id)
 
 @rt.get("/simple-stats")
-async def get_simple_stats(pg = Depends(get_pgpool)):
+async def get_simple_stats(current_time_ms: int, pg = Depends(get_pgpool)):
     async with pg.acquire() as conn:
-        db_row = await conn.fetch("select sum(quantity), sum((exp_date < 1398902400000)::int) > 0 from batchinfo where is_in_warehouse = true;")
+        a_month_in_ms = 30 * 86400 * 1000
+        db_row = await conn.fetch("select sum(quantity), sum((exp_date - $1 < $2)::int) from batchinfo where is_in_warehouse = true;", current_time_ms, a_month_in_ms)
         return JSONResponse({"total_quantity": db_row[0][0], "has_expired": db_row[0][1]})

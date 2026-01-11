@@ -4,23 +4,28 @@ import http
 import json
 from datetime import timezone
 import os
-import time
 from http import HTTPStatus
 
+import aiofiles
 import asyncpg.pool
 from asyncpg import Pool
 import fastapi
+from fastapi import BackgroundTasks
 from fastapi.params import Depends
-from glide_shared import GlideClientConfiguration
 from starlette.requests import ClientDisconnect
-from starlette.responses import PlainTextResponse, StreamingResponse, JSONResponse
+from starlette.responses import PlainTextResponse, StreamingResponse, JSONResponse, FileResponse
 
-from dependency_injection import get_vk, get_pgpool
+from dependency_injection import get_pgpool
+import aiocsv
+import os
+import aioxlsxstream
+
 
 rt = fastapi.APIRouter()
 client_queues: set[asyncio.Queue] = set()
 
-
+def remove_file(path: str):
+    os.remove(path)
 
 @rt.websocket("/write-sensor-data")
 async def write_sensor_data(ws: fastapi.WebSocket):
@@ -155,3 +160,51 @@ async def sensor_historic(period: int, aggregation_range: int = 1, pgpool: Pool 
         except:
             return PlainTextResponse("", http.HTTPStatus.INTERNAL_SERVER_ERROR)
 
+# helper function for aioxlsxstream library
+async def row_generator(rows):
+    async def cells_generator(r):
+        for cell in r:
+            yield cell
+
+    for row in rows:
+        yield cells_generator(row)
+
+@rt.get("/export-recordings")
+async def export_recordings(from_timestamp_ms: int, to_timestamp_ms: int, file_format: str, background_tasks: BackgroundTasks, utc_offset_minutes: int = 0, pgpool : asyncpg.pool.Pool = Depends(get_pgpool)):
+    # utc_offset_minutes: difference between the time represented in UTC timezone and local timezone
+    if (from_timestamp_ms == None or to_timestamp_ms == None or file_format == None):
+        return JSONResponse({}, status_code=HTTPStatus.UNPROCESSABLE_ENTITY)
+
+    async with pgpool.acquire() as conn:
+        data: list[list[any]] = await conn.fetch("select timestamp, temperature, humidity, co2 from environmentreading where timestamp >= $1 and timestamp <= $2 order by timestamp", from_timestamp_ms, to_timestamp_ms)
+        data_2 = []
+        for (timestamp, temperature, humidity, co2) in data:
+            # change the UTC milliseconds timestamp to a human-readable form in local time
+            data_2.append(
+                [
+                    (datetime.datetime.fromtimestamp(timestamp / 1000, tz=datetime.UTC) + datetime.timedelta(minutes=-utc_offset_minutes)).strftime("%Y-%m-%d %H:%M:%S"),
+                    str(temperature),
+                    str(humidity),
+                    str(co2)
+                ]
+            )
+
+        data_2.insert(0, ["Time", "Temperature (C)", "Humidity (%)", "CO2 (PPM)"])
+        data.clear()
+        if file_format == "csv":
+            file_name = f"export_{datetime.datetime.now().timestamp()}.csv"
+            async with aiofiles.open(file_name, mode="w") as file:
+                csvwriter = aiocsv.AsyncWriter(file)
+                await csvwriter.writerows(data_2)
+            background_tasks.add_task(remove_file, file_name)
+            return FileResponse(path=file_name, filename=file_name, media_type='application/octet-stream',)
+
+        else:
+            file_name = f"export_{datetime.datetime.now().timestamp()}.xlsx"
+            async with aiofiles.open(file_name, mode="wb") as file:
+                xlsx_file = aioxlsxstream.XlsxFile()
+                xlsx_file.write_sheet(row_generator(data_2))
+                async for chunk in xlsx_file:
+                    await file.write(chunk)
+            background_tasks.add_task(remove_file, file_name)
+            return FileResponse(path=file_name, filename=file_name, media_type='application/octet-stream',)

@@ -21,3 +21,6 @@ typing_extensions==4.15.0
 uvicorn==0.40.0
 valkey-glide==2.2.3
 websockets==15.0.1
+
+aiofiles
+aiocsv

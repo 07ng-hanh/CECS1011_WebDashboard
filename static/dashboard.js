@@ -13,7 +13,10 @@ let show_warning_timeout= undefined
 
 function update_all_ok_banner() {
     let show = document.getElementById("threshold-reached-banner").style.display == "none"
-    if (show) {
+    let show_2 = document.getElementById("storage-capacity-warning").style.display == "none"
+
+    console.log(document.getElementById("storage-capacity-warning").style.display)
+    if (show && show_2) {
         document.getElementById("all-ok").style.display = "block"
     } else {
         document.getElementById("all-ok").style.display = "none"
@@ -112,11 +115,22 @@ async function quantity_poll_handler_func() {
     let resp = await axios.get("/api/batch/simple-stats", {
             validateStatus: function (status) {
                 return status >= 200 && status <= 500
+            },
+            params: {
+                current_time_ms: new Date().getTime()
             }
         })
         if (resp.status === 200) {
             console.log(resp.data)
             document.getElementById("total-quantity-label").innerText = resp.data.total_quantity
+
+            // check if we have any stuffs near expiry in the warehouse
+            if (resp.data.has_expired > 0) {
+                document.getElementById("expiry-date-warning-banner").style.display = "block"
+                document.getElementById("count-almost-expired").innerText = resp.data.has_expired
+            } else {
+                document.getElementById("expiry-date-warning-banner").style.display = "none"
+            }
 
         //  check if warehouse reaches 70% or more of its capacity
             if (resp.data.total_quantity / configs.capacity > 0.7) {
@@ -127,7 +141,7 @@ async function quantity_poll_handler_func() {
                 document.getElementById("total-quantity-gauge").style.backgroundColor = "#dfdfdf"
                 document.getElementById("storage-capacity-warning").style.display = "none"
             }
-
+            update_all_ok_banner()
         }
 }
 

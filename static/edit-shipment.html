@@ -13,27 +13,54 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
               integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
               crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
         <meta charset="UTF-8">
 
+        <style>
+            .port-selector-container {
+                display: flex;
+            }
+            .port-selector-container label {
+                flex-grow: 1;
+            }
+            .port-selector-container:hover {
+                background-color: yellow;
 
+            }
 
+        </style>
+
+        <script src="edit-shipment.js"></script>
     </head>
+
+
 </head>
 <body>
 <div style="display: flex; flex-direction: column; gap: 10px; padding: 10px">
     <!-- TODO: Add autocomplete-->
-    <label for="port-from">Export Route</label>
-    <input type="search" autofocus class="form-control" id="port-from" placeholder="Search Departure Port...">
-    <input type="search" class="form-control" id="port-to" placeholder="Search Destination Port...">
-    <label for="scheduled-departure-date">Scheduled Departure Date</label>
-    <input id="scheduled-departure-date" class="form-control" type="text"
-           placeholder="YYYY-MM-DD">
+    <span style="display: flex; gap: 10px; align-items: center">
+        <button onclick="window.location.href = 'orders.html'" class="btn btn-secondary" style="width: min-content">X</button>
+        <p style="font-weight: bold; margin-bottom: 0">Add Export Route</p>
+    </span>
+    <input type="search" class="form-control" autofocus  id="port-from" placeholder="Search Departure Port (min. 3 characters)">
+    <div id="departure-port-selector" style="height: 150px; border: 1px solid gray; display: flex; flex-direction: column; gap: 0; overflow-y: scroll; padding: 10px"></div>
+    <input type="search" class="form-control"  id="port-to" placeholder="Search Destination Port (min. 3 characters)">
+    <div id="dest-port-selector" style="height: 150px; border: 1px solid gray; display: flex; flex-direction: column; gap: 0; overflow-y: scroll; padding: 10px"></div>
+    <label for="scheduled-departure-date" style="margin-bottom: 0px">Scheduled Departure Date</label>
+    <input class="form-control" id="scheduled-departure-date"  type="text"
+           placeholder="YYYY-MM-DD HH:MM:SS">
 
     <p><i class="bi bi-arrow-right"></i> ETA: <b>YYYY-MM-DD</b> (<span>--</span> days)</p>
 
     <label for="produce-name">Produce Name & Quantity</label>
-    <input class="form-control" id="produce-name" type="text" placeholder="Produce Name...">
-    <input class="form-control" id="produce-qty" type="number" placeholder="Produce Quantity...">
+    <span style="display: flex; gap: 10px">
+        <input class="form-control" id="produce-name" type="search" placeholder="Search Produce...">
+        <input class="form-control" id="produce-qty" type="number" placeholder="Quantity">
+    </span>
+    <div id="produce-selector" style="height: 150px; border: 1px solid gray"></div>
+
+
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; position: absolute; bottom: 10px; right: 10px; left: 10px">
         <button class="btn btn-primary">Save</button>

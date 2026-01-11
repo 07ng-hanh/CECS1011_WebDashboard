@@ -27,6 +27,7 @@
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script src="healthsheet.js"></script>
+    <script src="healthsheet_export.js"></script>
 </head>
 <body>
 <div style="position: fixed; background: white; width: 100%; z-index: 10">
@@ -57,13 +58,32 @@
                 <option value ="1209600000" name="14d">Last 14 days</option>
                 <option value ="2592000000" name="30d">Last 30 days</option>
             </optgroup>
-
         </select>
-            <button class="btn btn-primary" id="manual-refresh-btn">Refresh</button>
+            <button style="width: max-content" class="btn btn-primary" id="manual-refresh-btn">Refresh</button>
+            <button onclick="toggle_export_prompt(true)" style="width: fit-content; text-wrap: nowrap" class="btn btn-secondary" id="data-export-btn">Export</button>
         </span>
     </span>
 
 </div>
+
+<!--Modal to export sensor recordings.-->
+<div id="export-recordings-prompt" style="position: fixed; z-index: 10; background: #000000dd; width: 100%; height: 100%; display: none; justify-content: center; align-items: center;">
+    <div style="width: 500px; background: white; padding: 10px; display: flex; flex-direction: column; gap: 10px">
+        <button class="btn btn-secondary" style="width: min-content" onclick="toggle_export_prompt(false)">X</button>
+        <h3>Export Sensor Recordings</h3>
+        <label for="date-from">From</label>
+        <input id="date-from" class="form-control" type="date">
+        <label for="date-to">To</label>
+        <input id="date-to" class="form-control" type="date">
+        <label for="file-format">File Format</label>
+        <select id="file-format" class="form-control">
+            <option value="csv">.CSV</option>
+            <option value="xlsx">.XLSX</option>
+        </select>
+        <button class="btn btn-secondary" onclick="request_sensor_recordings()">Export</button>
+    </div>
+</div>
+
 <div style="position: absolute; top: 110px; width: 100%">
     <div class="healthsheet-entry">
         <label><b>Temperature (&deg;C)</b></label>

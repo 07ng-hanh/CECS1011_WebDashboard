@@ -7,8 +7,8 @@
             let departure_date_picker = new Litepicker({
                 element: document.getElementById("export-date"),
                 mobileFriendly: true,
-                format: "YYYY-MM-DD",
-                singleMode: true,
+                // format: "YYYY-MM-DD",
+                singleMode: false,
                 useResetBtn: true,
                 buttonText: {
                     reset: "Reset"
