@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
+
+
+
     // Drawing contexts
     let ctx_temperature = document.getElementById("temperature-plot")
     let ctx_co2 = document.getElementById("co2-plot")

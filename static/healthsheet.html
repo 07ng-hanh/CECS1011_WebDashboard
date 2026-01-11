@@ -25,7 +25,12 @@
             integrity="sha512-pSxAn0V22F4p92VllULJWP5yR5a5FfSPCzHum2P7MrbzmYNiaYsED0UZUF9JzRSZvRlemas5Yqf7F90xFvFthA=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/litepicker/2.0.12/litepicker.min.js"
+            integrity="sha512-yNEsQERO50LM6mQgUWnWFo453wVwrxOzTnCxYgawLggDtt5VuU/U7sAPx1wcHhUvqPbbvwVJgVBnJ+FOOmeZIQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/litepicker/2.0.12/css/litepicker.min.css"
+          integrity="sha512-wcj3civV5+29DLKdrR2zMcQWSCbWOTqeVPFvOth4zTDBZ7/24DAFTswuqymhGuguAZD3IQ7Te/+ef5WsfTo1zw=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <script src="healthsheet.js"></script>
     <script src="healthsheet_export.js"></script>
 </head>
@@ -71,11 +76,9 @@
     <div style="width: 500px; background: white; padding: 10px; display: flex; flex-direction: column; gap: 10px">
         <button class="btn btn-secondary" style="width: min-content" onclick="toggle_export_prompt(false)">X</button>
         <h3>Export Sensor Recordings</h3>
-        <label for="date-from">From</label>
-        <input id="date-from" class="form-control" type="date">
-        <label for="date-to">To</label>
-        <input id="date-to" class="form-control" type="date">
-        <label for="file-format">File Format</label>
+        <label class="form-check-label" for="date-range">Export Timestamp Range</label>
+        <input id="date-range" class="form-control" placeholder="Range YYYY-MM-DD">
+        <label class="form-check-label" for="file-format">File Format</label>
         <select id="file-format" class="form-control">
             <option value="csv">.CSV</option>
             <option value="xlsx">.XLSX</option>

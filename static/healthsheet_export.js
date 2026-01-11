@@ -6,9 +6,13 @@ function toggle_export_prompt(show) {
     }
 }
 
+let export_range = undefined
+
 async function request_sensor_recordings() {
-    let date_from = new Date(document.getElementById("date-from").value)
-    let date_to = new Date(document.getElementById("date-to").value)
+    let date_from = export_range.getStartDate()
+    date_from.setHours(0, 0, 0, 0)
+    let date_to = export_range.getEndDate()
+    date_to.setHours(23, 59, 59, 0)
     let file_format = document.getElementById("file-format").value
     date_to.setHours(23, 59, 59)
     date_from.setHours(23, 59, 59)
@@ -47,3 +51,19 @@ async function request_sensor_recordings() {
     }
 
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Inject litepicker for picking export time range
+    export_range = new Litepicker({
+        element: document.getElementById("date-range"),
+        mobileFriendly: true,
+        // format: "YYYY-MM-DD",
+        singleMode: false,
+        useResetBtn: true,
+        buttonText: {
+            reset: "Reset"
+        },
+    })
+
+
+})
