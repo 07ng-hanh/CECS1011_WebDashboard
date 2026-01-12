@@ -28,7 +28,7 @@ async def new_batch(request: NewBatchForm, pg: asyncpg.pool.Pool = Depends(get_p
         return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 @rt.get("/list-batches")
-async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_from: Optional[int] = 0, harvest_timestamp_to: int = 9223372036854775807 , status: Optional[str] = "", sortBy: Optional[str] = "", sortAscending: Optional[bool] = True, almostExpiredOnly: Optional[bool] = False, pg: asyncpg.pool.Pool = Depends(get_pgpool)) -> JSONResponse:
+async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_from: Optional[int] = 0, harvest_timestamp_to: int = 9223372036854775807 , status: Optional[str] = "", sortBy: Optional[str] = "", sortAscending: Optional[bool] = True, almostExpiredOnly: Optional[bool] = False, pg: asyncpg.pool.Pool = Depends(get_pgpool), page: int=1, limit: int=4) -> JSONResponse:
     """
 
     :param name_or_id_query: a string
@@ -57,29 +57,44 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
             else:
                 return JSONResponse({}, HTTPStatus.UNPROCESSABLE_ENTITY)
 
-            ret = await conn.fetch(dbString, f'%{name_or_id_query}%', harvest_timestamp_from, harvest_timestamp_to)
+            match sortBy:
+                case "batch_id":
+                    # retLst.sort(key=lambda x: x.batch_id, reverse=not sortAscending)
+                    dbString += " order by batch_id"
+                case "harvest_type_name":
+                    # retLst.sort(key=lambda x: x.harvest_type_name, reverse=not sortAscending)
+                    dbString += " order by produceinfo.harvest_type_name"
+                case "weight":
+                    # retLst.sort(key=lambda x: x.weight, reverse=not sortAscending)
+                    dbString += " order by weight"
+                case "quantity":
+                    # retLst.sort(key=lambda x: x.quantity, reverse=not sortAscending)
+                    dbString += " order by quantity"
+                case "harvest_date":
+                    # retLst.sort(key=lambda x: x.import_date, reverse=not sortAscending)
+                    dbString += " order by import_date"
+                case "remaining_shelf_life":
+                    # retLst.sort(key=lambda x: x.exp_date - x.import_date, reverse=not sortAscending)
+                    dbString += " order by remaining_shelf_life"
+                case _:
+                    dbString += " order by batch_id"
 
+            if sortAscending:
+                dbString += " asc"
+            else:
+                dbString += " desc"
+
+            dbString += f' limit $4 offset $5'
+            ret = await conn.fetch(dbString, f'%{name_or_id_query}%', harvest_timestamp_from, harvest_timestamp_to, limit, limit * (page - 1))
 
             if almostExpiredOnly:
                 # List items that expire in 30 days or less.
                 timestamp_now_utc = datetime.datetime.now(datetime.UTC).timestamp() * 1000
-                retLst: list[BatchInfo] = [BatchInfo.from_list(row) for row in ret if row[6] - timestamp_now_utc <= 30 * 86400 * 1000]
+                # show batches with less than 20% of lifespan left.
+                retLst: list[BatchInfo] = [BatchInfo.from_list(row) for row in ret if (row[6] - timestamp_now_utc) / (row[6] - row[5]) <= 0.2]
             else:
                 retLst: list[BatchInfo] = [BatchInfo.from_list(row) for row in ret]
 
-            match sortBy:
-                case "batch_id":
-                    retLst.sort(key=lambda x: x.batch_id, reverse=not sortAscending)
-                case "harvest_type_name":
-                    retLst.sort(key=lambda x: x.harvest_type_name, reverse=not sortAscending)
-                case "weight":
-                    retLst.sort(key=lambda x: x.weight, reverse=not sortAscending)
-                case "quantity":
-                    retLst.sort(key=lambda x: x.quantity, reverse=not sortAscending)
-                case "harvest_date":
-                    retLst.sort(key=lambda x: x.import_date, reverse=not sortAscending)
-                case "remaining_shelf_life":
-                    retLst.sort(key=lambda x: x.exp_date - x.import_date, reverse=not sortAscending)
 
 
             return retLst
@@ -110,5 +125,5 @@ async def remove_order_from_batch(batch_id: int, pg = Depends(get_pgpool)):
 async def get_simple_stats(current_time_ms: int, pg = Depends(get_pgpool)):
     async with pg.acquire() as conn:
         a_month_in_ms = 30 * 86400 * 1000
-        db_row = await conn.fetch("select sum(quantity), sum((exp_date - $1 < $2)::int) from batchinfo where is_in_warehouse = true;", current_time_ms, a_month_in_ms)
+        db_row = await conn.fetch("select sum(quantity), sum(( (exp_date - $1) / (exp_date - import_date)::float <= 0.20)::int) from batchinfo where is_in_warehouse = true;", current_time_ms)
         return JSONResponse({"total_quantity": db_row[0][0], "has_expired": db_row[0][1]})

@@ -106,15 +106,19 @@ function showSearchResults(r) {
         let expiration = document.createElement("p")
         expiration.className = "card-info-entry"
         let date_diff = Math.round((v.exp_date - (new Date()).getTime()) / 86400000)
+        let lifespan_percentage_left = (v.exp_date - (new Date()).getTime()) / (v.exp_date - v.import_date)
+        console.log("LIFE", lifespan_percentage_left, v.batch_id)
         let expired = false
         if (date_diff <= 0) {
             expiration.innerHTML = `Expired At: <b style="color: red">${get_localtime_iso_string(new Date(v.exp_date))}</b>`
             card.style.borderColor = "rgba(255, 0, 0, 1)"
             card.style.borderWidth = "2px"
             expired = true
-        } else if (date_diff < 20) {
+        } else if (lifespan_percentage_left <= 0.20) {
             expiration.innerHTML = `Expires At: <b style="color: red">${get_localtime_iso_string(new Date(v.exp_date))}</b> <span style="color: red">(${date_diff} days)</span>`
-            card.style.backgroundColor = "rgba(255, 255, 0, 0.5)"
+            if (v.is_in_warehouse) {
+                card.style.backgroundColor = "rgba(255, 255, 0, 0.5)"
+            }
         } else {
             expiration.innerHTML = `Expires At: <b>${get_localtime_iso_string(new Date(v.exp_date))}</b> (${date_diff} days)`
         }
@@ -134,12 +138,12 @@ function showSearchResults(r) {
             // Warn against exporting expired stuff.
 
             if (expired) {
-                status.innerHTML = `Status: <b class='accented-danger' style="color: gray">Expired, please remove from order <a style="text-decoration: underline;">${v.assigned_order_no}</a>.</b>`
+                status.innerHTML = `Status: <b class='accented-danger' style="color: gray">Assigned to <a href="#top">Shipment #${v.assigned_order_no}</a> but expired. Please discard.</b>`
             } else {
-                status.innerHTML = `Status: <b class='accented-purple'>Marked for Export <a style="text-decoration: underline;">(Order ${v.assigned_order_no})</a></b>`
+                status.innerHTML = `Status: <b class='accented-purple'>Marked for Export <a href="#top">(Shipment #${v.assigned_order_no})</a></b>`
             }
 
-        } else if (!v.is_in_warehouse && v.assigned_order_no != null) {
+        } else if (!v.is_in_warehouse && v.assigned_order_no != null && v.discard_reason == null) {
             status.innerHTML = `Status: <b class="accented-purple" style="color: gray">Exported</b>`
             // When an item is exported, we dont track its expiration anymore
             expiration.style.display = "none"
@@ -160,12 +164,12 @@ function showSearchResults(r) {
             entryCardActionBtnGroup.appendChild(assignToBtn)
         }
 
-
-        let batchHealth = document.createElement("button")
-        batchHealth.innerText = "Health"
-        batchHealth.className = "btn btn-outline-primary"
-        entryCardActionBtnGroup.appendChild(batchHealth)
-
+        if (v.is_in_warehouse) {
+            let batchHealth = document.createElement("button")
+            batchHealth.innerText = "Health"
+            batchHealth.className = "btn btn-outline-primary"
+            entryCardActionBtnGroup.appendChild(batchHealth)
+        }
 
         if (v.is_in_warehouse) {
             let discardBtn = document.createElement("button")
@@ -236,8 +240,8 @@ async function searchWithFilters(show_results = true) {
     let date_from = harvestRange.split(" - ")[0]
     let date_to = harvestRange.split(" - ")[1]
 
-    let date_from_utc_timestamp = (new Date(date_from)).getTime()
-    let date_to_utc_timestamp = (new Date(date_to)).getTime()
+    let date_from_utc_timestamp = (new Date(date_from)).setHours(0,0,0)
+    let date_to_utc_timestamp = (new Date(date_to)).setHours(23, 59, 59)
 
     if (Number.isNaN(date_from_utc_timestamp)) {
         date_from_utc_timestamp = undefined

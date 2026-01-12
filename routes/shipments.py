@@ -3,7 +3,7 @@ from http import HTTPStatus
 import asyncpg.pool
 from fastapi import APIRouter
 from fastapi.params import Depends
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, PlainTextResponse
 import math
 from datamodels import ExportOrderMinimal, PortInfo
 from dependency_injection import get_pgpool
@@ -53,20 +53,21 @@ async def add_shipment(s: ExportOrderMinimal, pgpool: asyncpg.pool.Pool = Depend
     try:
         # get port lat/lon from port list
         lat_a, lon_a, lat_b, lon_b = 0, 0, 0, 0
-        with pgpool.acquire() as conn:
+        async with pgpool.acquire() as conn:
             departure_port = await conn.fetch("select (port_lat, port_lon) from ports where id = $1", s.departure_port_id)
-            lat_a, lon_a = departure_port[0]
+            lat_a, lon_a = departure_port[0][0]
             destination_port = await conn.fetch("select (port_lat, port_lon) from ports where id = $1", s.destination_port_id)
-            lat_b, lon_b = destination_port[0]
+            lat_b, lon_b = destination_port[0][0]
 
         # push order to DB
-        estimate_transport_time_ms = estimate_transport_time(estimate_length(lat_a, lon_a, lat_b, lon_b)) / 3600000
+        estimate_transport_time_ms = estimate_transport_time(estimate_length(lat_a, lon_a, lat_b, lon_b)) * 3600000
 
-        with pgpool.acquire() as conn:
-            conn.execute("insert into shipments (source_port_id, dest_port_id, planned_departure_timestamp, produce_type_id, produce_qty, eta_milliseconds) values ($1, $2, $3, $4, $5, $6)",
+        async with pgpool.acquire() as conn:
+            await conn.execute("insert into shipments (source_port_id, dest_port_id, planned_departure_timestamp, produce_type_id, produce_qty, eta_milliseconds) values ($1, $2, $3, $4, $5, $6)",
                          s.departure_port_id, s.destination_port_id, s.planned_departure_day_utc_int, s.produce_id, s.produce_qty, estimate_transport_time_ms )
 
-    except:
+    except Exception as e:
+        print(e)
         return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 @rt.get("/search-port")
@@ -81,3 +82,14 @@ async def search_port(q: str, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
             return port_list
     except:
         return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+@rt.get("/estimate-eta")
+async def estimate_eta(port_id_from: str, port_id_to: str, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+    try:
+        async with pgpool.acquire() as conn:
+            d = await conn.fetch("select id, port_lat, port_lon from ports where id = $1 or id = $2", port_id_from, port_id_to)
+            _, lat_a, lon_a = d[0]
+            _, lat_b, lon_b = d[1]
+            return PlainTextResponse(str( 3600000 * estimate_transport_time(estimate_length(lat_a, lon_a, lat_b, lon_b))))
+    except Exception as e:
+        return PlainTextResponse(e, HTTPStatus.INTERNAL_SERVER_ERROR)

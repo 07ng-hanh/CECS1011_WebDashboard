@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 from http import HTTPStatus
@@ -21,10 +23,10 @@ async def list_produces(page: int = 1, limit: int = 20, query: str = "", pgpool:
 
 
 @rt.get("/list-all-produces-simple")
-async def list_all_produces_simple(pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+async def list_all_produces_simple(q: Optional[str] = "", pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
     async with pgpool.acquire() as con:
         try:
-            produces = await con.fetch("select id, harvest_type_name from produceinfo")
+            produces = await con.fetch("select id, harvest_type_name from produceinfo where harvest_type_name ilike $1", f"%{q}%")
             return JSONResponse([(produce, id) for (produce, id) in produces])
         except Exception as e:
             print(e)

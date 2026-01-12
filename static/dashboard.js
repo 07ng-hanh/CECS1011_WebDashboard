@@ -14,9 +14,10 @@ let show_warning_timeout= undefined
 function update_all_ok_banner() {
     let show = document.getElementById("threshold-reached-banner").style.display == "none"
     let show_2 = document.getElementById("storage-capacity-warning").style.display == "none"
+    let show_3 = document.getElementById("expiry-date-warning-banner").style.display == "none"
 
     console.log(document.getElementById("storage-capacity-warning").style.display)
-    if (show && show_2) {
+    if (show && show_2 && show_3) {
         document.getElementById("all-ok").style.display = "block"
     } else {
         document.getElementById("all-ok").style.display = "none"

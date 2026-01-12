@@ -41,7 +41,7 @@
     <!-- TODO: Add autocomplete-->
     <span style="display: flex; gap: 10px; align-items: center">
         <button onclick="window.location.href = 'orders.html'" class="btn btn-secondary" style="width: min-content">X</button>
-        <p style="font-weight: bold; margin-bottom: 0">Add Export Route</p>
+        <p style="font-weight: bold; margin-bottom: 0">Add Shipment</p>
     </span>
     <input type="search" class="form-control" autofocus  id="port-from" placeholder="Search Departure Port (min. 3 characters)">
     <div id="departure-port-selector" style="height: 150px; border: 1px solid gray; display: flex; flex-direction: column; gap: 0; overflow-y: scroll; padding: 10px"></div>
@@ -57,7 +57,7 @@
 
     <input style="height: 0; opacity: 0" id="form-control-hidden" type="datetime-local">
     </span>
-    <p><i class="bi bi-arrow-right"></i> ETA: <b>YYYY-MM-DD HH:MM</b> (<span>--</span> days)</p>
+    <p><i class="bi bi-arrow-right"></i> ETA: <b id="eta-arrival-date">YYYY-MM-DD HH:MM</b> (<span id="eta-duration">--</span> days)</p>
 
 
 
@@ -66,12 +66,12 @@
         <input class="form-control" id="produce-name" type="search" placeholder="Search Produce...">
         <input class="form-control" id="produce-qty" type="number" placeholder="Quantity">
     </span>
-    <div id="produce-selector" style="height: 150px; border: 1px solid gray"></div>
+    <div id="produce-selector" style="height: 150px; border: 1px solid gray; display: flex; flex-direction: column; gap: 0; overflow-y: scroll; padding: 10px"></div>
 
 
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; position: absolute; bottom: 10px; right: 10px; left: 10px">
-        <button class="btn btn-primary">Save</button>
+        <button class="btn btn-primary" onclick="create_new_shipment()">Save</button>
         <button class="btn btn-secondary" onclick="window.location.href = 'orders.html'">Discard</button>
     </div>
 

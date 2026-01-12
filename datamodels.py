@@ -67,8 +67,8 @@ class EnvironmentReading(BaseModel):
     humidity: float
 
 class ExportOrderMinimal(BaseModel):
-    departure_port_id: int
-    destination_port_id: int
+    departure_port_id: str
+    destination_port_id: str
     planned_departure_day_utc_int: int # milliseconds timestamp
     produce_id: int
     produce_qty: int
