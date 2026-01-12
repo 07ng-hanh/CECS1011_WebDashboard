@@ -28,7 +28,7 @@ async def new_batch(request: NewBatchForm, pg: asyncpg.pool.Pool = Depends(get_p
         return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 @rt.get("/list-batches")
-async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_from: Optional[int] = 0, harvest_timestamp_to: int = 9223372036854775807 , status: Optional[str] = "", sortBy: Optional[str] = "", sortAscending: Optional[bool] = True, almostExpiredOnly: Optional[bool] = False, pg: asyncpg.pool.Pool = Depends(get_pgpool), page: int=1, limit: int=4) -> JSONResponse:
+async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_from: Optional[int] = 0, harvest_timestamp_to: int = 9223372036854775807 , status: Optional[str] = "", sortBy: Optional[str] = "", sortAscending: Optional[bool] = True, almostExpiredOnly: Optional[bool] = False, pg: asyncpg.pool.Pool = Depends(get_pgpool), page: int=1, limit: int=50) -> JSONResponse:
     """
 
     :param name_or_id_query: a string

@@ -1,5 +1,18 @@
 let lst = ["awk"]
 let harvest_date_range_picker = undefined
+let page = 1
+
+async function flipPage(step) {
+    if (page + step < 1) {
+        page = 1
+        return
+    }
+    page += step
+    await searchWithFilters(true)
+
+    document.getElementById("page-counter").innerText = page.toString()
+
+}
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -26,7 +39,7 @@ function get_localtime_iso_string(date = new Date()) {
     return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
 }
 
-async function warehouseSearch(q = "", harvest_timestamp_from, harvest_timestamp_to, status, sortBy, sortAscending, almostExpiredOnly = false) {
+async function warehouseSearch(q = "", harvest_timestamp_from, harvest_timestamp_to, status, sortBy, sortAscending, almostExpiredOnly = false, page = 1) {
     let r = await axios.get("/api/batch/list-batches", {
         validateStatus: function (status) {
             return status >= 200 && status <= 500
@@ -37,7 +50,8 @@ async function warehouseSearch(q = "", harvest_timestamp_from, harvest_timestamp
             status: status,
             sortBy: sortBy,
             sortAscending: sortAscending,
-            almostExpiredOnly: almostExpiredOnly
+            almostExpiredOnly: almostExpiredOnly,
+            page: page
         }
 
     })
@@ -251,7 +265,7 @@ async function searchWithFilters(show_results = true) {
         date_to_utc_timestamp = undefined
     }
 
-    let r = await warehouseSearch(q, date_from_utc_timestamp, date_to_utc_timestamp, status, sortBy, sortAscending, almostExpiredOnly)
+    let r = await warehouseSearch(q, date_from_utc_timestamp, date_to_utc_timestamp, status, sortBy, sortAscending, almostExpiredOnly, page)
     if (show_results) {
         showSearchResults(r)
     } else {

@@ -91,9 +91,9 @@
                 <label class="form-check-label" for="almost-expire-toggle">Only show batches having 20% of their lifespan or less.</label>
             </div>
             <span style="display: flex; align-items: center">
-                <button class="btn btn-link"><</button>
-                <p style="margin: 0">Page 1</p>
-                <button class="btn btn-link">></button>
+                <button onclick="flipPage(-1)" class="btn btn-link"><</button>
+                <p style="margin: 0">Page <span id="page-counter">1</span></p>
+                <button onclick="flipPage(1)" class="btn btn-link">></button>
             </span>
         </span>
         <span style="display: grid; grid-template-columns: 1.5fr 50px 120px 120px; gap: 10px">
