@@ -198,7 +198,7 @@ async function getAndShowUsers(page) {
 async function queryUsers() {
     user_page_query = document.getElementById("search-username-00x").value
     user_page = 1
-    getAndShowUsers(user_page)
+    await getAndShowUsers(user_page)
 }
 
 

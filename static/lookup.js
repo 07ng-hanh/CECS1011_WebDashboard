@@ -90,7 +90,7 @@ function showSearchResults(r) {
     let container = document.querySelector("div.card-container")
     container.innerHTML = ""
 
-    if (r.length == 0) {
+    if (r.length === 0) {
         container.innerHTML = "<h2>No Data</h2>"
     }
 
@@ -159,7 +159,7 @@ function showSearchResults(r) {
 
         } else if (!v.is_in_warehouse && v.assigned_order_no != null && v.discard_reason == null) {
             status.innerHTML = `Status: <b class="accented-purple" style="color: gray">Exported</b>`
-            // When an item is exported, we dont track its expiration anymore
+            // When an item is exported, we don't track its expiration anymore
             expiration.style.display = "none"
         } else if (v.discard_reason != null && !v.is_in_warehouse) {
             status.innerHTML = `Status: <b class="accented-danger" style="color: gray">Discarded (${v.discard_reason})</b>`
@@ -224,7 +224,7 @@ async function clearFilters() {
 document.addEventListener("DOMContentLoaded", async () => {
     let params = new URLSearchParams(document.location.search)
     let id = params.get('id')
-    let almostExpiredOnly = params.get('almostExpiredOnly') == "true"
+    let almostExpiredOnly = params.get('almostExpiredOnly') === "true"
     let r = null
 
     if (almostExpiredOnly) {

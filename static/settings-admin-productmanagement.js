@@ -201,7 +201,7 @@ async function promptDeleteProduct(produceId) {
             alert("Can't delete produce entry. There are still batches of this produce in the warehouse database.")
         } else {
             alert("Operation successful.")
-            getAndShowProduceList(produce_page)
+            await getAndShowProduceList(produce_page)
         }
     }
 }
@@ -210,13 +210,13 @@ async function queryProduce() {
     produce_query = document.getElementById("search-prod").value
     console.log("QUERY", produce_query)
     produce_page = 1
-    getAndShowProduceList(produce_page)
+    await getAndShowProduceList(produce_page)
 }
 
 
 let produce_search_debounce_id = undefined
 document.addEventListener("DOMContentLoaded", async() => {
-    getAndShowProduceList(1)
+    await getAndShowProduceList(1)
 
     document.querySelector("#search-prod").addEventListener("input", () => {
         if (produce_search_debounce_id !== undefined) {

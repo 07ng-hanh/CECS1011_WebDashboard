@@ -135,7 +135,7 @@ async def check_session_validity(request: Request, call_next):
                     return JSONResponse({}, HTTPStatus.UNAUTHORIZED)
 
     else:
-        # DO NOT capture other requests (for login, dashboard html, etc.)
+        # DO NOT capture other requests (for login, dashboard HTMLs, etc.)
         print(str(request))
         return await call_next(request)
 

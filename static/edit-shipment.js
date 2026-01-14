@@ -51,10 +51,10 @@ async function create_new_shipment(){
         window.location.href = 'orders.html'
     } else {
         alert("Cannot upload new shipment: Error " + r.status)
-        return
+
     }
 
-    return
+
 
 
 }
@@ -101,7 +101,7 @@ async function populate_search_port_from(ev) {
 
         if (query.length >= 3) {
             container.innerHTML = ""
-            r = await axios.get("/api/shipments/search-port", {
+            let r = await axios.get("/api/shipments/search-port", {
                 params: {
                     q: query
                 }
@@ -122,7 +122,7 @@ async function populate_search_port_from(ev) {
 
                     lbl.className = "form-check-label"
 
-                    if (port.id == current_departure_port_id) {
+                    if (port.id === current_departure_port_id) {
                         cb.checked = true
                     }
 
@@ -160,7 +160,7 @@ async function populate_search_port_to(ev) {
         if (query.length >= 3) {
             container.innerHTML = ""
 
-            r = await axios.get("/api/shipments/search-port", {
+            let r = await axios.get("/api/shipments/search-port", {
                 params: {
                     q: query
                 }
@@ -183,7 +183,7 @@ async function populate_search_port_to(ev) {
                     lbl.style.padding = "10px"
 
 
-                    if (port.id == current_destination_port_id) {
+                    if (port.id === current_destination_port_id) {
                         cb.checked = true
                     }
 

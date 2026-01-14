@@ -38,7 +38,7 @@ async function request_sensor_recordings() {
         }
     })
 
-    if (resp.status == 200) {
+    if (resp.status === 200) {
         const blob_url = URL.createObjectURL(resp.data)
         const anchor_elem = document.createElement('a')
         anchor_elem.href = blob_url

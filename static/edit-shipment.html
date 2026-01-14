@@ -49,11 +49,11 @@
     <div id="dest-port-selector" style="height: 150px; border: 1px solid gray; display: flex; flex-direction: column; gap: 0; overflow-y: scroll; padding: 10px"></div>
 
 
-    <label for="scheduled-departure-date" style="margin-bottom: 0px">Scheduled Departure Date</label>
+    <label for="scheduled-departure-date" style="margin-bottom: 0">Scheduled Departure Date</label>
 
     <span style="display: flex; flex-direction: column">
     <input class="form-control" id="scheduled-departure-date"  type="text"
-           placeholder="YYYY-MM-DD HH:MM" onclick="console.log('f'),document.getElementById('form-control-hidden').showPicker()">
+           placeholder="YYYY-MM-DD HH:MM" onclick="document.getElementById('form-control-hidden').showPicker()">
 
     <input style="height: 0; opacity: 0" id="form-control-hidden" type="datetime-local">
     </span>

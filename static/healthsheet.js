@@ -60,9 +60,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
     }
 
-    chart_temperature = undefined
-    chart_co2 = undefined
-    chart_humidity = undefined
+    let chart_temperature = undefined
+    let chart_co2 = undefined
+    let chart_humidity = undefined
 
     function initCharts(span_ms) {
         // Reset chart

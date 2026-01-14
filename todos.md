@@ -2,7 +2,7 @@
 
 - NOTE: On finalizing late shipment, check for batches that might not survive.
 - NOTE_2: Only export shipments if target is fulfilled.
-- NOTE_3: The safety environmental threshold will be assigned based on the lowest tolerant range across all produces in the produces database. It will only be updated if there's an update to that database (a.k.a "all that we might have in stock") to prevent strain on the system, while avoiding the inaccurateness that comes with fixed threshold.
+- NOTE_3: The safety environmental threshold will be assigned based on the lowest tolerant range across all produces in the produces database. It will only be updated if there's an update to that database (a.k.a. "all that we might have in stock") to prevent strain on the system, while avoiding the inaccurateness that comes with fixed threshold.
 
 - [User/Warehouse] Show quantity of all produces
 - [User/Warehouse] Show warnings and push notification if quantity exceed storage capacity
@@ -27,7 +27,7 @@
 - [User/Order] Finalize order
 - [User/Order] Fulfill order
 - [Admin/Users] Create, list and delete new user
-- [Admin/Users] Grant and revoke an user admin rights
+- [Admin/Users] Grant and revoke user admin rights
 - [Admin/Produce] Add, delete and update new produce
 - [Admin/Warehouse] Manually trigger purging sold or discarded produces
 
