@@ -24,7 +24,7 @@ async function request_sensor_recordings() {
     }
 
     if (date_from.getTime() > date_to.getTime()) {
-        alert("Invalid date input. First date must not be later than final date.")
+        alert("Invalid date input. Start date must not be later than end date.")
         return
     }
 

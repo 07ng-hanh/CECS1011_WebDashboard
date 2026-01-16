@@ -1,6 +1,7 @@
 from pydantic import BaseModel, field_serializer
 import math
-from typing import Optional, Any
+from typing import Optional, Any, List
+
 
 # test push
 
@@ -74,7 +75,7 @@ class ExportOrderMinimal(BaseModel):
     produce_qty: int
 
 
-class ExportOrder(BaseModel):
+class ExportOrderForm(BaseModel):
     departure_port_name: str
     departure_port_lat: float
     departure_port_lon: float
@@ -83,7 +84,27 @@ class ExportOrder(BaseModel):
     destination_port_lon: float
     departure_day: int
 
+class BatchMinimal(BaseModel):
+    batch_id: int
+    quantity: int
 
+class ExportOrderDetails(BaseModel):
+    shipment_id: int
+    source_port_id: str
+    source_port_name: str
+    dest_port_id: str
+    dest_port_name: str
+    produce_type_id: int
+    produce_type_name: str
+    produce_qty: int
+    planned_departure_timestamp: int
+    actual_departure_timestamp: Optional[int]
+    eta_milliseconds: int
+    batches: list
+    cur_quantity: int
+    @classmethod
+    def from_list(cls, data: list[Any]):
+        return cls(**dict(zip(cls.model_fields, data)))
 
 class WarehouseConfig(BaseModel):
     capacity: Optional[int] = None

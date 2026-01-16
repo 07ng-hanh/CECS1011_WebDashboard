@@ -14,7 +14,7 @@ TBL ProduceInfo (PRODUCE_ID, HARVEST_TYPE_NAME, SHELF_LIFE, THRESH_TEMP_LO, THRE
 # IS_SHIPPED property is now changed to IS_IN_WAREHOUSE - this accounts for the situations where a batch has to leave the warehouse due to past-expiry disposal, shipping, and lots more case. Simply put, this column name generalizes better.
 TBL EnvironmentReading (TIMESTAMP, TEMPERATURE, CO2, HUMIDITY)
 
-TBL ExportOrder (ORDER_ID, DEPARTURE_PORT_NAME, DEPARTURE_PORT_LAT, DEPARTURE_PORT_LON, DESTINATION_PORT_NAME, DESTINATION_PORT_LAT, DESTINATURE_PORT_LON, DEPARTURE_DAY, STATUS ("pending", "finalized", "shipped"))
+TBL ExportOrderForm (ORDER_ID, DEPARTURE_PORT_NAME, DEPARTURE_PORT_LAT, DEPARTURE_PORT_LON, DESTINATION_PORT_NAME, DESTINATION_PORT_LAT, DESTINATURE_PORT_LON, DEPARTURE_DAY, STATUS ("pending", "finalized", "shipped"))
 # Base on the information above, we can use an estimation algorithm (i.e. Great Circle Distance) to get the roughly estimated time needed to travel
 # Thus, we can obtain which batch we should put onto this order
 # If we're lucky, we can get access to the Dataloy API, which gives much more accurate estimation

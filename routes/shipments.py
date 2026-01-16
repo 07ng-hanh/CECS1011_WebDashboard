@@ -1,11 +1,13 @@
+import datetime
 from http import HTTPStatus
+from typing import Optional
 
 import asyncpg.pool
 from fastapi import APIRouter
 from fastapi.params import Depends
 from starlette.responses import JSONResponse, PlainTextResponse
 import math
-from datamodels import ExportOrderMinimal, PortInfo
+from datamodels import ExportOrderMinimal, PortInfo, ExportOrderDetails, BatchMinimal
 from dependency_injection import get_pgpool
 rt = APIRouter()
 
@@ -93,3 +95,68 @@ async def estimate_eta(port_id_from: str, port_id_to: str, pgpool: asyncpg.pool.
             return PlainTextResponse(str( 3600000 * estimate_transport_time(estimate_length(lat_a, lon_a, lat_b, lon_b))))
     except Exception as e:
         return PlainTextResponse(e, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+@rt.get("/list-shipments")
+async def list_shipments(shipment_id: Optional[str] = "", port_name_from: Optional[str] = "", port_name_to: Optional[str] = "", departure_start: Optional[int] = 0, departure_end: Optional[int] = 9223372036854775807, produce_type: Optional[str] = "", status: Optional[str] = "status-any", sort_by: Optional[str] = "", sort_ascending: Optional[bool] = True, page: Optional[int] = 1, limit: Optional[int] = 50, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+    WCARD = "%{}%"
+    order_clause = {
+        "": "",
+        "sort-default": "",
+        "sort-order-id": "order by shipment_id",
+        "sort-departure-port": "order by po1.port_name",
+        "sort-destination-port": "order by po2.port_name",
+        "sort-produce-name": "order by p1.harvest_type_name",
+        "sort-quantity": "order by produce_qty",
+        "sort-scheduled-departure": "order by planned_departure_timestamp",
+        "sort-actual-departure": "order by actual_departure_timestamp"
+    }
+
+    dbString = """
+        select * from (select shipment_id, source_port_id, po1.port_name, 
+        dest_port_id, po2.port_name, shipments.produce_type_id, p1.harvest_type_name, 
+        produce_qty, planned_departure_timestamp,
+        actual_departure_timestamp, eta_milliseconds, ARRAY_AGG(b.batch_id) as batches, SUM(b.quantity) as cur_quantity
+        from shipments
+        join produceinfo p1 on p1.id = shipments.produce_type_id
+        join ports po1 on po1.id = source_port_id
+        join ports po2 on po2.id = dest_port_id
+        left join batchinfo b on b.assigned_order_no = shipment_id
+        
+        where shipment_id::varchar like $1 and po1.port_name ilike $2 and po2.port_name ilike $3
+        and p1.harvest_type_name ilike $4 and planned_departure_timestamp >= $5 and planned_departure_timestamp <= $6
+        
+        group by shipment_id, po1.id, po2.id, p1.id) {}
+
+        """
+
+    # check status
+    match status:
+        case "status-any":
+            dbString = dbString.format("")
+        case "status-waiting":
+            dbString = dbString.format("where actual_departure_timestamp is null and cur_quantity < produce_qty")
+        case "status-waiting-late":
+            dbString = dbString.format(f"where actual_departure_timestamp is null and cur_quantity < produce_qty and planned_departure_timestamp < {int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)}")
+        case "status-ready":
+            dbString = dbString.format(f"where cur_quantity >= produce_qty and actual_departure_timestamp is null")
+        case "status-departed":
+            dbString += "where actual_departure_timestamp is not null"
+
+    dbString += order_clause[sort_by] + " "
+    if not sort_ascending:
+        dbString += "DESC"
+    dbString += "limit $7 offset $8"
+
+    try:
+        async with pgpool.acquire() as conn:
+            r = await conn.fetch(dbString, WCARD.format(shipment_id), WCARD.format(port_name_from), WCARD.format(port_name_to), WCARD.format(produce_type),
+                                 departure_start, departure_end, limit, (page - 1) * limit)
+            # mapper maps order_id to the detailed list
+            retArray: ExportOrderDetails = []
+            for shipment in r:
+                retArray.append(ExportOrderDetails.from_list(shipment))
+
+        return JSONResponse([v.model_dump() for v in retArray])
+    except Exception as e:
+        raise e
+        return JSONResponse({}, status_code=500)

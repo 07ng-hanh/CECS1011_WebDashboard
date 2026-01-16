@@ -42,6 +42,7 @@
         </span>
 
     <div class="orders-top-bar">
+        <input class="form-control" id="shipment-id" placeholder="Shipment ID">
         <input class="form-control" id="loc-from" placeholder="From...">
         <input class="form-control" id="loc-to" placeholder="To...">
         <input class="form-control" id="export-date" placeholder="Departure Schedule (Range YYYY-MM-DD)">
@@ -49,12 +50,13 @@
 
         <select class="form-control" id="status">
             <option name="status-any">Any Status</option>
-            <option name="status-waiting">Awaiting Batches</option>
-            <option name="status-waiting-late">Awaiting Batches (Late)</option>
-            <option name="status-ready">Waiting for Departure</option>
+            <option name="status-waiting">Pending for Payload</option>
+            <option name="status-waiting-late">Pending for Payload (Late)</option>
+            <option name="status-ready">Ready to Depart</option>
+            <option name="status-ready-late">Ready to Depart (Late)</option>
             <option name="status-departed">Departed</option>
         </select>
-        <span style="display: grid; gap: 10px; grid-template-columns: 1fr 58px">
+
                 <select class="form-control" id="sort-by">
                     <option name="sort-default">Sort By...</option>
                     <option name="sort-order-id">Order ID</option>
@@ -68,7 +70,7 @@
                     <option name="ascending">     &#x25B2;  </option>
                     <option name="descending">    &#x25BC;  </option>
                 </select>
-            </span>
+
 
     </div>
     <span style="display: grid; grid-template-columns: 1fr 150px; gap: 10px">

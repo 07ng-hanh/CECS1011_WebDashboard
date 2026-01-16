@@ -121,7 +121,7 @@ input[type='password'] {
     }
 
     .orders-top-bar {
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 
 }
@@ -159,7 +159,7 @@ input[type='password'] {
     }
 
     .orders-top-bar {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
     }
 
     .card-container {
