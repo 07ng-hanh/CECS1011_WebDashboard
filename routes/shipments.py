@@ -142,6 +142,7 @@ async def list_shipments(shipment_id: Optional[str] = "", port_name_from: Option
         case "status-departed":
             dbString += "where actual_departure_timestamp is not null"
 
+    # add order clause
     dbString += order_clause[sort_by] + " "
     if not sort_ascending:
         dbString += "DESC"

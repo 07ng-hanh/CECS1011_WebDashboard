@@ -168,6 +168,15 @@ input[type='password'] {
 
 }
 
+a {
+    text-decoration: underline dotted !important;
+    text-underline-offset: 5px;
+    color: inherit !important;
+}
+
+a:hover {
+    background: yellow;
+}
 
 .entry-card {
     display: flex;
