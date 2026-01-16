@@ -122,7 +122,7 @@ async def list_shipments(shipment_id: Optional[str] = "", port_name_from: Option
         join ports po2 on po2.id = dest_port_id
         left join batchinfo b on b.assigned_order_no = shipment_id
         
-        where shipment_id::varchar like $1 and po1.port_name ilike $2 and po2.port_name ilike $3
+        where shipment_id::varchar like $1 and (po1.port_name ilike $2 or source_port_id ilike $2) and (po2.port_name ilike $3 or dest_port_id ilike $3)
         and p1.harvest_type_name ilike $4 and planned_departure_timestamp >= $5 and planned_departure_timestamp <= $6
         
         group by shipment_id, po1.id, po2.id, p1.id) {}
