@@ -9,8 +9,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let realtime_duration = parseInt(document.getElementById("date-range-for-recordings").value)
 
-    const queryParams = URLSearchParams(window.location.search)
+    const queryParams = new URLSearchParams(window.location.search)
     const trackerLabel = queryParams.get("tracker_label")
+    const thresholdEnabled = queryParams.get("tracker_mode") === 'threshold'
     const tempLow = queryParams.get("temp_lo")
     const tempHi = queryParams.get("temp_hi")
     const co2Low = queryParams.get("co2_lo")
@@ -43,6 +44,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             plugins: {
                 decimation: {
                     enabled: false,
+                },
+                annotation: {
+                    annotations: {
+
+                    }
                 }
             }
         },
@@ -108,12 +114,47 @@ document.addEventListener("DOMContentLoaded", async () => {
         chart_temperature = new Chart(ctx_temperature, structuredClone(_base_chart_config))
         chart_temperature.config.options.scales.y.suggestedMin = -30
         chart_temperature.config.options.scales.y.suggestedMax = 30
+        chart_temperature.config.options.plugins.annotation = {
+            annotations: {
+                tempLo: {
+                    type: 'box', yMin: parseFloat(tempLow), backgroundColor: thresholdEnabled ? '#ff000030' : '#00000000', borderColor: '#00000000'
+                },
+                tempHi: {
+                    type: 'box', yMax: parseFloat(tempHi), backgroundColor: thresholdEnabled ? '#ff000030' : '#00000000', borderColor: '#00000000'
+                }
+            }
+        }
+
         chart_co2 = new Chart(ctx_co2, structuredClone(_base_chart_config))
         chart_co2.config.options.scales.y.suggestedMin = 0
         chart_co2.config.options.scales.y.suggestedMax = 1000
+
+
+        chart_co2.config.options.plugins.annotation = {
+            annotations: {
+                co2Lo: {
+                    type: 'box', yMin: parseFloat(co2Low), backgroundColor: thresholdEnabled ? '#ff000030' : '#00000000', borderColor: '#00000000'
+                },
+                co2Hi: {
+                    type: 'box', yMax: parseFloat(co2Hi), backgroundColor: thresholdEnabled ? '#ff000030' : '#00000000', borderColor: '#00000000'
+                }
+            }
+        }
+
         chart_humidity = new Chart(ctx_humidity, structuredClone(_base_chart_config))
         chart_humidity.config.options.scales.y.suggestedMin = 0
         chart_humidity.config.options.scales.y.suggestedMax = 100
+
+        chart_humidity.config.options.plugins.annotation = {
+            annotations: {
+                hLo: {
+                    type: 'box', yMin: parseFloat(humidityLo), backgroundColor: thresholdEnabled ? '#ff000030' : '#00000000', borderColor: '#00000000'
+                },
+                hHi: {
+                    type: 'box', yMax: parseFloat(humidityHi), backgroundColor: thresholdEnabled ? '#ff000030' : '#00000000', borderColor: '#00000000'
+                }
+            }
+        }
 
     }
 
@@ -214,7 +255,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (realtime_duration >= 28800000) {
             interval_ms = 60000 // sample every 60 secs
         }
-        await fetchHistoricData(new Date().getTime(), realtime_duration, interval_ms)
+        await fetchHistoricData( parseInt(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms)
 
         if (realtime_duration <= 3600000) {
            enableRealtimeReading(interval_ms)
