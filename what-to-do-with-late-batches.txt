@@ -8,15 +8,10 @@ late shipment incur the following behaviors:
 <all done>
 
 storage condition tracking TODOs:
-- health button -> forward thresholds + tracker name [#xxxx 5000 produce-name] to sensor view (popup)
-- sensor view (threshold tracking mode): reactive banner (on each update, if all within thresholds: show Good, else show Poor)
-- sensor titles: black if all good, blink `red` if redlining.
-- historic view: track and highlight redlining parts on X-axis
+- health button -> forward thresholds + tracker name [#xxxx produce-name] to sensor view (popup)
+- sensor view (threshold tracking mode): reactive banner (on each update, if all within thresholds: show Good, else show Poor + list of risks)
+- static historic view: highlight regions that recorded poor metrics by time, starting from harvest-date
 
-- poor storage condition banner: remove "show affected batches" button
-- auto-threshold:
-    + on each batch add/remove - check and update settings
-    + at settings update endpoint - cache changes to valkey
-    + sensor SSE - beam cached setting keys from valkey to dashboard.
+auto-threshold: auto-adjust threshold on batch add/remove and override settings. initial check on settings update.
 
-"security" feature: logging requests by user
+"security" feature: logging requests by user (not needed)
