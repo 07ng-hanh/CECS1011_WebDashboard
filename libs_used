@@ -1,0 +1,23 @@
+Backend:
+valkey-server: in-memory key-value cache to store authenticated sessions
+PostgresQL: database
+Gemini API: provides ML functionalities
+
+Libs used:
+    fastapi - library for writing webserver
+    websockets - provide websocket support for fastapi
+    pydantic - to validate input data and model responses
+    python-dotenv - to load environment variable file for development purposes
+    valkey-glide - client library to interact with Valkey server.
+    asyncpg - client library to interacting with PostgresQL database.
+    aiofiles, aiocsv, aioxlsxstream - for handling files in web server applications.
+    argon2-cffi - provides hashing mechanism for passwords.
+    requests - for consuming third-party APIs
+
+Front-end
+    bootstrap - provides fundamental styling
+    popper - dependency for context buttons in bootstrap
+    axios - to call server-side APIs
+    litepicker - supports picking date range in filters
+    sheetjs - in-browser .xlsx file generation
+    chartjs, chartjs-plugin-annotation, chartjs-plugin-streaming - provides realtime line charts for sensor view
