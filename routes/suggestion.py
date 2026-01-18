@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import time
@@ -86,9 +87,9 @@ async def suggestion_full(background_tasks: BackgroundTasks, pgpool: asyncpg.poo
             """
             select shipment_id, shipments.produce_type_id, produce_qty, 
                    planned_departure_timestamp, eta_milliseconds 
-            from shipments where actual_departure_timestamp is null;
+            from shipments where actual_departure_timestamp is null and planned_departure_timestamp >= $1;
             """
-        )
+        , int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000))
 
         # fetch all available batches
         assigned_quantity_by_shipment = await conn.fetch(
