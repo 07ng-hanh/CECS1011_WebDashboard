@@ -205,4 +205,5 @@ async def initiate_export(shipment_id: Optional[int], dry_run: bool = True, pgpo
 @rt.delete("/cancel-shipment")
 async def cancel_shipment(shipment_id: int, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
     async with pgpool.acquire() as conn:
-        conn.execute("")
+        await conn.execute("update batchinfo set assigned_order_no = NULL where assigned_order_no = $1", shipment_id)
+        await conn.execute("delete from shipments where shipment_id = $1", shipment_id)

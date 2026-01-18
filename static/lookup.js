@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let produce_name_inputbox = document.getElementById("produce-name")
     produce_name_inputbox.focus()
 
+
 })
 
 function get_localtime_iso_string(date = new Date()) {
@@ -318,6 +319,11 @@ async function exportToXLSX(export_all = false) {
 
     XLSX.writeFile(wb, "xlsx-out.xlsx")
 
+}
+
+async function injectSuggestionTag() {
+//     fetch suggestion
+//     inject suggestion to cards
 }
 
 async function exportToCSV(export_all = false) {

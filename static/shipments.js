@@ -27,6 +27,25 @@ async function initExport(shipment_id) {
     }
 }
 
+async function handle_cancel(shipment_id) {
+    if (!confirm("Cancel shipment " + shipment_id + "?")) {
+        return
+    }
+    const r = await axios.delete(`/api/shipments/cancel-shipment?shipment_id=${shipment_id}`, {
+        validateStatus: (status) => {
+            return status >= 200 && status <= 500
+        }
+    })
+
+    if (r.status === 200) {
+        alert("Shipment cancelled successfully.")
+        handle_fetch_shipments()
+    } else {
+        alert("Could not cancel shipment. Error: " + r.status)
+    }
+
+}
+
 function show_shipments(shipments) {
     const container = document.getElementById("orders-card-container")
     container.innerHTML = ""
@@ -112,19 +131,33 @@ function show_shipments(shipments) {
         primaryActionBtn.className = "btn btn-outline-primary"
         const cancelBtn = document.createElement("button")
         cancelBtn.className = "btn btn-outline-danger"
-        btnSet.appendChild(primaryActionBtn)
+
+        const secondaryActionBtn = document.createElement("button")
+        secondaryActionBtn.innerText = "Export Now"
+        secondaryActionBtn.onclick = async (ev) => {await initExport(shipment.shipment_id) }
+        secondaryActionBtn.className = "btn btn-outline-primary"
 
         if (shipment.cur_quantity < shipment.produce_qty) {
-            primaryActionBtn.innerText = "Find Batches"
-            primaryActionBtn.onclick = async (ev) => {}
+            secondaryActionBtn.disabled = true
         } else if (shipment.actual_departure_timestamp == null) {
-            primaryActionBtn.innerText = "Export Now"
-            primaryActionBtn.onclick = async (ev) => {await initExport(shipment.shipment_id) }
+            secondaryActionBtn.disabled = false
         } else {
             primaryActionBtn.style.display = 'none'
+            secondaryActionBtn.style.display = 'none'
+        }
+
+        primaryActionBtn.innerText = "Assign Batches"
+        primaryActionBtn.onclick = async (ev) => {
+            window.open(`batch-selection.html?produce_type_id=${shipment.produce_type_id}&scheduled_timestamp=${shipment.planned_departure_timestamp}&produce_quantity=${shipment.produce_qty}&eta_milliseconds=${shipment.eta_milliseconds}&assigned_order_no=${shipment.shipment_id}`, '_blank', 'width=800,height=600') // fix this later
         }
 
         cancelBtn.innerText = "Cancel"
+        cancelBtn.onclick = async (ev) => {
+            await handle_cancel(shipment.shipment_id)
+        }
+
+        btnSet.appendChild(primaryActionBtn)
+        btnSet.appendChild(secondaryActionBtn)
         btnSet.appendChild(cancelBtn)
 
         infoCard.className = "orders-card-info"

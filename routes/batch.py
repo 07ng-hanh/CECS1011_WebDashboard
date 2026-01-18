@@ -103,6 +103,41 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
         print(e)
         return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
+
+@rt.get("/list-batches-for-order")
+async def list_batches_for_order(assigned_order_no: int, produce_type_id: int, pg: asyncpg.pool.Pool = Depends(get_pgpool), page: int=1, limit: int=50) -> JSONResponse:
+    """
+
+    :param name_or_id_query: a string
+    :param harvest_timestamp_from: UTC timestamp by milliseconds
+    :param harvest_timestamp_to: UTC timestamp by milliseconds
+    :param status: accepts: any, available, marked, exported, discarded, instore
+    :param sortBy: accepts: any, batch_id, harvest_type_name, weight, quantity, harvest_date, remaining_shelf_life
+    :return:
+    """
+    try:
+
+        async with pg.acquire() as conn:
+
+
+            dbString = """select batch_id, produceinfo.harvest_type_name, produce_type_id, quantity, weight, import_date, 
+                                 exp_date, export_date, assigned_order_no, is_in_warehouse, discard_reason 
+                          from batchinfo inner join produceinfo on batchinfo.produce_type_id = produceinfo.id
+                        where (assigned_order_no = $1 and is_in_warehouse = TRUE and produce_type_id = $2)
+                        or (produce_type_id = $2 and is_in_warehouse = TRUE and assigned_order_no is null)
+                        order by batch_id limit $3 offset $4
+                       """
+            ret = await conn.fetch(dbString, assigned_order_no, produce_type_id, limit, (page - 1) * limit)
+
+            retLst: list[BatchInfo] = [BatchInfo.from_list(row) for row in ret]
+
+            return retLst
+
+    except BaseException as e:
+        print(e)
+        return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
 @rt.delete("/discard-batch")
 async def discard_batch(batch_id: int, reason: str, pg = Depends(get_pgpool)):
     dbstring = "update batchinfo set is_in_warehouse = false, discard_reason = $1, assigned_order_no = null where batch_id = $2"
