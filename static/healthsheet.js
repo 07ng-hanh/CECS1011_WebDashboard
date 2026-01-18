@@ -1,13 +1,23 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-
-
     // Drawing contexts
+    // Accept thresholds via URI search params
+
     let ctx_temperature = document.getElementById("temperature-plot")
     let ctx_co2 = document.getElementById("co2-plot")
     let ctx_humidity = document.getElementById("humidity-plot")
 
     let realtime_duration = parseInt(document.getElementById("date-range-for-recordings").value)
+
+    const queryParams = URLSearchParams(window.location.search)
+    const trackerLabel = queryParams.get("tracker_label")
+    const tempLow = queryParams.get("temp_lo")
+    const tempHi = queryParams.get("temp_hi")
+    const co2Low = queryParams.get("co2_lo")
+    const co2Hi = queryParams.get("co2_hi")
+    const humidityLo = queryParams.get("humidity_lo")
+    const humidityHi = queryParams.get("humidity_hi")
+
     // Chart Configuration
     const realtime_chart_config_common = {
         type: 'line',
