@@ -1,0 +1,7 @@
+late shipment incur the following behaviors:
+- shipment feasibility calculation assumes that the shipment is exported in the same day.
+- "late" warning in shipment view.
+- "unsafe and 'ship by today'" nudges when adding batches through the warehouse management view.
+- TTL check for all produces on export.
+- no automatic exports
+- does not show up on suggestion page.
