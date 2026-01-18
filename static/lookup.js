@@ -322,7 +322,18 @@ async function exportToXLSX(export_all = false) {
 }
 
 async function runSuggestions() {
-    
+    const r = axios.get("/api/suggestion/suggestion-full",
+        {
+            validateStatus: function (status) {
+                return status >= 200 && status <= 500
+            }
+        })
+    if (r.status !== 200) {
+        alert("Failed to create job. Error: " + r.status)
+    } else {
+        window.open("suggestion-result.html")
+    }
+
 }
 
 async function exportToCSV(export_all = false) {
