@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <title>Export Issues</title>
+    <style>
+        #issue-container {
+            display: grid; grid-template-columns: 1fr 200px; gap: 5px;
+            justify-content: center;
+        }
+
+        #issue-container p {
+            margin: auto;
+            margin-left: 0;
+
+        }
+    </style>
+    <script>
+
+        window.onunload = async () =>  {
+            window.opener.handle_fetch_shipments()
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const data = JSON.parse(new URLSearchParams(window.location.search).get("data"))
+            const container = document.getElementById("issue-container")
+            container.innerHTML = ""
+            data.forEach((item) => {
+                const itemLbl = document.createElement("p")
+                const purgeBtn = document.createElement("button")
+
+                let problems = []
+                if (item.past_exp_date) {
+                    problems.push("Expires before the shipment reaches destination")
+                }
+
+                if (item.wrong_prod_type) {
+                    problems.push("Wrong produce type")
+                }
+
+                itemLbl.innerText = item.id
+                itemLbl.innerText = `${item.id}: ${problems.join(', ')}`
+
+                purgeBtn.innerText = "Remove from shipment"
+                purgeBtn.className = "btn btn-outline-danger"
+
+                purgeBtn.onclick = async (ev) => {
+                    const r = await axios.delete(`/api/batch/remove-order-from-batch?batch_id=${item.id}`,
+                        {
+                            validateStatus: function (status) {
+                                return status >= 200 && status <= 500
+                            }
+                        })
+
+                    if (r.status !== 200) {
+                        alert("failed. error " + r.status)
+                    } else {
+                        purgeBtn.innerText = "Resolved"
+                        purgeBtn.disabled = true
+                    }
+                }
+
+                container.appendChild(itemLbl)
+                container.appendChild(purgeBtn)
+            })
+        })
+    </script>
+</head>
+<body style="padding: 10px">
+    <h2>Issues Found</h2>
+    <p><i>After resolving the issues, please re-open the window.</i></p>
+    <div id="issue-container">
+
+    </div>
+</body>
+</html>
