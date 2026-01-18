@@ -108,7 +108,7 @@
 
         async function pollServer(jobID) {
 
-            const r = await axios.get(`/api/suggestion/retrieve-results?task_id=${jobID}&dry_run=${true}`,
+            const r = await axios.get(`/api/suggestion/retrieve-results?task_id=${jobID}&dry_run=${false}`,
                 {
                     validateStatus: function (status) {
                         return status >= 200 && status <= 500
