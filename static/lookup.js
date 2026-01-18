@@ -321,9 +321,8 @@ async function exportToXLSX(export_all = false) {
 
 }
 
-async function injectSuggestionTag() {
-//     fetch suggestion
-//     inject suggestion to cards
+async function runSuggestions() {
+    
 }
 
 async function exportToCSV(export_all = false) {
