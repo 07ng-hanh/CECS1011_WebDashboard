@@ -1,6 +1,6 @@
 import datetime
 from http import HTTPStatus
-from typing import Optional
+from typing import Optional, List
 
 import asyncpg.pool
 from fastapi import APIRouter
@@ -97,25 +97,26 @@ async def estimate_eta(port_id_from: str, port_id_to: str, pgpool: asyncpg.pool.
         return PlainTextResponse(e, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 @rt.get("/list-shipments")
-async def list_shipments(shipment_id: Optional[str] = "", port_name_from: Optional[str] = "", port_name_to: Optional[str] = "", departure_start: Optional[int] = 0, departure_end: Optional[int] = 9223372036854775807, produce_type: Optional[str] = "", status: Optional[str] = "status-any", sort_by: Optional[str] = "", sort_ascending: Optional[bool] = True, page: Optional[int] = 1, limit: Optional[int] = 50, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+async def list_shipments(shipment_id: Optional[str] = "", port_name_from: Optional[str] = "", port_name_to: Optional[str] = "", departure_start: Optional[int] = 0, departure_end: Optional[int] = 9223372036854775807, produce_type: Optional[str] = "", status: Optional[str] = "status-any", sort_by: Optional[str] = "", sort_ascending: Optional[bool] = True, page: Optional[int] = 1, limit: Optional[int] = 50, pgpool: asyncpg.pool.Pool = Depends(get_pgpool), restrict_product_id: Optional[int | None] = None):
     WCARD = "%{}%"
     order_clause = {
         "": "",
         "sort-default": "",
         "sort-order-id": "order by shipment_id",
-        "sort-departure-port": "order by po1.port_name",
-        "sort-destination-port": "order by po2.port_name",
-        "sort-produce-name": "order by p1.harvest_type_name",
+        "sort-departure-port": "order by source_port_name",
+        "sort-destination-port": "order by dest_port_name",
+        "sort-produce-name": "order by p_harvest_type",
         "sort-quantity": "order by produce_qty",
         "sort-scheduled-departure": "order by planned_departure_timestamp",
         "sort-actual-departure": "order by actual_departure_timestamp"
     }
 
+
     dbString = """
-        select * from (select shipment_id, source_port_id, po1.port_name, 
-        dest_port_id, po2.port_name, shipments.produce_type_id, p1.harvest_type_name, 
+        select * from (select shipment_id, source_port_id, po1.port_name as source_port_name, 
+        dest_port_id, po2.port_name as dest_port_name, shipments.produce_type_id, p1.harvest_type_name as p_harvest_type, 
         produce_qty, planned_departure_timestamp,
-        actual_departure_timestamp, eta_milliseconds, ARRAY_AGG(b.batch_id) as batches, SUM(b.quantity) as cur_quantity
+        actual_departure_timestamp, eta_milliseconds, COALESCE(ARRAY_AGG(b.batch_id), null) as batches, SUM(COALESCE(b.quantity, 0)) as cur_quantity
         from shipments
         join produceinfo p1 on p1.id = shipments.produce_type_id
         join ports po1 on po1.id = source_port_id
@@ -134,18 +135,28 @@ async def list_shipments(shipment_id: Optional[str] = "", port_name_from: Option
         case "status-any":
             dbString = dbString.format("")
         case "status-waiting":
-            dbString = dbString.format("where actual_departure_timestamp is null and cur_quantity < produce_qty")
+            _q = "where actual_departure_timestamp is null and cur_quantity < produce_qty"
+            if restrict_product_id:
+                _q += f" and produce_type_id = {restrict_product_id}"
+            dbString = dbString.format(_q)
+
+
+
         case "status-waiting-late":
             dbString = dbString.format(f"where actual_departure_timestamp is null and cur_quantity < produce_qty and planned_departure_timestamp < {int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)}")
         case "status-ready":
             dbString = dbString.format(f"where cur_quantity >= produce_qty and actual_departure_timestamp is null")
         case "status-departed":
-            dbString += "where actual_departure_timestamp is not null"
+            dbString = dbString.format("where actual_departure_timestamp is not null")
+        case "status-ready-late":
+            dbString = dbString.format(f"where cur_quantity >= produce_qty and actual_departure_timestamp is null and planned_departure_timestamp < {int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)} ")
+
+
 
     # add order clause
     dbString += order_clause[sort_by] + " "
-    if not sort_ascending:
-        dbString += "DESC"
+    if not sort_ascending and order_clause[sort_by]:
+        dbString += "DESC "
     dbString += "limit $7 offset $8"
 
     try:
@@ -153,11 +164,45 @@ async def list_shipments(shipment_id: Optional[str] = "", port_name_from: Option
             r = await conn.fetch(dbString, WCARD.format(shipment_id), WCARD.format(port_name_from), WCARD.format(port_name_to), WCARD.format(produce_type),
                                  departure_start, departure_end, limit, (page - 1) * limit)
             # mapper maps order_id to the detailed list
-            retArray: ExportOrderDetails = []
+            retArray: List[ExportOrderDetails] = []
             for shipment in r:
-                retArray.append(ExportOrderDetails.from_list(shipment))
+                e = ExportOrderDetails.from_list(shipment)
+                if len(e.batches) == 1 and e.batches[0] == None:
+                    e.batches.clear()
+                retArray.append(e)
 
         return JSONResponse([v.model_dump() for v in retArray])
     except Exception as e:
         raise e
-        return JSONResponse({}, status_code=500)
+
+@rt.post("/initiate-export")
+async def initiate_export(shipment_id: Optional[int], dry_run: bool = True, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+    # 1st step: check if anything cannot survive the trip and is exactly what's ordered
+    # 2nd step: if all clear: return 200. if not: return a list of batches that won't survive the trip or misplaced.
+    async with pgpool.acquire() as conn:
+        shipment_record = await conn.fetch("select eta_milliseconds, produce_type_id from shipments where shipment_id = $1", shipment_id)
+        print(shipment_record)
+        eta = int(shipment_record[0][0])
+        produce_type_id = shipment_record[0][1]
+        # eta + time.now <= exp_date
+        time_now = int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000)
+        r = await conn.fetch("select batch_id, ($2 >= exp_date), (produce_type_id != $3) from batchinfo where assigned_order_no = $1 and ($2 >= exp_date or produce_type_id != $3)"
+                               ,shipment_id, eta + time_now, produce_type_id)
+        problematicBatches = []
+        for record in r:
+            batch_id, past_exp_date, wrong_prod_type = record
+            problematicBatches.append({"id": batch_id, "past_exp_date": past_exp_date, "wrong_prod_type": wrong_prod_type})
+
+        if problematicBatches:
+            return JSONResponse(problematicBatches)
+        else:
+            if not dry_run:
+                await conn.execute("update shipments set actual_departure_timestamp = $1 where shipment_id = $2", time_now, shipment_id)
+                await conn.execute("update batchinfo set export_date = $1, is_in_warehouse = FALSE where assigned_order_no = $2", time_now, shipment_id)
+
+            return JSONResponse([])
+
+@rt.delete("/cancel-shipment")
+async def cancel_shipment(shipment_id: int, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+    async with pgpool.acquire() as conn:
+        conn.execute("")

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Shipment Management</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
           integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g=="
@@ -29,7 +31,7 @@
 
     <meta charset="UTF-8">
 
-    <script src="orders.js"></script>
+    <script src="shipments.js"></script>
 
 </head>
 <body style="width: 100dvw;">
@@ -41,14 +43,14 @@
             <label style="font-weight: bold; margin: 0">Manage Shipments</label>
         </span>
 
-    <div class="orders-top-bar">
-        <input class="form-control" id="shipment-id" placeholder="Shipment ID">
-        <input class="form-control" id="loc-from" placeholder="From...">
-        <input class="form-control" id="loc-to" placeholder="To...">
-        <input class="form-control" id="export-date" placeholder="Departure Schedule (Range YYYY-MM-DD)">
-        <input class="form-control" id="export-type" placeholder="Produce Type">
+    <div class="orders-top-bar" id="orders-top-bar">
+        <input oninput="debounce_search()" class="form-control" id="shipment-id" placeholder="Shipment ID">
+        <input oninput="debounce_search()" class="form-control" id="loc-from" placeholder="From...">
+        <input oninput="debounce_search()" class="form-control" id="loc-to" placeholder="To...">
+        <input oninput="debounce_search()" class="form-control" id="export-date" placeholder="Departure Schedule (Range YYYY-MM-DD)">
+        <input oninput="debounce_search()" class="form-control" id="export-type" placeholder="Produce Type">
 
-        <select class="form-control" id="status">
+        <select onchange="debounce_search()" class="form-control" id="status">
             <option value="status-any">Any Status</option>
             <option value="status-waiting">Pending for Payload</option>
             <option value="status-waiting-late">Pending for Payload (Late)</option>
@@ -57,29 +59,31 @@
             <option value="status-departed">Departed</option>
         </select>
 
-                <select class="form-control" id="sort-by">
-                    <option value="sort-default">Sort By...</option>
-                    <option value="sort-order-id">Order ID</option>
-                    <option value="sort-departure-port">Departure Port</option>
-                    <option value="sort-destination-port">Destination Port</option>
-                    <option value="sort-produce-name">Produce Name</option>
-                    <option value="sort-quantity">Quantity</option>
-                    <option value="sort-scheduled-departure">Scheduled Departure Time</option>
-                </select>
-                <select id="sort-direction" class="form-control">
-                    <option value="ascending">     &#x25B2;  </option>
-                    <option value="descending">    &#x25BC;  </option>
-                </select>
+        <select onchange="debounce_search()" class="form-control" id="sort-by">
+            <option value="sort-default">Sort By...</option>
+            <option value="sort-order-id">Order ID</option>
+            <option value="sort-departure-port">Departure Port</option>
+            <option value="sort-destination-port">Destination Port</option>
+            <option value="sort-produce-name">Produce Name</option>
+            <option value="sort-quantity">Quantity</option>
+            <option value="sort-scheduled-departure">Scheduled Departure Time</option>
+        </select>
+        <select onchange="debounce_search()" id="sort-direction" class="form-control">
+            <option value="ascending">     &#x25B2;  </option>
+            <option value="descending">    &#x25BC;  </option>
+        </select>
 
 
     </div>
-    <span style="display: grid; grid-template-columns: 1fr 150px; gap: 10px">
+    <span style="display: grid; grid-template-columns: 1fr 150px 150px; gap: 10px">
                 <button class="btn btn-primary" id="search">Search</button>
                 <div class="dropdown">
                   <button style="width: 100%" class="btn btn-secondary dropdown-toggle" href="#" role="button"
                           data-bs-toggle="dropdown" aria-expanded="false">
                     Export as
                   </button>
+
+
 
                   <ul class="dropdown-menu">
                     <li><button class="dropdown-item">CSV (Filtered)</button></li>
@@ -88,43 +92,18 @@
                     <li><button class="dropdown-item">XLSX (All)</button></li>
                   </ul>
                 </div>
+                <button class="btn btn-secondary" id="clear_filter" onclick="clear_filters()">Clear Filters</button>
+
             </span>
-    <span style="display: flex; align-items: center">
-        <button class="btn btn-link"><</button>
-        <p style="margin: 0">Page 1</p>
-        <button class="btn btn-link">></button>
+    <span style="display: flex; align-items: center; justify-content: flex-end">
+        <button onclick="flipPage(-1)" class="btn btn-link"><</button>
+        <p style="margin: 0">Page <span id="pageCnt">1</span></p>
+        <button onclick="flipPage(1)" class="btn btn-link">></button>
     </span>
 </div>
 
-<div class="orders-card-container">
-    <div class="orders-card">
-        <div class="orders-card-info">
+<div style="padding-bottom: 100px" class="orders-card-container" id="orders-card-container">
 
-            <p style="justify-content: center"><b>#000000</b> <b id="port-from">PortA</b> <i
-                    class="bi bi-arrow-right"></i> <b id="port-to">PortB</b></p>
-            <p>Scheduled Departure: <b id="sched-departure">YYYY-MM-DD</b> (ETA: <span>-- days</span>)</p>
-            <p>Produce/Qty: <b id="produce-name">Produce-Name</b> <b id="produce-qty">(500 pcs)</b></p>
-            <p>Batch(es): <b id="order-list">#000011, #000022</b></p>
-            <p>Status:
-                <b class="accented-purple hidden">Waiting for Batches</b>
-                <b class="accented-indicator">Ready for Departure</b>
-                <b class="accented-purple hidden">Waiting for Batches (Late)</b>
-                <b class="accented-green hidden">Departed at <span id="actual-departure-time">YYYY-MM-DD</span></b>
-            </p>
-        </div>
-
-        <div class="orders-card-btn">
-            <button class="btn btn-outline-primary">Assign/Suggest batches</button>
-            <button class="btn btn-outline-primary">Edit</button>
-            <button class="btn btn-outline-danger">Cancel</button>
-
-        </div>
-
-    </div>
-
-    <div>
-        <p style="height: 50px">&nbsp;</p>
-    </div>
 </div>
 
 <div style="position: fixed; bottom: 10px; width: 100%; padding-left: 10px; padding-right: 10px; background: white">

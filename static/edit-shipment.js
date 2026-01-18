@@ -48,7 +48,7 @@ async function create_new_shipment(){
 
     if (r.status === 200) {
         alert("Upload Complete")
-        window.location.href = 'orders.html'
+        window.location.href = 'shipments.html'
     } else {
         alert("Cannot upload new shipment: Error " + r.status)
 

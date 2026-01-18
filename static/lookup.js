@@ -14,6 +14,11 @@ async function flipPage(step) {
 
 }
 
+function open_assign_to_prompt(exp_date, harvest_type_id, batch_id) {
+    const _w = window.open(`assign-to-shipment.html?prod_id=${harvest_type_id}&batch_exp=${exp_date}&batch_id=${batch_id}`, 'Assign Batch', 'width=800,height=600,scrollbars=yes')
+
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 
     //     Integrate range-based datepicker with the harvest date range input field
@@ -111,7 +116,7 @@ function showSearchResults(r) {
 
         let weight = document.createElement("p")
         weight.className = "card-info-entry"
-        weight.innerHTML = `Weight: <b>${v.weight.toFixed(3)} kg</b>`
+        weight.innerHTML = `Weight: <b>${v.weight.toFixed(2)} kg</b>`
 
         let importDate = document.createElement("p")
         importDate.className = "card-info-entry"
@@ -152,9 +157,9 @@ function showSearchResults(r) {
             // Warn against exporting expired stuff.
 
             if (expired) {
-                status.innerHTML = `Status: <b class='accented-danger' style="color: gray">Assigned to <a href="#top">Shipment #${v.assigned_order_no}</a> but expired. Please discard.</b>`
+                status.innerHTML = `Status: <b class='accented-danger' style="color: gray">Assigned to <a href="shipments.html?id=${v.assigned_order_no}">Shipment #${v.assigned_order_no}</a> but expired. Please discard.</b>`
             } else {
-                status.innerHTML = `Status: <b class='accented-purple'>Marked for Export <a href="#top">(Shipment #${v.assigned_order_no})</a></b>`
+                status.innerHTML = `Status: <b class='accented-purple'>Marked for Export <a href="shipments.html?id=${v.assigned_order_no}">(Shipment #${v.assigned_order_no})</a></b>`
             }
 
         } else if (!v.is_in_warehouse && v.assigned_order_no != null && v.discard_reason == null) {
@@ -175,6 +180,7 @@ function showSearchResults(r) {
             let assignToBtn = document.createElement("button")
             assignToBtn.className = "btn btn-outline-primary"
             assignToBtn.innerText = "Assign Shipment"
+            assignToBtn.onclick = (ev) => {open_assign_to_prompt(v.exp_date, v.harvest_type_id, v.batch_id)}
             entryCardActionBtnGroup.appendChild(assignToBtn)
         }
 
@@ -216,6 +222,8 @@ async function clearFilters() {
     document.getElementById("status-dropdown").value = ""
     document.getElementById("sort-dropdown").value = ""
     document.getElementById("sort-direction").value = "ascending"
+
+    document.location.search = ""
 
     let r = await warehouseSearch()
     showSearchResults(r)

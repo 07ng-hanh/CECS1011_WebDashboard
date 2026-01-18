@@ -105,21 +105,21 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
 
 @rt.delete("/discard-batch")
 async def discard_batch(batch_id: int, reason: str, pg = Depends(get_pgpool)):
-    dbstring = "update batchinfo set is_in_warehouse = false, discard_reason = $1 where batch_id = $2"
+    dbstring = "update batchinfo set is_in_warehouse = false, discard_reason = $1, assigned_order_no = null where batch_id = $2"
     async with pg.acquire() as conn:
         await conn.execute(dbstring, reason, batch_id)
 
 @rt.post("/assign-order-to-batch")
-async def assign_batch_to_order(batch_id: int, order_id: int, pg = Depends(get_pgpool)):
+async def assign_order_to_batch(batch_id: int, order_id: int, pg = Depends(get_pgpool)):
     dbstring = "update batchinfo set assigned_order_no = $1 where batch_id = $2"
     async with pg.acquire() as conn:
-        conn.execute(dbstring, order_id, batch_id)
+        await conn.execute(dbstring, order_id, batch_id)
 
 @rt.delete("/remove-order-from-batch")
 async def remove_order_from_batch(batch_id: int, pg = Depends(get_pgpool)):
-    dbstring = "update batchinfo set assigned_order_no = null where batch_id = $2"
+    dbstring = "update batchinfo set assigned_order_no = null where batch_id = $1"
     async with pg.acquire() as conn:
-        conn.execute(dbstring, batch_id)
+        await conn.execute(dbstring, batch_id)
 
 @rt.get("/simple-stats")
 async def get_simple_stats(current_time_ms: int, pg = Depends(get_pgpool)):
