@@ -5,3 +5,18 @@ late shipment incur the following behaviors:
 - TTL check for all produces on export.
 - no automatic exports
 - does not show up on suggestion page.
+<all done>
+
+storage condition tracking TODOs:
+- health button -> forward thresholds + tracker name [#xxxx 5000 produce-name] to sensor view (popup)
+- sensor view (threshold tracking mode): reactive banner (on each update, if all within thresholds: show Good, else show Poor)
+- sensor titles: black if all good, blink `red` if redlining.
+- historic view: track and highlight redlining parts on X-axis
+
+- poor storage condition banner: remove "show affected batches" button
+- auto-threshold:
+    + on each batch add/remove - check and update settings
+    + at settings update endpoint - cache changes to valkey
+    + sensor SSE - beam cached setting keys from valkey to dashboard.
+
+"security" feature: logging requests by user

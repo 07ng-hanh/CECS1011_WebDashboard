@@ -48,7 +48,7 @@ async def write_sensor_data(ws: fastapi.WebSocket):
     try:
         while True:
             e = await ws.receive_json()
-            t = int(datetime.datetime.now(timezone.utc).timestamp() * 1000)
+            t = int(datetime.datetime.now(timezone.utc).timestamp()) * 1000
             if t > last_t:
                 # ensure the sensor data is only written once per sec
                 last_t = t

@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (realtime_duration >= 28800000) {
             interval_ms = 60000 // sample every 60 secs
         }
-        await fetchHistoricData( parseInt(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms)
+        await fetchHistoricData(  Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms)
 
         if (realtime_duration <= 3600000) {
            enableRealtimeReading(interval_ms)
@@ -274,12 +274,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (realtime_duration >= 28800000) {
             interval_ms = 60000 // sample every 60 secs
         }
-        await fetchHistoricData(new Date().getTime(), realtime_duration, interval_ms)
+        await fetchHistoricData(Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms)
 
     })
 
     initCharts(realtime_duration)
-    await fetchHistoricData(new Date().getTime(), realtime_duration, 2000)
+    await fetchHistoricData(Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, 1000)
     if (realtime_duration <= 3600000) {
         enableRealtimeReading(1000)
     }
