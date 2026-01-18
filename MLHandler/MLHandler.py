@@ -78,13 +78,15 @@ def ML_logic(shipment_lst: List[Shipment], batch_lst: List[Batch]) -> List[Resul
                         'text': f"""
                         You are provided with the following hypothetical list of shipments and produce batches. Please devise an optimized
                         batch-to-shipment allocation strategy based on these ground rules:
-                        1. You can only allocate one shipment to one batch.
-                        2. The allocated shipment for each batch must be in the eligible_shipment_ids list separated by ::.
-                        3. Aim for exporting as many batches as possible. Each batch must either not be transported, or be transported in whole.
-                        4. You may say your thinking process as needed, but the final result must be a batch-to-shipment mapping CSV table
+                        0. Optimize your strategy for high produce time-to-live upon arrival.
+                        1. You can try to maximize the number of batches sent, but not required.
+                        2. You can only allocate one shipment to one batch.
+                        3. The allocated shipment for each batch must be in the eligible_shipment_ids list separated by ::.
+                        4. Each batch can only be transported in whole.
+                        5. You may say your thinking process as needed, but the final result must be a batch-to-shipment mapping CSV table
                         with the columns "batch_id" and "shipment_id".
-                        5. It is not required to fulfill a shipment completely.
-                        6. Stop answering immediately after returning the result table.
+                        6. It is not required to fulfill a shipment completely.
+                        7. Stop answering immediately after returning the result table.
                         
                         Shipments table:
                         '''csv

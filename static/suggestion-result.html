@@ -2,9 +2,156 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Suggestion Result</title>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
+          integrity="sha512-t7Few9xlddEmgd3oKZQahkNI4dS6l80+eGEzFQiqtyVYdvcSG2D3Iub77R20BdotfRPA9caaRkg1tyaJiPmO0g=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+
+    <style>
+        .lbl-hover-highlight:hover {
+            background: yellow;
+        }
+    </style>
+
+    <script>
+
+        let serverPollInterval = undefined
+        let jobID = undefined
+
+        let acceptedChanges = {}
+
+        window.onunload = async (ev) => {
+            await window.opener.searchWithFilters()
+        }
+
+        async function upload_changes() {
+            let batch_ids = []
+            let shipment_ids = []
+            Object.entries(acceptedChanges).forEach(([batch_id, shipment_id]) => {
+                batch_ids.push(batch_id.toString())
+                shipment_ids.push(shipment_id.toString())
+            })
+            r = await axios.post(`/api/batch/assign-order-to-batch-multi?batch_ids=${batch_ids.join(',')}&order_ids=${shipment_ids.join(',')}`,
+                {
+                    validateStatus: function (status) {
+                        return status >= 200 && status <= 500
+                    }
+                }
+            )
+            if (r.status === 200) {
+                window.close()
+            } else {
+                alert("Applying suggestions failed. Error: " + r.status)
+            }
+
+        }
+
+        function get_localtime_iso_string(date = new Date()) {
+            return `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+        }
+
+        function get_iso_from_utc_timestamp(timestamp) {
+            return get_localtime_iso_string(new Date(timestamp))
+        }
+
+        function showResults(results, shipments, batches) {
+            document.getElementById("prog").hidden = true
+            const container = document.getElementById("container")
+            document.getElementById("container").innerHTML = ""
+            console.log(results)
+            console.log(shipments)
+            console.log(batches)
+
+            results.forEach((entry) => {
+                const cb = document.createElement("input")
+                cb.type = "checkbox"
+                cb.id = entry.batch_id
+
+                cb.onchange = (ev) => {
+                    if (ev.target.checked) {
+                        acceptedChanges[entry.batch_id] = entry.shipment_id
+                    } else {
+                        delete acceptedChanges[entry.batch_id]
+                    }
+                    console.log(acceptedChanges)
+                }
+
+                const lbl = document.createElement("label")
+
+                const batchLbl = document.createElement("p")
+                const shipmentLbl = document.createElement("p")
+
+                batchLbl.innerHTML = `<span style="color: gray">#${entry.batch_id}</span> <b>${batches[entry.batch_id].produce_name} (${batches[entry.batch_id].quantity} units, expires on ${get_iso_from_utc_timestamp(batches[entry.batch_id].exp_timestamp)})</b>`
+                shipmentLbl.innerHTML = `<span style="color: dodgerblue"><i class="bi bi-arrow-right"></i> Shipment ${entry.shipment_id} (${shipments[entry.shipment_id].port_from} <i>to</i> ${shipments[entry.shipment_id].port_from})</span>`
+
+                batchLbl.style.marginBottom = 0
+                shipmentLbl.style.marginBottom = 0
+
+                lbl.className = "lbl-hover-highlight"
+                lbl.htmlFor = cb.id
+                lbl.appendChild(batchLbl)
+                lbl.appendChild(shipmentLbl)
+                container.appendChild(cb)
+                container.appendChild(lbl)
+            })
+
+
+        //     pull and show results.
+        }
+
+        async function pollServer(jobID) {
+
+            const r = await axios.get(`/api/suggestion/retrieve-results?task_id=${jobID}&dry_run=${true}`,
+                {
+                    validateStatus: function (status) {
+                        return status >= 200 && status <= 500
+                    }
+                }
+            )
+
+            if (r.status !== 200) {
+                clearInterval(serverPollInterval)
+                alert("Failed to fetch suggestion. Error: " + r.status)
+            } else {
+                if (r.data.results !== undefined) {
+                    clearInterval(serverPollInterval)
+                    showResults(r.data.results, r.data.shipments, r.data.batches)
+                }
+
+            }
+
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            jobID = new URLSearchParams(document.location.search).get("jobId")
+            serverPollInterval = setInterval(async () => {
+                await pollServer(jobID)
+            }, 300)
+        })
+    </script>
+
 </head>
 <body>
+    <div style="padding: 10px ">
+        <h3>Suggestion Results</h3>
+        <i>Based on available batches and pending shipments (except late ones).</i>
+        <i>Use the <b>checkbox</b> to accept suggestions.</i>
+    </div>
 
+    <div style="padding: 10px; display: grid; grid-template-columns: 32px 1fr; gap: 5px" id="container">
+        <progress id="prog"></progress>
+
+    </div>
+    <div style="position: fixed; bottom: 10px; left: 10px; right: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px">
+        <button class="btn btn-primary" onclick="upload_changes()">Accept Changes</button>
+        <button class="btn btn-secondary"  onclick="window.close()">Cancel</button>
+    </div>
 </body>
 </html>

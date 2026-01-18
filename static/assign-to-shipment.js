@@ -109,16 +109,16 @@ function show_shipments(shipments) {
         let isSafe = true
         if (shipment.planned_departure_timestamp > new Date().getTime()) {
             if (shipment.planned_departure_timestamp + shipment.eta_milliseconds < batch_exp_date) {
-                status.innerHTML = "Status: <b class='accented-green'>Safe to transport!</b>"
+                status.innerHTML = "Status: <b class='accented-green'>Safe to export</b>"
             } else {
-                status.innerHTML = "Status: <b class='accented-danger'>Unsafe - Shipment exceeds batch lifespan</b>"
+                status.innerHTML = "Status: <b class='accented-danger'>Can't export - Shipment duration exceeds batch lifespan</b>"
                 isSafe = false
             }
         } else {
             if (new Date().getTime() + shipment.eta_milliseconds < batch_exp_date) {
-                status.innerHTML = "Status: <b class='accented-purple'>Maybe unsafe - Shipment departs later than schedule</b>"
+                status.innerHTML = "Status: <b class='accented-purple'>Unsafe - Late shipment, may require immediate departure</b>"
             } else {
-                status.innerHTML = "Status: <b class='accented-danger'>Unsafe - Shipment exceeds batch lifespan</b>"
+                status.innerHTML = "Status: <b class='accented-danger'>Can't export - Shipment duration exceeds batch lifespan</b>"
                 isSafe = false
             }
         }

@@ -95,8 +95,6 @@ async def list_batches(name_or_id_query: Optional[str] = "", harvest_timestamp_f
             else:
                 retLst: list[BatchInfo] = [BatchInfo.from_list(row) for row in ret]
 
-
-
             return retLst
 
     except BaseException as e:
@@ -149,6 +147,20 @@ async def assign_order_to_batch(batch_id: int, order_id: int, pg = Depends(get_p
     dbstring = "update batchinfo set assigned_order_no = $1 where batch_id = $2"
     async with pg.acquire() as conn:
         await conn.execute(dbstring, order_id, batch_id)
+
+@rt.post("/assign-order-to-batch-multi")
+async def assign_order_to_batch_multi(batch_ids: str, order_ids: str, pg = Depends(get_pgpool)):
+
+    batch_ids_lst = batch_ids.split(",")
+    order_ids_lst= order_ids.split(",")
+
+    async with pg.acquire() as conn:
+        async with conn.transaction():
+            for batch_id, order_id in zip(batch_ids_lst, order_ids_lst):
+                dbstring = "update batchinfo set assigned_order_no = $1 where batch_id = $2"
+                await conn.execute(dbstring, int(order_id), int(batch_id))
+
+
 
 @rt.delete("/remove-order-from-batch")
 async def remove_order_from_batch(batch_id: int, pg = Depends(get_pgpool)):

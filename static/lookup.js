@@ -322,7 +322,7 @@ async function exportToXLSX(export_all = false) {
 }
 
 async function runSuggestions() {
-    const r = axios.get("/api/suggestion/suggestion-full",
+    const r = await axios.get("/api/suggestion/suggestion-full",
         {
             validateStatus: function (status) {
                 return status >= 200 && status <= 500
@@ -331,7 +331,7 @@ async function runSuggestions() {
     if (r.status !== 200) {
         alert("Failed to create job. Error: " + r.status)
     } else {
-        window.open("suggestion-result.html")
+        window.open(`suggestion-result.html?jobId=${r.data}`, '_blank', 'width=800px;height=600px')
     }
 
 }
