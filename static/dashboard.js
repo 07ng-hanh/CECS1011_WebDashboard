@@ -123,12 +123,12 @@ async function quantity_poll_handler_func() {
         })
         if (resp.status === 200) {
             console.log(resp.data)
-            document.getElementById("total-quantity-label").innerText = resp.data.total_quantity
+            document.getElementById("total-quantity-label").innerText = resp.data.total_quantity ? resp.data.total_quantity : 0
 
             // check if we have any stuffs near expiry in the warehouse
             if (resp.data.has_expired > 0) {
                 document.getElementById("expiry-date-warning-banner").style.display = "block"
-                document.getElementById("count-almost-expired").innerText = resp.data.has_expired
+                document.getElementById("count-almost-expired").innerText = resp.data.has_expired ? resp.data.has_expired : 0
             } else {
                 document.getElementById("expiry-date-warning-banner").style.display = "none"
             }
