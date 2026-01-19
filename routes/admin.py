@@ -169,19 +169,45 @@ async def edit_produce(produceId: int, n: ProduceInfoForm, pg: asyncpg.pool.Pool
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)
 
 @rt.post("/set-warehouse-config")
-async def set_warehouse_config(config: WarehouseConfig, pg: asyncpg.pool.Pool = Depends(get_pgpool)):
+async def set_warehouse_config(config: WarehouseConfig, pg: asyncpg.pool.Pool = Depends(get_pgpool), vk: glide.GlideClient = Depends(get_vk)):
     print(config)
+
+    if (config.threshold_auto):
+        # override with auto thresholding
+        r = await pg.fetch("select max(produceinfo.thresh_temp_lo), min(produceinfo.thresh_temp_hi), max(produceinfo.thresh_co2_lo), min(produceinfo.thresh_co2_hi), max(produceinfo.thresh_humidity_lo), min(produceinfo.thresh_humidity_hi) from batchinfo join produceinfo on produceinfo.id = batchinfo.produce_type_id")
+        r = r[0]
+
+
+        config.temperature_low = r[0]
+        config.temperature_hi = r[1]
+        config.co2_low = r[2]
+        config.co2_hi = r[3]
+        config.humidity_lo = r[4]
+        config.humidity_hi = r[5]
+
+        print(r)
+        pass
+
     async with pg.acquire() as conn:
-        # iterate each key
-        for key, val in config:
-            if val == None:
-                continue
-            # Check if key exists
-            if (await conn.fetch("select 1 from configuration where key = $1", key)):
-                print(key, "key exists")
-                # Routine for updating existing key
-                await conn.execute("update configuration set value = $1 where key = $2", str(val), key)
-            else:
-                print(key, "key not exists")
-                # Routine for adding new key
-                await conn.execute("insert into configuration (value, key) values ($1, $2)", str(val), key)
+        try:
+            async with conn.transaction():
+                # iterate each key
+                for key, val in config:
+                    if val == None:
+                        continue
+                    # Check if key exists
+                    if (await conn.fetch("select 1 from configuration where key = $1", key)):
+                        print(key, "key exists")
+                        # Routine for updating existing key
+                        await conn.execute("update configuration set value = $1 where key = $2", str(val), key)
+                    else:
+                        print(key, "key not exists")
+                        # Routine for adding new key
+                        await conn.execute("insert into configuration (value, key) values ($1, $2)", str(val), key)
+
+        except Exception as e:
+            raise e
+        else:
+            # if the database is updated successfully, we write the config to valkey.
+            for key, val in config:
+                await vk.set(f"CONFIG_{key}", str(val))

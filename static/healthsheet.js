@@ -70,6 +70,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     annotations: {
 
                     }
+                },
+                legend: {
+                    display: false
                 }
             }
         },
@@ -95,6 +98,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                 y: {}
             }
         },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
     }
 
     let chart_temperature = undefined
@@ -296,6 +304,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (realtime_duration >= 28800000) {
             interval_ms = 60000 // sample every 60 secs
         }
+        if (realtime_duration >= 43200000) {
+            interval_ms = Math.round(60000 * realtime_duration / 28800000) // scale the interval up in proportion
+        }
         await fetchHistoricData(  Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms, cutoff_ms)
 
         if (realtime_duration <= 3600000) {
@@ -314,6 +325,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         if (realtime_duration >= 28800000) {
             interval_ms = 60000 // sample every 60 secs
+        }
+        if (realtime_duration >= 43200000) {
+            interval_ms = 120000 // sample every 2 mins
         }
         await fetchHistoricData(Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms, cutoff_ms)
 

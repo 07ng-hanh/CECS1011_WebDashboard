@@ -69,6 +69,11 @@ async def startup_event():
     # Connect to DB
     di.pgpool = await asyncpg.create_pool(f"postgres://{os.getenv("PG_USER")}:{os.getenv("PG_PASSWORD")}@{os.getenv("PG_HOST")}:{os.getenv("PG_PORT")}/{os.getenv("PG_DATABASE")}", min_size=5, max_size=30)
 
+    # Load configs into valkey
+    conf = await di.pgpool.fetch("select key, value from configuration")
+    for key, value in conf:
+        await di.vk1.set(f"CONFIG_{key}", str(value))
+
     app.include_router(users_api_route, prefix="/api/users")
     app.include_router(admin_api_route, prefix="/admin")
     app.include_router(sensors_api_route, prefix="/api/sensors")

@@ -7,13 +7,8 @@ late shipment incur the following behaviors:
 - does not show up on suggestion page.
 <all done>
 
-storage condition tracking TODOs:
-- health button -> forward thresholds + tracker name [#xxxx produce-name] to sensor view (popup) [DONE]
 
-
-- sensor view (threshold tracking mode): reactive banner (on each update, if all within thresholds: show Good, else show Poor + list of risks)
-- static historic view: highlight regions that recorded poor metrics by time, starting from harvest-date
-
-auto-threshold: auto-adjust threshold on batch add/remove and override settings. initial check on settings update.
-
+auto-threshold:
+- auto-adjust threshold on batch add/remove and override settings. initial check on settings update.
+- on batch add: check if batch in the auto-thresholded range of other produces
 "security" feature: logging requests by user (not needed)

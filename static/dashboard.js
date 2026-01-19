@@ -104,9 +104,10 @@ async function navigate_to_settings() {
 
 // Connect to eventsource to read sensor data at 1s interval
 const sensor_evt_source = new EventSource("/api/sensors/sensor-data-stream?interval=1")
-sensor_evt_source.addEventListener("message", (ev) => {
+sensor_evt_source.addEventListener("message", async (ev) => {
     let d = JSON.parse(ev.data)
     update_sensor_metrics(d.temperature, d.humidity, d.co2)
+    configs = await getWarehouseConfigs()
 })
 
 let configs = {}
