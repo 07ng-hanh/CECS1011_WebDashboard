@@ -189,6 +189,11 @@ function showSearchResults(r) {
             let batchHealth = document.createElement("button")
             batchHealth.innerText = "Health"
             batchHealth.className = "btn btn-outline-primary"
+
+            batchHealth.addEventListener("click", async() => {
+                await showThresholdData(v.harvest_type_id, v.import_date, `[#${v.batch_id}] ${v.quantity} ${v.harvest_type_name}`)
+            })
+
             entryCardActionBtnGroup.appendChild(batchHealth)
         }
 
@@ -331,7 +336,7 @@ async function runSuggestions() {
     if (r.status !== 200) {
         alert("Failed to create job. Error: " + r.status)
     } else {
-        window.open(`suggestion-result.html?jobId=${r.data}`, '_blank', 'width=800px;height=600px')
+        window.open(`suggestion-result.html?jobId=${r.data}`, '_blank', 'width=800px,height=600px')
     }
 
 }
@@ -358,4 +363,28 @@ async function exportToCSV(export_all = false) {
     let downloadLink = document.createElement("a")
     downloadLink.href = window.URL.createObjectURL(file)
     downloadLink.click()
+}
+
+async function showThresholdData(harvest_type_id, cutoff_int, tracking_title) {
+    const r = await fetchThresholdData(harvest_type_id)
+    window.open(`healthsheet.html?tracker_mode=threshold&tracker_label=${encodeURIComponent(tracking_title)}&min_cutoff=${cutoff_int}&temp_lo=${r.thresh_temp_lo}&temp_hi=${r.thresh_temp_hi}&humidity_lo=${r.thresh_humidity_lo}&humidity_hi=${r.thresh_humidity_hi}&co2_lo=${r.thresh_co2_lo}&co2_hi=${r.thresh_co2_hi}`, '_blank', 'width=800px,height=600px')
+}
+
+async function fetchThresholdData(harvest_type_id) {
+    const r = await axios.get("/api/produce/get-thresholds", {
+        params: {
+            produce_id: harvest_type_id
+        },
+        validateStatus: function (status) {
+            return status >= 200 && status <= 500
+        }
+    })
+
+    if (r.status === 200) {
+        return r.data
+    } else {
+        alert("Cannot fetch threshold data")
+    }
+
+
 }

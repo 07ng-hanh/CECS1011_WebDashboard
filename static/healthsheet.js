@@ -1,3 +1,17 @@
+let eventSrc = undefined
+
+window.onunload = (ev) => {
+    if (eventSrc) {
+        eventSrc.close()
+    }
+    if (window.opener) {
+
+        window.close()
+    } else {
+        window.location.href = 'dashboard.html'
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
 
     // Drawing contexts
@@ -18,6 +32,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const co2Hi = queryParams.get("co2_hi")
     const humidityLo = queryParams.get("humidity_lo")
     const humidityHi = queryParams.get("humidity_hi")
+    const cutoff_ms = queryParams.get("min_cutoff") ? parseInt(queryParams.get("min_cutoff")) : -1
+
+    console.log(tempLow, tempHi)
+
+
+    // check if tracking label is present
+    
 
     // Chart Configuration
     const realtime_chart_config_common = {
@@ -113,7 +134,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Charts
         chart_temperature = new Chart(ctx_temperature, structuredClone(_base_chart_config))
         chart_temperature.config.options.scales.y.suggestedMin = -30
-        chart_temperature.config.options.scales.y.suggestedMax = 30
+        chart_temperature.config.options.scales.y.suggestedMax = 20
         chart_temperature.config.options.plugins.annotation = {
             annotations: {
                 tempLo: {
@@ -127,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         chart_co2 = new Chart(ctx_co2, structuredClone(_base_chart_config))
         chart_co2.config.options.scales.y.suggestedMin = 0
-        chart_co2.config.options.scales.y.suggestedMax = 1000
+        chart_co2.config.options.scales.y.suggestedMax = 50000
 
 
         chart_co2.config.options.plugins.annotation = {
@@ -158,14 +179,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     }
 
-    async function fetchHistoricData(current_time_ms, span_ms, interval_ms) {
+    async function fetchHistoricData(current_time_ms, span_ms, interval_ms, cutoff_ms) {
         let d = await axios.get("/api/sensors/sensor-data-historic-v2", {
             validateStatus: function (status) {
                 return status >= 200 && status <= 500
             },
             params: {
                 current_time_ms: current_time_ms,
-                length_ms: span_ms,
+                length_ms: Math.min(span_ms, current_time_ms - cutoff_ms),
                 interval_ms: interval_ms
             }
         })
@@ -196,7 +217,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     }
 
-    let eventSrc = undefined
+
     function enableRealtimeReading(interval_ms) {
         if (eventSrc !== undefined) {
             eventSrc.close()
@@ -255,7 +276,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (realtime_duration >= 28800000) {
             interval_ms = 60000 // sample every 60 secs
         }
-        await fetchHistoricData(  Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms)
+        await fetchHistoricData(  Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms, cutoff_ms)
 
         if (realtime_duration <= 3600000) {
            enableRealtimeReading(interval_ms)
@@ -274,12 +295,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (realtime_duration >= 28800000) {
             interval_ms = 60000 // sample every 60 secs
         }
-        await fetchHistoricData(Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms)
+        await fetchHistoricData(Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, interval_ms, cutoff_ms)
 
     })
 
     initCharts(realtime_duration)
-    await fetchHistoricData(Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, 1000)
+    await fetchHistoricData(Math.floor(new Date().getTime() / 1000) * 1000, realtime_duration, 1000, cutoff_ms)
     if (realtime_duration <= 3600000) {
         enableRealtimeReading(1000)
     }
