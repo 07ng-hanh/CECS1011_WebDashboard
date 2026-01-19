@@ -25,8 +25,8 @@ async def send_sensor_data():
                     # Generate random sensor data
                     data = {
                         "temperature": round(random.uniform(-5, 5), 2),
-                        "humidity": round(random.uniform(70, 72), 2),
-                        "co2": round(random.uniform(400, 600), 2)
+                        "humidity": round(random.uniform(90, 95), 2),
+                        "co2": round(random.uniform(400, 500), 2)
                     }
 
                     # Convert dictionary to JSON string and send

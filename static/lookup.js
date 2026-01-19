@@ -191,7 +191,7 @@ function showSearchResults(r) {
             batchHealth.className = "btn btn-outline-primary"
 
             batchHealth.addEventListener("click", async() => {
-                await showThresholdData(v.harvest_type_id, v.import_date, `[#${v.batch_id}] ${v.quantity} ${v.harvest_type_name}`)
+                await showThresholdData(v.harvest_type_id, v.import_date, `Tracking: [#${v.batch_id}] ${v.quantity} ${v.harvest_type_name}`)
             })
 
             entryCardActionBtnGroup.appendChild(batchHealth)

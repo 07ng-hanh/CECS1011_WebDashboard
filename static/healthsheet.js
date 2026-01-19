@@ -1,16 +1,14 @@
 let eventSrc = undefined
 
-window.onunload = (ev) => {
-    if (eventSrc) {
-        eventSrc.close()
-    }
-    if (window.opener) {
-
+function close_healthsheet() {
+    if (window.opener && window.opener !== window) {
         window.close()
     } else {
         window.location.href = 'dashboard.html'
     }
 }
+
+
 
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -38,7 +36,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     // check if tracking label is present
-    
+    if (trackerLabel) {
+        document.getElementById("tracker-title").innerText = trackerLabel
+    }
 
     // Chart Configuration
     const realtime_chart_config_common = {
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         chart_co2 = new Chart(ctx_co2, structuredClone(_base_chart_config))
         chart_co2.config.options.scales.y.suggestedMin = 0
-        chart_co2.config.options.scales.y.suggestedMax = 50000
+        chart_co2.config.options.scales.y.suggestedMax = 30000
 
 
         chart_co2.config.options.plugins.annotation = {
@@ -230,7 +230,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             const v = JSON.parse(ev.data)
 
             //     add data to chart
-
             console.log(v.timestamp)
             chart_temperature.data.datasets[0].data.push(
                 {x: v.timestamp, y: v.temperature}
@@ -244,6 +243,27 @@ document.addEventListener("DOMContentLoaded", async () => {
             chart_temperature.update('quiet')
             chart_co2.update('quiet')
             chart_humidity.update('quiet')
+
+            // update warnings
+            if (
+                tempLow <= v.temperature && v.temperature <= tempHi
+                && humidityLo <= v.humidity && v.humidity <= humidityHi
+                && co2Low <= v.co2 && v.co2 <= co2Hi
+            ) {
+                document.getElementById("status-good").style.display = "block"
+                document.getElementById("status-poor").style.display = "none"
+            } else {
+                document.getElementById("status-poor").style.display = 'block'
+                document.getElementById("status-good").style.display = 'none'
+            }
+
+            document.getElementById("temp-hi-warning").style.display = v.temperature > tempHi ? 'inline' : 'none'
+            document.getElementById("temp-lo-warning").style.display = v.temperature < tempLow ? 'inline' : 'none'
+            document.getElementById("humidity-hi-warning").style.display = v.humidity > humidityHi ? 'inline' : 'none'
+            document.getElementById("humidity-lo-warning").style.display = v.humidity < humidityLo ? 'inline' : 'none'
+            document.getElementById("co2-hi-warning").style.display = v.co2 > co2Hi ? 'inline' : 'none'
+            document.getElementById("co2-lo-warning").style.display = v.co2 < co2Low ? 'inline' : 'none'
+
 
 
         }

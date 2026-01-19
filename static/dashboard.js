@@ -157,6 +157,13 @@ document.addEventListener("DOMContentLoaded", async() => {
 
 })
 
+async function go_to_healthsheet() {
+    const c = configs
+    console.log(configs)
+    window.location.href=`healthsheet.html?tracker_mode=threshold&temp_lo=${c.temperature_low}&temp_hi=${c.temperature_hi}&co2_lo=${c.co2_low}&co2_hi=${c.co2_hi}&humidity_lo=${c.humidity_lo}&humidity_hi=${c.humidity_hi}`
+}
+
 window.addEventListener("beforeunload", () => {
     sensor_evt_source.close()
+    window.clearInterval(quantity_poll_handler)
 })
