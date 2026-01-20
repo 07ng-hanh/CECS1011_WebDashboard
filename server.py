@@ -40,7 +40,7 @@ from datamodels import Credentials
 
 # Load environment variables (dev env only)
 try:
-    dotenv.load_dotenv("private_dev.env")
+    dotenv.load_dotenv("private_production.env")
 except:
     pass
 

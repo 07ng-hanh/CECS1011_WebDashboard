@@ -185,6 +185,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
 
+    //     highlight segments passing thresholds
+        chart_temperature.data.datasets[0].segment = {
+            borderColor: ctx => {return ((ctx.p0.parsed.y > tempHi && ctx.p1.parsed.y > tempHi) || (ctx.p0.parsed.y < tempLow && ctx.p1.parsed.y < tempLow) || (ctx.p0.parsed.y < tempLow && ctx.p1.parsed.y > tempHi)|| (ctx.p1.parsed.y < tempLow && ctx.p0.parsed.y > tempHi)) ? 'rgb(255,0,0)' : undefined}
+        }
+
+        chart_humidity.data.datasets[0].segment = {
+            borderColor: ctx => {return ((ctx.p0.parsed.y > humidityHi && ctx.p1.parsed.y > humidityHi) || (ctx.p0.parsed.y < humidityLo && ctx.p1.parsed.y < humidityLo) || (ctx.p0.parsed.y < humidityLo && ctx.p1.parsed.y > humidityHi)|| (ctx.p1.parsed.y < humidityLo && ctx.p0.parsed.y > humidityHi)) ? 'rgb(255,0,0)' : undefined}
+        }
+
+        chart_co2.data.datasets[0].segment = {
+            borderColor: ctx => {return ((ctx.p0.parsed.y > co2Hi && ctx.p1.parsed.y > co2Hi) || (ctx.p0.parsed.y < co2Low && ctx.p1.parsed.y < co2Low) || (ctx.p0.parsed.y < co2Low && ctx.p1.parsed.y > co2Hi)|| (ctx.p1.parsed.y < co2Low && ctx.p0.parsed.y > co2Hi)) ? 'rgb(255,0,0)' : undefined}
+        }
+
     }
 
     async function fetchHistoricData(current_time_ms, span_ms, interval_ms, cutoff_ms) {
