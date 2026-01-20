@@ -105,7 +105,7 @@ function show_shipments(shipments) {
         }
 
         const status = document.createElement("p")
-
+        let showCancelBtn = true
         if (shipment.cur_quantity < shipment.produce_qty) {
             if (shipment.planned_departure_timestamp >= new Date().getTime()) {
                 status.innerHTML = `Status: <b class="accented-purple">Pending for Payload</b>`
@@ -115,6 +115,7 @@ function show_shipments(shipments) {
         } else if (shipment.cur_quantity >= shipment.produce_qty) {
             if (shipment.actual_departure_timestamp != null) {
                 status.innerHTML = `Status: <b style="color: gray">Departed at ${get_localtime_iso_string(new Date(shipment.actual_departure_timestamp))}</b>`
+                showCancelBtn = false
             }
             else if (shipment.planned_departure_timestamp >= new Date().getTime()) {
                 status.innerHTML = `Status: <b class="accented-indicator">Ready to Depart</b>`
@@ -158,7 +159,9 @@ function show_shipments(shipments) {
 
         btnSet.appendChild(primaryActionBtn)
         btnSet.appendChild(secondaryActionBtn)
-        btnSet.appendChild(cancelBtn)
+        if (showCancelBtn) {
+        btnSet.appendChild(cancelBtn)}
+
 
         infoCard.className = "orders-card-info"
         card.className = "orders-card"

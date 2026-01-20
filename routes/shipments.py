@@ -3,12 +3,13 @@ from http import HTTPStatus
 from typing import Optional, List
 
 import asyncpg.pool
+import glide
 from fastapi import APIRouter
 from fastapi.params import Depends
 from starlette.responses import JSONResponse, PlainTextResponse
 import math
-from datamodels import ExportOrderMinimal, PortInfo, ExportOrderDetails, BatchMinimal
-from dependency_injection import get_pgpool
+from datamodels import ExportOrderMinimal, PortInfo, ExportOrderDetails, BatchMinimal, WarehouseConfig
+from dependency_injection import get_pgpool, get_vk
 rt = APIRouter()
 
 def estimate_length(lat_a, lon_a, lat_b, lon_b):
@@ -176,7 +177,7 @@ async def list_shipments(shipment_id: Optional[str] = "", port_name_from: Option
         raise e
 
 @rt.post("/initiate-export")
-async def initiate_export(shipment_id: Optional[int], dry_run: bool = True, pgpool: asyncpg.pool.Pool = Depends(get_pgpool)):
+async def initiate_export(shipment_id: Optional[int], dry_run: bool = True, pgpool: asyncpg.pool.Pool = Depends(get_pgpool), vk1: glide.GlideClient = Depends(get_vk)):
     # 1st step: check if anything cannot survive the trip and is exactly what's ordered
     # 2nd step: if all clear: return 200. if not: return a list of batches that won't survive the trip or misplaced.
     async with pgpool.acquire() as conn:
@@ -199,6 +200,32 @@ async def initiate_export(shipment_id: Optional[int], dry_run: bool = True, pgpo
             if not dry_run:
                 await conn.execute("update shipments set actual_departure_timestamp = $1 where shipment_id = $2", time_now, shipment_id)
                 await conn.execute("update batchinfo set export_date = $1, is_in_warehouse = FALSE where assigned_order_no = $2", time_now, shipment_id)
+
+                # check auto-threshold and update accordingly
+                if await vk1.get("CONFIG_threshold_auto") == b"True":
+                    c = WarehouseConfig()
+
+                    # get new range and write to valkey
+                    config = WarehouseConfig(**{})
+                    r = await conn.fetch(
+                        "select max(produceinfo.thresh_temp_lo), min(produceinfo.thresh_temp_hi), max(produceinfo.thresh_co2_lo), min(produceinfo.thresh_co2_hi), max(produceinfo.thresh_humidity_lo), min(produceinfo.thresh_humidity_hi) from batchinfo join produceinfo on produceinfo.id = batchinfo.produce_type_id where batchinfo.is_in_warehouse = true")
+                    r = r[0]
+
+                    if not (r[0] != None and r[1] != None and r[2]!= None and r[3]!= None and  r[4]!= None and r[5]!= None):
+                        return
+
+                    config.temperature_low = r[0]
+                    config.temperature_hi = r[1]
+                    config.co2_low = r[2]
+                    config.co2_hi = r[3]
+                    config.humidity_lo = r[4]
+                    config.humidity_hi = r[5]
+                    config_dict = config.model_dump()
+
+
+                    for k in ("temperature_low", "temperature_hi", "co2_low", "co2_hi", "humidity_lo", "humidity_hi"):
+                        await vk1.set(f"CONFIG_{k}", str(config_dict[k]))
+                        await conn.execute("update configuration set value = $1 where key = $2", str(config_dict[k]), k)
 
             return JSONResponse([])
 

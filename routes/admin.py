@@ -174,9 +174,13 @@ async def set_warehouse_config(config: WarehouseConfig, pg: asyncpg.pool.Pool = 
 
     if (config.threshold_auto):
         # override with auto thresholding
-        r = await pg.fetch("select max(produceinfo.thresh_temp_lo), min(produceinfo.thresh_temp_hi), max(produceinfo.thresh_co2_lo), min(produceinfo.thresh_co2_hi), max(produceinfo.thresh_humidity_lo), min(produceinfo.thresh_humidity_hi) from batchinfo join produceinfo on produceinfo.id = batchinfo.produce_type_id")
+        r = await pg.fetch("select max(produceinfo.thresh_temp_lo), min(produceinfo.thresh_temp_hi), max(produceinfo.thresh_co2_lo), min(produceinfo.thresh_co2_hi), max(produceinfo.thresh_humidity_lo), min(produceinfo.thresh_humidity_hi) from batchinfo join produceinfo on produceinfo.id = batchinfo.produce_type_id where batchinfo.is_in_warehouse = true")
         r = r[0]
+        print(r)
 
+        if not (r[0] != None and r[1] != None and r[2]!= None and r[3]!= None and r[4]!= None and r[5]!= None):
+            print("RETURNING")
+            return
 
         config.temperature_low = r[0]
         config.temperature_hi = r[1]
@@ -185,7 +189,7 @@ async def set_warehouse_config(config: WarehouseConfig, pg: asyncpg.pool.Pool = 
         config.humidity_lo = r[4]
         config.humidity_hi = r[5]
 
-        print(r)
+        print("CONFIG", config)
         pass
 
     async with pg.acquire() as conn:

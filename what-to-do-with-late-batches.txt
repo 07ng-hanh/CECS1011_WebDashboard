@@ -7,8 +7,4 @@ late shipment incur the following behaviors:
 - does not show up on suggestion page.
 <all done>
 
-
-auto-threshold:
-- auto-adjust threshold on batch add/remove and override settings. initial check on settings update.
-- on batch add: check if batch in the auto-thresholded range of other produces
 "security" feature: logging requests by user (not needed)
