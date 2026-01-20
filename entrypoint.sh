@@ -1,0 +1,1 @@
+valkey-server --daemonize yes; python server.py
