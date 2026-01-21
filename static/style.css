@@ -144,6 +144,11 @@ input[type='password'] {
 }
 
 @media screen and (max-width: 740px) {
+
+    .hide-on-mobile {
+        display: none;
+    }
+
     .metrics-board {
         grid-template-columns: 1fr 1fr;
     }
