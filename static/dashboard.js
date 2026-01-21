@@ -148,6 +148,10 @@ async function quantity_poll_handler_func() {
 }
 
 document.addEventListener("DOMContentLoaded", async() => {
+
+
+    document.getElementById("username-lbl").innerText = (await (cookieStore.get({url: window.url, name: "username"}))).value
+
     configs = await getWarehouseConfigs()
     quantity_poll_handler = window.setInterval(async () => {
     //     handle polling the number of items and whether there are any items past expiry date.
