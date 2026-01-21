@@ -5,7 +5,7 @@ import websockets
 from websockets.exceptions import ConnectionClosedError, ConnectionClosed, InvalidURI
 
 # Configuration
-WS_ENDPOINT = "ws://127.0.0.1:8000/api/sensors/write-sensor-data"
+WS_ENDPOINT = "ws://127.0.0.1:7860/api/sensors/write-sensor-data"
 API_KEY = "c2NyZWVuZHJlYW1tZWRpY2luZWx5aW5ndGhhbmttaW51dGVyb2FyZ2FyZGVuY29uZGk="
 INTERVAL_SECS = 1
 
@@ -26,7 +26,7 @@ async def send_sensor_data():
                     data = {
                         "temperature": round(random.uniform(-5, 5), 2),
                         "humidity": round(random.uniform(90, 95), 2),
-                        "co2": round(random.uniform(400, 500), 2)
+                        "co2": None 
                     }
 
                     # Convert dictionary to JSON string and send

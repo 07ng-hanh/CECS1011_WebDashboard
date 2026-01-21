@@ -63,13 +63,13 @@ async def startup_event():
     import dependency_injection as di
     # global vk1, pgpool
     # Connect to session cache
-    vk1_conf = GlideClientConfiguration([NodeAddress("0.0.0.0", 6379)], request_timeout=1000)
+    vk1_conf = GlideClientConfiguration([NodeAddress(os.getenv("VALKEY_HOST"), 6379)], request_timeout=1000)
     di.vk1 = await GlideClient.create(vk1_conf)
 
     # Connect to DB
     # print(f"postgres://{os.getenv("PG_USER")}:{os.getenv("PG_PASSWORD")}@{os.getenv("PG_HOST")}:{os.getenv("PG_PORT")}/{os.getenv("PG_DATABASE")}")
 
-    di.pgpool = await asyncpg.create_pool(f"postgresql://{os.getenv("PG_USER")}:{os.getenv("PG_PASSWORD")}@{os.getenv("PG_HOST")}:{os.getenv("PG_PORT")}/{os.getenv("PG_DATABASE")}?sslmode=require", min_size=5, max_size=30)
+    di.pgpool = await asyncpg.create_pool(f"postgresql://{os.getenv("PG_USER")}:{os.getenv("PG_PASSWORD")}@{os.getenv("PG_HOST")}:{os.getenv("PG_PORT")}/{os.getenv("PG_DATABASE")}", min_size=5, max_size=30)
     # Load configs into valkey
     conf = await di.pgpool.fetch("select key, value from configuration")
     for key, value in conf:
