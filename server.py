@@ -229,4 +229,4 @@ async def reroute_to_dashboard_ui(request: Request, vk1: glide.GlideClient = Dep
         return RedirectResponse("/static/login.html")
 
 # Run the app
-uvicorn.run(app, timeout_keep_alive=0, timeout_graceful_shutdown=0, port=7860)
+uvicorn.run(app, timeout_keep_alive=0, timeout_graceful_shutdown=0, port=7860, host="0.0.0.0")
