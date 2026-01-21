@@ -5,7 +5,7 @@ import websockets
 from websockets.exceptions import ConnectionClosedError, ConnectionClosed, InvalidURI
 
 # Configuration
-WS_ENDPOINT = "ws://127.0.0.1:7860/api/sensors/write-sensor-data"
+WS_ENDPOINT = "wss://100.88.97.44/api/sensors/write-sensor-data"
 API_KEY = "c2NyZWVuZHJlYW1tZWRpY2luZWx5aW5ndGhhbmttaW51dGVyb2FyZ2FyZGVuY29uZGk="
 INTERVAL_SECS = 1
 

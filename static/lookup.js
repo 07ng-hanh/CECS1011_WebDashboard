@@ -248,6 +248,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (id) {
         document.getElementById("produce-name").value = id
+        document.getElementById("status-dropdown").value = ""
     }
 
     r = await searchWithFilters(false)
