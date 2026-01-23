@@ -30,7 +30,6 @@ def remove_file(path: str):
 @rt.websocket("/write-sensor-data")
 async def write_sensor_data(ws: fastapi.WebSocket):
     # TODO: Add mechanism for admin to rotate sensor API key. Propagate change to DB and valkey. If key changes, force disconnect sensor.
-    # TODO: Instead of fanning out responses to the client, send to a Redis Pub/Sub channel to prevent clogging the event loop. The propagation server will pick up on the Pub/Sub messages and distribute them.
     authkey = ws.headers.get("Authorization")
     pgpool: asyncpg.pool.Pool = await get_pgpool()
 
@@ -64,7 +63,12 @@ async def write_sensor_data(ws: fastapi.WebSocket):
                 await con.execute("insert into environmentreading (timestamp, temperature, co2, humidity) values ($1, $2, $3, $4)", e["timestamp"], e["temperature"], e["co2"], e["humidity"])
     finally:
         # On exit, clean up
-        # pass
+        for c in client_queues:
+            # notify clients that the sensor is disconnected
+            try:
+                c.put_nowait({"err": "client_disconnected"})
+            except:
+                pass
         print("CONN CLOSED!")
         await con.close()
 
@@ -75,11 +79,14 @@ async def sensor_yield(interval):
     client_queues.add(Q)
     while True:
         try:
-            # TODO: In a "separate yielding loop" scenario, await for new chunks from the fan-out server and simply yield that chunk
             e = await Q.get()
+
+            if "err" in e:
+                yield f"event: error_sent\ndata: {json.dumps(e)}\n\n"
+
             if e["timestamp"] - last_push >= interval:
                 last_push = e["timestamp"]
-                yield f"data: {json.dumps(e)}\n\n"
+                yield f"event: data_sent\ndata: {json.dumps(e)}\n\n"
             Q.task_done()
             # end of replacement
         except (asyncio.QueueFull, BrokenPipeError, ConnectionResetError, ClientDisconnect):

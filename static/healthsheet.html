@@ -43,6 +43,13 @@
             display: none;
 
         }
+        .custom-null-pill {
+            background: rgb(200, 200, 200);
+            color: rgb(20, 20, 20);
+            padding: 10px;
+            border-radius: 45px;
+            display: none;
+        }
     </style>
 
     <script src="healthsheet.js"></script>
@@ -61,6 +68,7 @@
             <span id="status-container">
                 <span id="status-good" style="display:none; background: green; color: white;  padding: 10px; border-radius: 50px">Status: Good</span>
                 <span id="status-poor" style="display:none; background: red; color: white;  padding: 10px; border-radius: 50px">Status: Poor</span>
+                <span id="status-offline" style="background: lightgray; padding: 10px; border-radius: 50px">Status: Sensor Offline</span>
             </span>
 
         </span>
@@ -111,19 +119,33 @@
 
 <div style="position: absolute; top: 130px; width: 100%">
     <div class="healthsheet-entry">
-        <label><b>Temperature (&deg;C)</b> <span class="custom-warning-pill" id="temp-hi-warning">Too high: Risk rapid-rotting</span> <span class="custom-warning-pill" id="temp-lo-warning">Too low: Risk water-soaking/internal browning</span> </label>
+        <label><b>Temperature (&deg;C)</b>
+            <span class="custom-warning-pill" id="temp-hi-warning">Too high: Risk rapid-rotting</span>
+            <span class="custom-warning-pill" id="temp-lo-warning">Too low: Risk water-soaking/internal browning</span>
+            <span class="custom-null-pill" id="temp-null-warning">No data</span>
+
+        </label>
         <div class="chart-container" style="position: relative; height: 200px; width: 100%">
             <canvas id="temperature-plot"></canvas>
         </div>
     </div>
     <div class="healthsheet-entry">
-        <label><b>Humidity (%)</b> <span class="custom-warning-pill" id="humidity-hi-warning">Too high: Risk molding/sprouting</span> <span class="custom-warning-pill" id="humidity-lo-warning">Too low: Risk wilting/shriveling</span></label>
+        <label><b>Humidity (%)</b>
+            <span class="custom-warning-pill" id="humidity-hi-warning">Too high: Risk molding/sprouting</span>
+            <span class="custom-warning-pill" id="humidity-lo-warning">Too low: Risk wilting/shriveling</span>
+            <span class="custom-null-pill" id="humidity-null-warning">No data</span>
+        </label>
         <div class="chart-container" style="position: relative; height: 200px; width: 100%">
             <canvas id="humidity-plot"></canvas>
         </div>
     </div>
     <div class="healthsheet-entry">
-        <label><b>CO<sub>2</sub> Concentration (ppm)</b> <span class="custom-warning-pill" id="co2-hi-warning">Too high: Risk CO<sub>2</sub> toxicity/fermentation</span> <span class="custom-warning-pill" id="co2-lo-warning">Too low: Risk quick ripening/inducing insect activity</span></label>
+        <label><b>CO<sub>2</sub> Concentration (ppm)</b>
+            <span class="custom-warning-pill" id="co2-hi-warning">Too high: Risk CO<sub>2</sub> toxicity/fermentation</span>
+            <span class="custom-warning-pill" id="co2-lo-warning">Too low: Risk quick ripening/inducing insect activity</span>
+            <span class="custom-null-pill" id="co2-null-warning">No data</span>
+
+        </label>
         <div class="chart-container" style="position: relative; height: 200px; width: 100%">
             <canvas id="co2-plot"></canvas>
         </div>

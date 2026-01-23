@@ -247,7 +247,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         // drop the first few SSE data point due to chartjs connector glitch
 
         eventSrc = new EventSource(`/api/sensors/sensor-data-stream?interval=${interval_ms}`)
-        eventSrc.onmessage = (ev) => {
+
+        eventSrc.addEventListener("error_sent", (ev) => {
+            document.getElementById("status-offline").style.display = "block"
+            document.getElementById("status-poor").style.display = "none"
+            document.getElementById("status-good").style.display = "none"
+
+        })
+
+        eventSrc.addEventListener('data_sent', (ev) => {
+            document.getElementById("status-offline").style.display = "none"
             const v = JSON.parse(ev.data)
 
             //     add data to chart
@@ -267,9 +276,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // update warnings
             if (
-                tempLow <= v.temperature && v.temperature <= tempHi
-                && humidityLo <= v.humidity && v.humidity <= humidityHi
-                && co2Low <= v.co2 && v.co2 <= co2Hi
+                (tempLow <= v.temperature && v.temperature <= tempHi) || v.temperature == null
+                && (humidityLo <= v.humidity && v.humidity <= humidityHi) || v.temperature == null
+                && (co2Low <= v.co2 && v.co2 <= co2Hi) || v.co2 == null
             ) {
                 document.getElementById("status-good").style.display = "block"
                 document.getElementById("status-poor").style.display = "none"
@@ -278,16 +287,42 @@ document.addEventListener("DOMContentLoaded", async () => {
                 document.getElementById("status-good").style.display = 'none'
             }
 
-            document.getElementById("temp-hi-warning").style.display = v.temperature > tempHi ? 'inline' : 'none'
-            document.getElementById("temp-lo-warning").style.display = v.temperature < tempLow ? 'inline' : 'none'
-            document.getElementById("humidity-hi-warning").style.display = v.humidity > humidityHi ? 'inline' : 'none'
-            document.getElementById("humidity-lo-warning").style.display = v.humidity < humidityLo ? 'inline' : 'none'
-            document.getElementById("co2-hi-warning").style.display = v.co2 > co2Hi ? 'inline' : 'none'
-            document.getElementById("co2-lo-warning").style.display = v.co2 < co2Low ? 'inline' : 'none'
+            if (v.temperature != null) {
+                document.getElementById("temp-hi-warning").style.display = v.temperature > tempHi ? 'inline' : 'none'
+                document.getElementById("temp-lo-warning").style.display = v.temperature < tempLow ? 'inline' : 'none'
+                document.getElementById("temp-null-warning").style.display = 'none'
 
+            } else {
+                document.getElementById("temp-hi-warning").style.display = 'none'
+                document.getElementById("temp-lo-warning").style.display = 'none'
+                document.getElementById("temp-null-warning").style.display = 'inline'
+            }
 
+            if (v.humidity != null) {
+                document.getElementById("humidity-hi-warning").style.display = v.humidity > humidityHi ? 'inline' : 'none'
+                document.getElementById("humidity-lo-warning").style.display = v.humidity < humidityLo ? 'inline' : 'none'
+                document.getElementById("humidity-null-warning").style.display = 'none'
 
-        }
+            } else {
+                document.getElementById("humidity-hi-warning").style.display = 'none'
+                document.getElementById("humidity-lo-warning").style.display = 'none'
+                document.getElementById("humidity-null-warning").style.display = 'inline'
+
+            }
+
+            if (v.co2 != null) {
+                document.getElementById("co2-hi-warning").style.display = v.co2 > co2Hi ? 'inline' : 'none'
+                document.getElementById("co2-lo-warning").style.display = v.co2 < co2Low ? 'inline' : 'none'
+                document.getElementById("co2-null-warning").style.display = 'none'
+
+            } else {
+                document.getElementById("co2-hi-warning").style.display = 'none'
+                document.getElementById("co2-lo-warning").style.display = 'none'
+                document.getElementById("co2-null-warning").style.display = 'inline'
+
+            }
+
+        })
     }
 
     function clearChartData() {
