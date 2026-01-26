@@ -95,18 +95,18 @@ async def add_produce(n: ProduceInfoForm, pg: asyncpg.pool.Pool = Depends(get_pg
     # thresh_co2_lo: Optional[float] = float('-inf')
     # thresh_co2_hi: Optional[float] = float('inf')
     _n = n
-    if not _n.thresh_temp_lo:
+    if _n.thresh_temp_lo == None:
         _n.thresh_temp_lo = float('-inf')
-    if not _n.thresh_co2_lo:
+    if _n.thresh_co2_lo == None:
         _n.thresh_co2_lo = float('-inf')
-    if not _n.thresh_humidity_lo:
-            _n.thresh_humidity_lo = float('-inf')
+    if _n.thresh_humidity_lo == None:
+        _n.thresh_humidity_lo = float('-inf')
 
-    if not _n.thresh_temp_hi:
+    if _n.thresh_temp_hi == None:
         _n.thresh_temp_hi = float('inf')
-    if not _n.thresh_co2_hi:
+    if _n.thresh_co2_hi == None:
         _n.thresh_co2_hi = float('inf')
-    if not _n.thresh_humidity_hi:
+    if _n.thresh_humidity_hi == None:
             _n.thresh_humidity_hi = float('inf')
 
     async with pg.acquire() as con:
@@ -137,23 +137,23 @@ async def delete_produce(produceId: int, pg = Depends(get_pgpool)):
 @rt.post("/edit-produce")
 async def edit_produce(produceId: int, n: ProduceInfoForm, pg: asyncpg.pool.Pool = Depends(get_pgpool)):
     _n = n
-    if not _n.thresh_temp_lo:
+    if _n.thresh_temp_lo == None:
         _n.thresh_temp_lo = float('-inf')
-    if not _n.thresh_co2_lo:
+    if  _n.thresh_co2_lo== None:
         _n.thresh_co2_lo = float('-inf')
-    if not _n.thresh_humidity_lo:
+    if  _n.thresh_humidity_lo== None:
             _n.thresh_humidity_lo = float('-inf')
 
-    if not _n.thresh_temp_hi:
+    if  _n.thresh_temp_hi== None:
         _n.thresh_temp_hi = float('inf')
-    if not _n.thresh_co2_hi:
+    if  _n.thresh_co2_hi== None:
         _n.thresh_co2_hi = float('inf')
-    if not _n.thresh_humidity_hi:
+    if  _n.thresh_humidity_hi== None:
             _n.thresh_humidity_hi = float('inf')
 
     async with pg.acquire() as con:
         try:
-            d = await con.fetch("update produceinfo set harvest_type_name = $1, shelf_life = $2, thresh_temp_lo = $3, thresh_temp_hi = $4, thresh_humidity_lo = $5, thresh_humidity_hi = $6, thresh_co2_lo = $7, thresh_co2_hi = $8 where id = $9",
+            await con.execute("update produceinfo set harvest_type_name = $1, shelf_life = $2, thresh_temp_lo = $3, thresh_temp_hi = $4, thresh_humidity_lo = $5, thresh_humidity_hi = $6, thresh_co2_lo = $7, thresh_co2_hi = $8 where id = $9",
                         _n.harvest_type_name,
                         _n.shelf_life,
                         _n.thresh_temp_lo,
@@ -163,7 +163,7 @@ async def edit_produce(produceId: int, n: ProduceInfoForm, pg: asyncpg.pool.Pool
                         _n.thresh_co2_lo,
                         _n.thresh_co2_hi,
                         produceId)
-            return JSONResponse({"id": d[0]['id']}, 200)
+            return JSONResponse({}, 200)
         except Exception as e:
             print(e)
             return JSONResponse({}, HTTPStatus.INTERNAL_SERVER_ERROR)

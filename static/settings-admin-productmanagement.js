@@ -1,4 +1,20 @@
-function loadDataOntoProduceEditModal(name, temp_from, temp_to, co2_from, co2_to, humidity_from, humidity_to, lifespan) {
+let edit_id = undefined
+
+function loadDataOntoProduceEditModal(id, name, temp_from, temp_to, co2_from, co2_to, humidity_from, humidity_to, lifespan) {
+    toggleProduceEditModal(true)
+    edit_id = id
+    document.getElementById("editor-item-name").value = name
+
+    document.getElementById("edit-threshold-co2-to").value = co2_to
+    document.getElementById("editor-item-threshold-co2-from").value = co2_from
+
+    document.getElementById("edit-threshold-temp-to").value = temp_to
+    document.getElementById("editor-item-threshold-temp-from").value = temp_from
+
+    document.getElementById("edit-threshold-humidity-to").value = humidity_to
+    document.getElementById("editor-item-threshold-humidity-from").value = humidity_from
+
+    document.getElementById("editor-item-lifespan").value = Math.round(lifespan / 86400 / 1000)
 
 }
 
@@ -20,6 +36,7 @@ function toggleProduceEditModal(visible) {
     if (visible === true) {
         document.getElementById("editor-item-modal").style.display = "flex"
         document.getElementById("editor-item-name").focus()
+        edit_id = undefined
 
     } else {
         document.getElementById("editor-item-modal").style.display = "none"
@@ -47,23 +64,44 @@ async function uploadProduceInfo(name, temp_from, temp_to, co2_from, co2_to, hum
         humidity_to = Number.POSITIVE_INFINITY;
     }
 
+    if (edit_id == undefined) {
 
-    let d = await axios.post("/admin/add-produce", {
-        harvest_type_name: name,
-        shelf_life: lifespan,
-        thresh_temp_lo: temp_from,
-        thresh_temp_hi: temp_to,
-        thresh_co2_lo: co2_from,
-        thresh_co2_hi: co2_to,
-        thresh_humidity_lo: humidity_from,
-        thresh_humidity_hi: humidity_to
-    },  {
+        // Add produce
+
+        let d = await axios.post("/admin/add-produce", {
+            harvest_type_name: name,
+            shelf_life: lifespan * 86400 * 1000,
+            thresh_temp_lo: temp_from,
+            thresh_temp_hi: temp_to,
+            thresh_co2_lo: co2_from,
+            thresh_co2_hi: co2_to,
+            thresh_humidity_lo: humidity_from,
+            thresh_humidity_hi: humidity_to
+        }, {
             validateStatus: function (status) {
                 return status >= 200 && status <= 500
             }
         })
+        return d.status
+    } else {
+    //     edit existing produce
+        let d = await axios.post(`/admin/edit-produce?produceId=${edit_id}`, {
+            harvest_type_name: name,
+            shelf_life: lifespan * 86400 * 1000,
+            thresh_temp_lo: temp_from,
+            thresh_temp_hi: temp_to,
+            thresh_co2_lo: co2_from,
+            thresh_co2_hi: co2_to,
+            thresh_humidity_lo: humidity_from,
+            thresh_humidity_hi: humidity_to
+        }, {
+            validateStatus: function (status) {
+                return status >= 200 && status <= 500
+            }
+        })
+        return d.status
+    }
 
-    return d.status
 }
 
 async function promptUploadProduceInfo() {
@@ -165,10 +203,24 @@ async function showProduceList(produces) {
 
         idCell.innerText = shownId
         nameCell.innerText = rowData.harvest_type_name
-        shelfLifeCell.innerText = rowData.shelf_life
+        shelfLifeCell.innerText = Math.round(rowData.shelf_life / 86400 / 1000)
         tempRangeCell.innerHTML = `${rowData.thresh_temp_lo} ~ ${rowData.thresh_temp_hi}`
         humidityRangeCell.innerHTML = `${rowData.thresh_humidity_lo} ~ ${rowData.thresh_humidity_hi}`
         co2RangeCell.innerHTML = `${rowData.thresh_co2_lo} ~ ${rowData.thresh_co2_hi}`
+
+        actionEdit.addEventListener("click", async () => {
+            loadDataOntoProduceEditModal(
+                rowId,
+                rowData.harvest_type_name,
+                rowData.thresh_temp_lo,
+                rowData.thresh_temp_hi,
+                rowData.thresh_co2_lo,
+                rowData.thresh_co2_hi,
+                rowData.thresh_humidity_lo,
+                rowData.thresh_humidity_hi,
+                rowData.shelf_life
+            )
+        })
 
         actionCell.appendChild(actionEdit)
         actionCell.appendChild(actionDelete)

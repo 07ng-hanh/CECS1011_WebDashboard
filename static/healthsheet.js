@@ -141,8 +141,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Charts
         chart_temperature = new Chart(ctx_temperature, structuredClone(_base_chart_config))
-        chart_temperature.config.options.scales.y.suggestedMin = -30
-        chart_temperature.config.options.scales.y.suggestedMax = 20
+        chart_temperature.config.options.scales.y.suggestedMin = 15
+        chart_temperature.config.options.scales.y.suggestedMax = 35
         chart_temperature.config.options.plugins.annotation = {
             annotations: {
                 tempLo: {
@@ -155,8 +155,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         chart_co2 = new Chart(ctx_co2, structuredClone(_base_chart_config))
-        chart_co2.config.options.scales.y.suggestedMin = 0
-        chart_co2.config.options.scales.y.suggestedMax = 30000
+        chart_co2.config.options.scales.y.suggestedMin = 500
+        chart_co2.config.options.scales.y.suggestedMax = 1500
 
 
         chart_co2.config.options.plugins.annotation = {
@@ -171,8 +171,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         chart_humidity = new Chart(ctx_humidity, structuredClone(_base_chart_config))
-        chart_humidity.config.options.scales.y.suggestedMin = 0
-        chart_humidity.config.options.scales.y.suggestedMax = 100
+        chart_humidity.config.options.scales.y.suggestedMin = 50
+        chart_humidity.config.options.scales.y.suggestedMax = 90
 
         chart_humidity.config.options.plugins.annotation = {
             annotations: {
