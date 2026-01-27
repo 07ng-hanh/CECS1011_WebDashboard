@@ -329,7 +329,7 @@ async function exportToXLSX(export_all = false) {
 
 async function runSuggestions() {
     let d = await axios.get("/api/suggestion/suggestion-full")
-    window.open(`suggestion-result.html?jobId=${d}`, '_empty', 'width=800,height=600')
+    window.open(`suggestion-result.html?jobId=${d.data}`, '_empty', 'width=800,height=600')
 }
 
 async function exportToCSV(export_all = false) {
