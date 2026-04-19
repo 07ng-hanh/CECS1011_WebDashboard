@@ -1,5 +1,7 @@
 
 > This is **part of a group project** for the course CECS1011 - Introduction to Engineering & CS at VinUniversity
+## Project Report
+[CECS1011___G1 (2).pdf](https://github.com/user-attachments/files/26866225/CECS1011___G1.2.pdf)
 
 ## Overview
 
