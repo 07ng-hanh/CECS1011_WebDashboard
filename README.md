@@ -6,11 +6,19 @@
 ## Overview
 
 A full-stack web application for tracking produce batches' time-to-live (freshness), export routes, suggesting export routes for each produce batches, showing real-time and historic sensor reading and issuing warnings as issues occur.
-## Architecture
+
+## Hardware Architecture
+- Microcontroller: ESP32
+- Sensor module: AHT21 + ENS160 eCO2 TVOC
+- Communication protocol: I2C
+- Image of module with 3D printed casing:
+- <img width="1276" height="1040" alt="image" src="https://github.com/user-attachments/assets/ea698139-7172-4526-a4af-60163e044181" />
+
+## Software Architecture
 
 1. Main server app:
 	- Base: FastAPI 
-	- why FastAPI? Offers convenient classes (Requests/Responses, BackgroundProcess, Middleware, Dependency Injection) and decorators to speed up the progress of writing API endpoints; does not force a fixed way of structuring the project folder like other frameworks; modular (can omit WebSocket support if not needed, can change native Python JSON handler for other more performant options like ORJSON)
+	- Why FastAPI? Offers convenient classes (Requests/Responses, BackgroundProcess, Middleware, Dependency Injection) and decorators to speed up the progress of writing API endpoints; does not force a fixed way of structuring the project folder like other frameworks; modular (can omit WebSocket support if not needed, can change native Python JSON handler for other more performant options like ORJSON)
 	- Components:
 		- `/static`: collection of HTML/JS/CSS files that makes up the front-end
 		- `/routes`: a collection of server-side components, each matching with a different group of features ("responsibilities") of the server.
